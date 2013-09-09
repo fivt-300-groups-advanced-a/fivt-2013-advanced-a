@@ -80,6 +80,7 @@ vector<string> split(string s)
 	return v;
 }
 
+
 #ifdef TEST_MODE
 int main()
 {
