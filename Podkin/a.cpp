@@ -14,7 +14,7 @@
 
 using namespace std;
 
-bool is_num(string word){
+bool is_num(const string &word){
 	char ch = word[0];
 	if (ch >= '0' && ch <= '9')
 		return 1;
@@ -22,7 +22,7 @@ bool is_num(string word){
 		return 0;
 }
 
-bool comp_num(string x, string y){
+bool comp_num(const string &x, const string &y){
 	int a = atoi(x.c_str()), b = atoi(y.c_str());
 	if (a > b || (a == b && x.length() < y.length()))
 		return 0;
@@ -74,7 +74,7 @@ void tokenize(int x){
 	save(x);
 }
 
-void out(vector <token> out_word){
+void out(const vector <token> &out_word){
 	for (int i = 0; i < sz(out_word); i++)
 		cout << out_word[i].word;
 	cout << endl;
