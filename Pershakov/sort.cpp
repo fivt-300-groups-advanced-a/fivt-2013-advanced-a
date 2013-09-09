@@ -66,18 +66,18 @@ vector<string> tokenize(string &s){
 }
 
 vector<string> a[10010];
-int n;
 
 int main(){
-    cin >> n;
+    int cnt;
+    cin >> cnt;
     string s;
-    for (int i = 0; i < n; i++){
+    for (int i = 0; i < cnt; i++){
         cin >> s;
         a[i] = tokenize(s);
     }
     
-    sort(a, a + n, cmp);
+    sort(a, a + cnt, cmp);
     cout << endl;
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < cnt; i++)
         print(a[i]);
 }
