@@ -42,7 +42,7 @@ struct TPart
 		}
 	}
 
-	int compare(TPart an)
+	int compare(TPart an) const
 	{
 		if (type == an.type)
 		{
@@ -72,10 +72,10 @@ struct TPart
 	}
 };
 
-bool isNumber(char c)
+/*bool isNumber(char c)
 {
 	return c >= '0' && c <= '9';
-}
+}*/
 
 struct TFileName
 {
@@ -107,7 +107,7 @@ struct TFileName
 		LL curNumber = 0;
 		for (int j = 0; j < startString.length(); j++)
 		{
-			if (isNumber(startString[j]))
+			if (isdigit(startString[j]))
 			{
 				if (curType == NUMBER_TYPE)
 					curNumber = curNumber * 10 + (startString[j] - '0');
@@ -135,7 +135,7 @@ struct TFileName
 	}
 };
 
-bool operator < (TFileName first, TFileName second)
+bool operator < (const TFileName & first, const TFileName & second)
 {
 	for (int j = 0; j < min(first.parts.size(), second.parts.size()); j++)
 	{
