@@ -38,6 +38,26 @@ void save(int x){
 	h = "";
 }
 
+void tokenize(int x){
+	h = "";
+	type = INF;
+	for (int j = 0; j < (int)t.length(); j++){
+		if (check(t[j])){
+			if (!type && h != "")
+				save(x);
+			h += t[j];
+			type = 1;
+		}
+		if (!check(t[j])){
+			if (type && h != "")
+				save(x);
+			h += t[j];
+			type = 0;
+		}
+	}
+	save(x);
+}
+
 bool comp(vector <string> x, vector <string> y){
 	for (int i = 0; i < min(sz(x), sz(y)); i++){
 		if (check(x[i][0]) && !check(y[i][0]))
@@ -82,23 +102,7 @@ void solve(){
 	cin >> n;
 	for (int i = 0; i < n; i++){
 		cin >> t;
-		h = "";
-		type = INF;
-		for (int j = 0; j < (int)t.length(); j++){
-			if (check(t[j])){
-				if (!type && h != "")
-					save(i);
-				h += t[j];
-				type = 1;
-			}
-			if (!check(t[j])){
-				if (type && h != "")
-					save(i);
-				h += t[j];
-				type = 0;
-			}
-		}
-		save(i);
+		tokenize(i);
 	}
 	sort(s, s + n, comp);
 	for (int i = 0; i < n; i++){
