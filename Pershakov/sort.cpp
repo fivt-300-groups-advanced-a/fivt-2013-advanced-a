@@ -46,6 +46,25 @@ bool cmp(const vector<string> &a, const vector<string> &b){
         return false;
 }
 
+vector<string> tokenize(string &s){
+    string buf = "";
+    vector<string> r;
+    int cur_type = UNKNOWN;
+    for (int j = 0; j < (int)s.length(); j++){
+        if (get_type(s[j]) == cur_type)
+            buf += s[j];
+        else {
+            if (cur_type != UNKNOWN)
+                r.push_back(buf);
+            buf = "";
+            buf += s[j];
+            cur_type = get_type(s[j]);
+        }
+    }
+    r.push_back(buf);
+    return r;
+}
+
 vector<string> a[10010];
 int n;
 
@@ -54,20 +73,7 @@ int main(){
     string s;
     for (int i = 0; i < n; i++){
         cin >> s;
-        string buf = "";
-        int cur_type = UNKNOWN;
-        for (int j = 0; j < (int)s.length(); j++){
-            if (get_type(s[j]) == cur_type)
-                buf += s[j];
-            else {
-                if (cur_type != UNKNOWN)
-                    a[i].push_back(buf);
-                buf = "";
-                buf += s[j];
-                cur_type = get_type(s[j]);
-            }
-        }
-        a[i].push_back(buf);
+        a[i] = tokenize(s);
     }
     
     sort(a, a + n, cmp);
