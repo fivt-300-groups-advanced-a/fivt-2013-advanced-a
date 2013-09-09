@@ -14,98 +14,81 @@
 
 using namespace std;
 
-void solve();
-
-int main(){
-    int n = 1;
-    for (int i = 0; i < n; i++)
-        solve();
-}
-
-vector <string> s[100100];
-int n, type = INF;
-string t, h;
-
-bool check(char ch){
+bool is_num(string word){
+	char ch = word[0];
 	if (ch >= '0' && ch <= '9')
 		return 1;
 	else
 		return 0;
 }
 
+bool comp_num(string x, string y){
+	int a = atoi(x.c_str()), b = atoi(y.c_str());
+	if (a > b || (a == b && x.length() < y.length()))
+		return 0;
+	if (b > a || (a == b && y.length() < x.length()))
+		return 1;
+	return 0;
+}
+
+struct token{
+	string word;
+	bool operator < (const token &comp) const{
+		if (is_num(word) != is_num(comp.word))
+			return (is_num(word) ? 1 : 0);
+		if (is_num(word) && is_num(comp.word))
+			return comp_num(word, comp.word);
+		else
+			return word < comp.word;
+	}
+};
+
+vector < vector <token> > words;
+int n, type = INF;
+string word, buffer;
+
 void save(int x){
-	s[x].pb(h);
-	h = "";
+	token help;
+	help.word = buffer;
+	words[x].pb(help);
+	buffer = "";
 }
 
 void tokenize(int x){
-	h = "";
+	buffer = "";
 	type = INF;
-	for (int j = 0; j < (int)t.length(); j++){
-		if (check(t[j])){
-			if (!type && h != "")
+	for (int j = 0; j < (int)word.length(); j++){
+		if (is_num(word)){
+			if (!type && buffer != "")
 				save(x);
-			h += t[j];
+			buffer += word[j];
 			type = 1;
 		}
-		if (!check(t[j])){
-			if (type && h != "")
+		if (!is_num(word)){
+			if (type && buffer != "")
 				save(x);
-			h += t[j];
+			buffer += word[j];
 			type = 0;
 		}
 	}
 	save(x);
 }
 
-bool comp(vector <string> x, vector <string> y){
-	for (int i = 0; i < min(sz(x), sz(y)); i++){
-		if (check(x[i][0]) && !check(y[i][0]))
-			return 0;
-		if (!check(x[i][0]) && check(y[i][0]))
-			return 1;
-		if (!check(x[i][0]) && !check(y[i][0])){
-			if (x[i].compare(y[i]) > 0)
-				return 0;
-			if (x[i].compare(y[i]) < 0)	
-				return 1;
-		}
-		if (check(x[i][0]) && check(y[i][0])){
-			double a = (double)atoi(x[i].c_str()), b = (double)atoi(y[i].c_str());
-			int cc = 0;
-			while (cc < (int)x[i].length() && x[i][0] == '0')
-				cc++;
-			a -= EPS * cc;
-			cc = 0;
-			while (cc < (int)y[i].length() && y[i][0] == '0')
-				cc++;
-			b -= EPS * cc;
-			if (a > b)
-				return 0;
-			if (b > a)
-				return 1;
-		}
-	}
-	if (sz(x) < sz(y))
-		return 1;
-	else
-		return 0;
-}
-
-void out(vector <string> x){
-	for (int i = 0; i < sz(x); i++)
-		cout << x[i];
+void out(vector <token> out_word){
+	for (int i = 0; i < sz(out_word); i++)
+		cout << out_word[i].word;
 	cout << endl;
 }
 
-void solve(){
+int main(){
 	cin >> n;
+	words.resize(n);
 	for (int i = 0; i < n; i++){
-		cin >> t;
+		cin >> word;
 		tokenize(i);
 	}
-	sort(s, s + n, comp);
+	sort(words.begin(), words.end());
 	for (int i = 0; i < n; i++){
-		out(s[i]);
+		out(words[i]);
 	}
 }
