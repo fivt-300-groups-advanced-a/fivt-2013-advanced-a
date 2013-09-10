@@ -1,12 +1,12 @@
-//Асимптотика O(N log N log L) N = количество, L = средняя длина строк
+//РђСЃРёРјРїС‚РѕС‚РёРєР° O(N log N log L) N = РєРѕР»РёС‡РµСЃС‚РІРѕ, L = СЃСЂРµРґРЅСЏСЏ РґР»РёРЅР° СЃС‚СЂРѕРє
 
 #include <cstdio>
 #include <iostream>
 #include <cctype>
 #include <algorithm>
 
-const int MAX_L = 105; //когда-нибудь я заменю это на динамическое выделение памяти
-const int MAX_N = 10005; //и это тоже
+const int MAX_L = 105; //РєРѕРіРґР°-РЅРёР±СѓРґСЊ СЏ Р·Р°РјРµРЅСЋ СЌС‚Рѕ РЅР° РґРёРЅР°РјРёС‡РµСЃРєРѕРµ РІС‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё
+const int MAX_N = 10005; //Рё СЌС‚Рѕ С‚РѕР¶Рµ
 
 const unsigned long long pPrime = 1000000007;
 
@@ -15,11 +15,11 @@ unsigned long long xOverflow[MAX_L] = {1, 1746411056956931};
 
 struct MyStr
 {
-	char str[MAX_L]; //собственно строка, записана с 1-ого символа!
-	unsigned long long overflowHash[MAX_L]; //тут в 0 символе записан 0
-	unsigned long long primeHash[MAX_L]; //тут тоже
-	int prefNumSum[MAX_L]; //сумма на префиксах в массиве, где a[i] = 0, если str[i] = число, a[i] = 1, если str[i] = символ; a[0]=0
-	int prefSymSum[MAX_L]; //сумма на префиксах в массиве, где a[i] = 1, если str[i] = число, a[i] = 0, если str[i] = символ; a[0]=0
+	char str[MAX_L]; //СЃРѕР±СЃС‚РІРµРЅРЅРѕ СЃС‚СЂРѕРєР°, Р·Р°РїРёСЃР°РЅР° СЃ 1-РѕРіРѕ СЃРёРјРІРѕР»Р°!
+	unsigned long long overflowHash[MAX_L]; //С‚СѓС‚ РІ 0 СЃРёРјРІРѕР»Рµ Р·Р°РїРёСЃР°РЅ 0
+	unsigned long long primeHash[MAX_L]; //С‚СѓС‚ С‚РѕР¶Рµ
+	int prefNumSum[MAX_L]; //СЃСѓРјРјР° РЅР° РїСЂРµС„РёРєСЃР°С… РІ РјР°СЃСЃРёРІРµ, РіРґРµ a[i] = 0, РµСЃР»Рё str[i] = С‡РёСЃР»Рѕ, a[i] = 1, РµСЃР»Рё str[i] = СЃРёРјРІРѕР»; a[0]=0
+	int prefSymSum[MAX_L]; //СЃСѓРјРјР° РЅР° РїСЂРµС„РёРєСЃР°С… РІ РјР°СЃСЃРёРІРµ, РіРґРµ a[i] = 1, РµСЃР»Рё str[i] = С‡РёСЃР»Рѕ, a[i] = 0, РµСЃР»Рё str[i] = СЃРёРјРІРѕР»; a[0]=0
 	int len;
 	
 	MyStr()
@@ -31,7 +31,7 @@ struct MyStr
 		prefSymSum[0] = 0;
 		str[0] = 0;
 	}
-
+    
 	MyStr(char s[])
 	{
 		len = strlen(s);
@@ -63,17 +63,17 @@ struct MyStr
 struct MyBlock
 {
 	int pstr;
-	int t; //тип 1 = число, -1 = строка
-	int pstart; //начало в своей строке (первый символ)
-	int len; //длина блока в символах
+	int t; //С‚РёРї 1 = С‡РёСЃР»Рѕ, -1 = СЃС‚СЂРѕРєР°
+	int pstart; //РЅР°С‡Р°Р»Рѕ РІ СЃРІРѕРµР№ СЃС‚СЂРѕРєРµ (РїРµСЂРІС‹Р№ СЃРёРјРІРѕР»)
+	int len; //РґР»РёРЅР° Р±Р»РѕРєР° РІ СЃРёРјРІРѕР»Р°С…
 };
 
 MyStr data[MAX_N];
-int order[MAX_N]; //строки туда сюда по массиву переписывать - это нехорошо, будем сортировать номера строк в массиве data
+int order[MAX_N]; //СЃС‚СЂРѕРєРё С‚СѓРґР° СЃСЋРґР° РїРѕ РјР°СЃСЃРёРІСѓ РїРµСЂРµРїРёСЃС‹РІР°С‚СЊ - СЌС‚Рѕ РЅРµС…РѕСЂРѕС€Рѕ, Р±СѓРґРµРј СЃРѕСЂС‚РёСЂРѕРІР°С‚СЊ РЅРѕРјРµСЂР° СЃС‚СЂРѕРє РІ РјР°СЃСЃРёРІРµ data
 
-using namespace std; //да простят меня боги
+using namespace std; //РґР° РїСЂРѕСЃС‚СЏС‚ РјРµРЅСЏ Р±РѕРіРё
 
-//возвращает номер первого символа, в котором строки различаются; если строки равны, или одна из них является подстрокой другой, то возвращает -1
+//РІРѕР·РІСЂР°С‰Р°РµС‚ РЅРѕРјРµСЂ РїРµСЂРІРѕРіРѕ СЃРёРјРІРѕР»Р°, РІ РєРѕС‚РѕСЂРѕРј СЃС‚СЂРѕРєРё СЂР°Р·Р»РёС‡Р°СЋС‚СЃСЏ; РµСЃР»Рё СЃС‚СЂРѕРєРё СЂР°РІРЅС‹, РёР»Рё РѕРґРЅР° РёР· РЅРёС… СЏРІР»СЏРµС‚СЃСЏ РїРѕРґСЃС‚СЂРѕРєРѕР№ РґСЂСѓРіРѕР№, С‚Рѕ РІРѕР·РІСЂР°С‰Р°РµС‚ -1
 int findFirstDifferenceInStr(MyStr s, MyStr t)
 {
 	int l = 0;
@@ -91,16 +91,16 @@ int findFirstDifferenceInStr(MyStr s, MyStr t)
 	return r;
 }
 
-//возвращает блок, в котором есть str[p]
-MyBlock findBordersOfBlock(int ps, int pch) //pch - символ, который точно есть в блоке, ps - позиция строки в data
+//РІРѕР·РІСЂР°С‰Р°РµС‚ Р±Р»РѕРє, РІ РєРѕС‚РѕСЂРѕРј РµСЃС‚СЊ str[p]
+MyBlock findBordersOfBlock(int ps, int pch) //pch - СЃРёРјРІРѕР», РєРѕС‚РѕСЂС‹Р№ С‚РѕС‡РЅРѕ РµСЃС‚СЊ РІ Р±Р»РѕРєРµ, ps - РїРѕР·РёС†РёСЏ СЃС‚СЂРѕРєРё РІ data
 {
 	MyBlock ans;
 	ans.pstr = ps;
 	if (data[ps].prefNumSum[pch] == data[ps].prefNumSum[pch - 1])
 	{
-		ans.t = 1; //мы узнали тип блока, так как если бы это был символьный блок, то prefNumSum[pch - 1] было бы на единицу меньше, чем prefNumSum[pch]
+		ans.t = 1; //РјС‹ СѓР·РЅР°Р»Рё С‚РёРї Р±Р»РѕРєР°, С‚Р°Рє РєР°Рє РµСЃР»Рё Р±С‹ СЌС‚Рѕ Р±С‹Р» СЃРёРјРІРѕР»СЊРЅС‹Р№ Р±Р»РѕРє, С‚Рѕ prefNumSum[pch - 1] Р±С‹Р»Рѕ Р±С‹ РЅР° РµРґРёРЅРёС†Сѓ РјРµРЅСЊС€Рµ, С‡РµРј prefNumSum[pch]
 		
-		//нахождение позиции начала блока
+		//РЅР°С…РѕР¶РґРµРЅРёРµ РїРѕР·РёС†РёРё РЅР°С‡Р°Р»Р° Р±Р»РѕРєР°
 		int l = -1;
 		int r = pch;
 		while (r - l > 1)
@@ -112,18 +112,18 @@ MyBlock findBordersOfBlock(int ps, int pch) //pch - символ, который точно есть в
 				r = m;
 		}
 		ans.pstart = r + 1;
-
-
+        
+        
 	}
 	else
 	{
 		ans.t = -1;
 	}
 }
-//возвращает 1, если строка, оканчивающаяся на блок а должна быть раньше, при условии, что префиксы до блоков a и b одинаковы.
+//РІРѕР·РІСЂР°С‰Р°РµС‚ 1, РµСЃР»Рё СЃС‚СЂРѕРєР°, РѕРєР°РЅС‡РёРІР°СЋС‰Р°СЏСЃСЏ РЅР° Р±Р»РѕРє Р° РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РЅСЊС€Рµ, РїСЂРё СѓСЃР»РѕРІРёРё, С‡С‚Рѕ РїСЂРµС„РёРєСЃС‹ РґРѕ Р±Р»РѕРєРѕРІ a Рё b РѕРґРёРЅР°РєРѕРІС‹.
 bool cmpBlock(MyBlock a, MyBlock b);
 
-//возвращает 1, если строка, лежащая в data[ps] должна быть раньше, чем строка лежащая в data[pt]
+//РІРѕР·РІСЂР°С‰Р°РµС‚ 1, РµСЃР»Рё СЃС‚СЂРѕРєР°, Р»РµР¶Р°С‰Р°СЏ РІ data[ps] РґРѕР»Р¶РЅР° Р±С‹С‚СЊ СЂР°РЅСЊС€Рµ, С‡РµРј СЃС‚СЂРѕРєР° Р»РµР¶Р°С‰Р°СЏ РІ data[pt]
 bool cmpPStr(int ps, int pt);
 
 int main()
@@ -131,63 +131,63 @@ int main()
 	freopen("input.txt", "r", stdin);
 	freopen("output.txt", "w", stdout);
 	
-	//предподсчёт множителей для хэширования
+	//РїСЂРµРґРїРѕРґСЃС‡С‘С‚ РјРЅРѕР¶РёС‚РµР»РµР№ РґР»СЏ С…СЌС€РёСЂРѕРІР°РЅРёСЏ
 	for (int i = 2; i < MAX_L;  ++i)
 	{
 		xPrime[i] = (xPrime[i - 1] * xPrime[1]) % pPrime;
 		xOverflow[i] = xOverflow[i - 1] * xOverflow[1];
 	}
 	
-	int n; //исправить на считывание до конца файла
+	int n; //РёСЃРїСЂР°РІРёС‚СЊ РЅР° СЃС‡РёС‚С‹РІР°РЅРёРµ РґРѕ РєРѕРЅС†Р° С„Р°Р№Р»Р°
 	cin >> n;
-
-	//ввод и инициализация
-	//data после ввода менять низзя
+    
+	//РІРІРѕРґ Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
+	//data РїРѕСЃР»Рµ РІРІРѕРґР° РјРµРЅСЏС‚СЊ РЅРёР·Р·СЏ
 	for (int i = 0; i < n; ++i)
 	{
 		order[i] = i;
 		char ch[MAX_L];
 		cin >> ch;
-		if (strlen(ch) > 100) //убрат, когда напишешь динамическое выделение памяти
-			cout << "ВЫВОД МОЖЕТ БЫТЬ НЕКОРРЕКТЕН, ПОМЕНЯЙТЕ ВОЛШЕБНУЮ КОНСТАТНУ" << endl;
-
+		if (strlen(ch) > 100) //СѓР±СЂР°С‚, РєРѕРіРґР° РЅР°РїРёС€РµС€СЊ РґРёРЅР°РјРёС‡РµСЃРєРѕРµ РІС‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё
+			cout << "Р’Р«Р’РћР” РњРћР–Р•Рў Р‘Р«РўР¬ РќР•РљРћР Р Р•РљРўР•Рќ, РџРћРњР•РќРЇР™РўР• Р’РћР›РЁР•Р‘РќРЈР® РљРћРќРЎРўРђРўРќРЈ" << endl;
+        
 		data[i] = MyStr(ch);
-		//тестим ввод
+		//С‚РµСЃС‚РёРј РІРІРѕРґ
 		/*
-		cout << "======" << endl;
-
-		cout << "len " << data[i].len << endl;
-
-		cout << "str ";
-		for (int j = 0; j <= data[i].len; ++j)
-			cout << data[i].str[j] << " ";
-		cout << endl;
-
-		cout << "sym ";
-		for (int j = 0; j <= data[i].len; ++j)
-			cout << data[i].prefSymSum[j] << " ";
-		cout << endl;
-
-		cout << "num ";
-		for (int j = 0; j <= data[i].len; ++j)
-			cout << data[i].prefNumSum[j] << " ";
-		cout << endl;
-
-		cout << "prh ";
-		for (int j = 0; j <= data[i].len; ++j)
-			cout << data[i].primeHash[j] << " ";
-		cout << endl;
-
-		cout << "ovh ";
-		for (int j = 0; j <= data[i].len; ++j)
-			cout << data[i].overflowHash[j] << " ";
-		cout << endl;
-
-		cout << "======" << endl;
-		*/
-		//тестим ввод
+         cout << "======" << endl;
+         
+         cout << "len " << data[i].len << endl;
+         
+         cout << "str ";
+         for (int j = 0; j <= data[i].len; ++j)
+         cout << data[i].str[j] << " ";
+         cout << endl;
+         
+         cout << "sym ";
+         for (int j = 0; j <= data[i].len; ++j)
+         cout << data[i].prefSymSum[j] << " ";
+         cout << endl;
+         
+         cout << "num ";
+         for (int j = 0; j <= data[i].len; ++j)
+         cout << data[i].prefNumSum[j] << " ";
+         cout << endl;
+         
+         cout << "prh ";
+         for (int j = 0; j <= data[i].len; ++j)
+         cout << data[i].primeHash[j] << " ";
+         cout << endl;
+         
+         cout << "ovh ";
+         for (int j = 0; j <= data[i].len; ++j)
+         cout << data[i].overflowHash[j] << " ";
+         cout << endl;
+         
+         cout << "======" << endl;
+         */
+		//С‚РµСЃС‚РёРј РІРІРѕРґ
 	}
-
+    
 	//sort(order, order + n, cmpPStr);
 	
 	for (int i = 0; i < n; ++i)
@@ -198,14 +198,14 @@ int main()
 	}
 	
 	
-	//тестим поиск различия в строке
+	//С‚РµСЃС‚РёРј РїРѕРёСЃРє СЂР°Р·Р»РёС‡РёСЏ РІ СЃС‚СЂРѕРєРµ
 	/*
-	char ch[MAX_L];
-	cin >> ch;
-	MyStr s = MyStr(ch);
-	cin >> ch;
-	MyStr t = MyStr(ch);
-	cout << findFirstDifferenceInStr(t, s) << endl;
-	*/
+     char ch[MAX_L];
+     cin >> ch;
+     MyStr s = MyStr(ch);
+     cin >> ch;
+     MyStr t = MyStr(ch);
+     cout << findFirstDifferenceInStr(t, s) << endl;
+     */
 	return 0;
 }
