@@ -11,6 +11,7 @@ using namespace std;
 ifstream cin("input.txt");
 ofstream cout("output.txt");
 
+
 class elem
 {
 private:
