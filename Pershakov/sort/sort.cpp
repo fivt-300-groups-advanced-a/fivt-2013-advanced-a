@@ -60,7 +60,7 @@ void print(const vector<Token> &a){
     cout << endl;
 }
 
-vector<Token> tokenize(string &s){
+vector<Token> tokenize(const string &s){
     string buf = "";
     vector<Token> r;
     int cur_type = UNKNOWN;
