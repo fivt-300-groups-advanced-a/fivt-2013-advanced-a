@@ -101,10 +101,11 @@ void testTokenComparator()
 	{
 		std::string message = "Failed manual test ";
 		message += "'" + std::get<0>(test) + "' ";
-		message += std::get<2>(test) ? "<" : ">";
+		message += std::get<2>(test) ? "<" : ">=";
 		message += " '" + std::get<1>(test) + "'";
-		testAssert(message, token(std::get<0>(test)) < token(std::get<1>(test)));
+		testAssert(message, (token(std::get<0>(test)) < token(std::get<1>(test))) == std::get<2>(test));
 	}
+	std::cerr << "Token comparsion tested" << std::endl;
 }
 
 void unitTest()
@@ -116,6 +117,7 @@ void unitTest()
 
 void integrationTest()
 {
+	std::cerr << "Integration test completed" << std::endl;
 }
 
 #endif

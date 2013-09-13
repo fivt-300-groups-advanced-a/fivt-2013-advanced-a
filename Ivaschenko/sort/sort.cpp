@@ -24,9 +24,34 @@ std::vector<std::string> parseString(const std::string &s)
 	return result;
 }
 
-std::vector<token> constructTokens(const std::vector<std::string> &v)
+std::vector<std::string> sortStrings(const std::vector<std::string> &v)
 {
-	return std::vector<token>(v.begin(), v.end());
+	std::vector< std::vector<token> > data;
+	std::vector<std::string> answer;
+	
+	for (auto line : v)
+	{
+		std::vector<std::string> tokens = parseString(line);
+		data.push_back(std::vector<token>(tokens.begin(), tokens.end()));
+	}
+	
+	sort(data.begin(), data.end());
+	
+	for (auto line : data)
+	{
+		answer.push_back("");
+		for (auto part : line)
+			answer.back() += part.toString();
+	}
+	return answer;
+}
+
+std::vector<std::string> sortStrings(std::istream &in)
+{
+	std::vector<std::string> lines;
+	std::string line;
+	while (in >> line) lines.push_back(line);
+	return sortStrings(lines);
 }
 
 int main()
@@ -35,19 +60,7 @@ int main()
 	unitTest();
 	integrationTest();
 #endif
-	std::string line;
-	std::vector< std::vector<token> > data;
-	
-	while (std::cin >> line)
-		data.push_back(constructTokens(parseString(line)));
-	
-	sort(data.begin(), data.end());
-	
-	for (auto line : data)
-	{
-		for (auto part : line)
-			std::cout << part.toString();
-		std::cout << std::endl;
-	}
+	for (auto line : sortStrings(std::cin))
+		std::cout << line << std::endl;
     return 0;
 }
