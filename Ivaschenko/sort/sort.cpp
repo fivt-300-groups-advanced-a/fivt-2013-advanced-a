@@ -10,6 +10,7 @@
 #include "token.h"
 #include "test.h"
 
+
 std::vector<std::string> parseString(const std::string &s)
 {
 	std::vector<std::string> result;
@@ -26,13 +27,13 @@ std::vector<std::string> parseString(const std::string &s)
 
 std::vector<std::string> sortStrings(const std::vector<std::string> &v)
 {
-	std::vector< std::vector<token> > data;
+	std::vector< std::vector<Token> > data;
 	std::vector<std::string> answer;
 	
 	for (auto line : v)
 	{
 		std::vector<std::string> tokens = parseString(line);
-		data.push_back(std::vector<token>(tokens.begin(), tokens.end()));
+		data.push_back(std::vector<Token>(tokens.begin(), tokens.end()));
 	}
 	
 	sort(data.begin(), data.end());
