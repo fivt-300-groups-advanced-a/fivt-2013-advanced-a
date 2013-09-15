@@ -231,8 +231,10 @@ bool cmpBlock(MyBlock a, MyBlock b)
 	zero.t = 1;
 
 	int a0len = findLargestCommonPrefixofBlocks(a, zero);
+	a0len = min(a.len - 1, a0len);
 	int b0len = findLargestCommonPrefixofBlocks(b, zero);
-	
+	b0len = min(b.len - 1, b0len);
+
 	MyBlock awithout0 = a;
 	awithout0.len -= a0len;
 	awithout0.pstart += a0len;
