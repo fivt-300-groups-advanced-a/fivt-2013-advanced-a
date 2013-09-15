@@ -23,12 +23,34 @@ bool checkAnswer(const Input &input, const Output &output, const Output &expecte
 	{
 		cerr << "\tTest failed!\n";
 		cerr << "On input:\n" << input << "\n";
-		cerr << "Function returned:\n" << output << "\n";
+		cerr << "Testee returned:\n" << output << "\n";
 		cerr << "Expected:\n" << expected << "\n";
 
 		return false;
 	}
 	return true;
+}
+
+template<class Input, class Output, class Testee>
+void testGroup(const string &groupName, const vector< pair<Input, Output> > &tests, Testee testee)
+{
+	cerr << "Testing " + groupName + "...\n";
+	int fails = 0;
+	for (auto test : tests)
+	{
+		if (!checkAnswer(test.first, testee(test.first), test.second))
+			++fails;
+	}
+	cerr << "Finished testing " + groupName + ", ";
+	if (fails)
+		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
+	else
+		cerr << "SUCCESS\n";
+}
+
+bool runComparableTokenIsNumber(const string &s)
+{
+	return ComparableToken(s).isNumber();
 }
 
 void tokenConstructorTest()
@@ -39,19 +61,7 @@ void tokenConstructorTest()
 		{"$>..dfsafdf", false},
 		{"", false}
 	};
-
-	cerr << "Testing ComparableToken::ComparableToken(string)...\n";
-	int fails = 0;
-	for (auto test : tests)
-	{
-		if (!checkAnswer(test.first, ComparableToken(test.first).isNumber(), test.second))
-			++fails;
-	}
-	cerr << "Finished testing ComparableToken::ComparableToken(string): ";
-	if (fails)
-		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
-	else
-		cerr << "SUCCESS\n";
+	testGroup("ComparableToken::ComparableToken(string) + ComparableToken::isNumber()", tests, runComparableTokenIsNumber);
 }
 
 void tokenizeTest()
@@ -80,16 +90,13 @@ void tokenizeTest()
 		{".gerf@*($#rg", "849", "sd", "2", "ddd", "2", "r", "0", "gi"}}
 	};
 
-	cerr << "Testing tokenize()...\n";
-	int fails = 0;
-	for (auto test : tests)
-		if (!checkAnswer(test.first, tokenize(test.first), test.second))
-			++fails;
-	cerr << "Finished testing tokenize(): ";
-	if (fails)
-		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
-	else
-		cerr << "SUCCESS\n";
+	testGroup("tokenize()", tests, tokenize);
+}
+
+vector<string> runSolution(const vector<string> &input)
+{
+	Solver solver;
+	return solver.sortNames(input);
 }
 
 void integrationTest()
@@ -106,19 +113,7 @@ void integrationTest()
 		}
 	};
 
-	cerr << "Testing integration...\n";
-	int fails = 0;
-	for (auto test : tests)
-	{
-		Solver solver;
-		if (!checkAnswer(test.first, solver.sortNames(test.first), test.second))
-			++fails;
-	}
-	cerr << "Finished integration test: ";
-	if (fails)
-		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
-	else
-		cerr << "SUCCESS\n";
+	testGroup("integration", tests, runSolution);
 }
 
 int main()

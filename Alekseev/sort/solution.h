@@ -1,3 +1,6 @@
+#ifndef SOLUTION_H
+#define SOLUTION_H
+
 #include <algorithm>
 #include <string>
 #include <vector>
@@ -84,3 +87,5 @@ public:
 		return result;
 	}
 };
+
+#endif // SOLUTION_H
