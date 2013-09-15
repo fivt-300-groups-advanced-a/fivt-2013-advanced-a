@@ -33,65 +33,67 @@ bool checkAnswer(const Input &input, const Output &output, const Output &expecte
 
 void tokenizeTest()
 {
-	static const int testsNumber = 7;
-	static const string input[testsNumber] = 
+	static const vector< pair<string, vector<string> > > tests
 	{
-		"sdf344r", 
-		"t43td", 
-		"df1344", 
-		"12", 
-		"we",
-		"",
-		".gerf@*($#rg849sd2ddd2r0gi"
-	};
-	static const vector<string> output[testsNumber] = 
-	{
-		{"sdf", "344", "r"}, 
-		{"t", "43", "td"},
-		{"df", "1344"},
-		{"12"},
-		{"we"},
-		{},
-		{".gerf@*($#rg", "849", "sd", "2", "ddd", "2", "r", "0", "gi"}
+		{"sdf344r", 
+		{"sdf", "344", "r"}},
+
+		{"t43td", 
+		{"t", "43", "td"}},
+		
+		{"df1344", 
+		{"df", "1344"}},
+
+		{"12", 
+		{"12"}},
+
+		{"we", 
+		{"we"}},
+
+		{"", 
+		{}},
+
+		{".gerf@*($#rg849sd2ddd2r0gi", 
+		{".gerf@*($#rg", "849", "sd", "2", "ddd", "2", "r", "0", "gi"}}
 	};
 
 	cerr << "Testing tokenize()...\n";
 	int fails = 0;
-	for (int i = 0; i < testsNumber; ++i)
-		if (!checkAnswer(input[i], tokenize(input[i]), output[i]))
+	for (auto test : tests)
+		if (!checkAnswer(test.first, tokenize(test.first), test.second))
 			++fails;
 	cerr << "Finished testing tokenize(): ";
 	if (fails)
-		cerr << "FAILED " << fails << "/" << testsNumber << "tests\n";
+		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
 	else
 		cerr << "SUCCESS\n";
 }
 
 void integrationTest()
 {
-	static const int testsNumber = 2;
-	static const vector<string> input[testsNumber] = 
+	static const vector< pair< vector<string>, vector<string> > > tests
 	{
-		{"acab.txt", "3.1415", "3.acab.1415"},
-		{"", "a1b2c3.d4", ".32r"}
-	};
-	static const vector<string> output[testsNumber] = 
-	{
-		{"3.1415", "3.acab.1415", "acab.txt"},
-		{"", ".32r", "a1b2c3.d4"}
+		{
+			{"acab.txt", "3.1415", "3.acab.1415"},
+			{"3.1415", "3.acab.1415", "acab.txt"}
+		},
+		{
+			{"", "a1b2c3.d4", ".32r"},
+			{"", ".32r", "a1b2c3.d4"}
+		}
 	};
 
 	cerr << "Testing integration...\n";
 	int fails = 0;
-	for (int i = 0; i < testsNumber; ++i)
+	for (auto test : tests)
 	{
 		Solver solver;
-		if (!checkAnswer(input[i], solver.sortNames(input[i]), output[i]))
+		if (!checkAnswer(test.first, solver.sortNames(test.first), test.second))
 			++fails;
 	}
 	cerr << "Finished integration test: ";
 	if (fails)
-		cerr << "FAILED " << fails << "/" << testsNumber << "tests\n";
+		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
 	else
 		cerr << "SUCCESS\n";
 }
