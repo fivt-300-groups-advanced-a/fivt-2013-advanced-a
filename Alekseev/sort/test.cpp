@@ -31,6 +31,29 @@ bool checkAnswer(const Input &input, const Output &output, const Output &expecte
 	return true;
 }
 
+void tokenConstructorTest()
+{
+	static const vector< pair<string, bool> > tests
+	{
+		{"31243", true},
+		{"$>..dfsafdf", false},
+		{"", false}
+	};
+
+	cerr << "Testing ComparableToken::ComparableToken(string)...\n";
+	int fails = 0;
+	for (auto test : tests)
+	{
+		if (!checkAnswer(test.first, ComparableToken(test.first).isNumber(), test.second))
+			++fails;
+	}
+	cerr << "Finished testing ComparableToken::ComparableToken(string): ";
+	if (fails)
+		cerr << "FAILED " << fails << "/" << tests.size() << "tests\n";
+	else
+		cerr << "SUCCESS\n";
+}
+
 void tokenizeTest()
 {
 	static const vector< pair<string, vector<string> > > tests
@@ -100,6 +123,7 @@ void integrationTest()
 
 int main()
 {
+	tokenConstructorTest();
 	tokenizeTest();
 	integrationTest();
 
