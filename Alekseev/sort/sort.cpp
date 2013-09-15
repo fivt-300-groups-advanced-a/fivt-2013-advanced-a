@@ -3,20 +3,12 @@
 #include <string>
 #include <algorithm>
 #include <sstream>
+#include <iterator>
 
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
-
-void myAssert(bool condition, const char *msg)
-{
-	if (!condition)
-	{
-		cerr << "ASSERT " << msg;
-		abort();
-	}
-}
-#define myAssert(x) myAssert(x, "at line " __LINE__ " on condition "#x)
 
 class ComparableToken
 {
@@ -36,6 +28,10 @@ public:
 	bool isNumber() const { return _isNumber; }
 	int number() const { return _number; }
 	
+	operator const string&() const
+	{
+		return _raw;
+	}
 	bool operator < (const ComparableToken &t) const
 	{
 		if (_isNumber && t._isNumber && _number != t._number)
@@ -68,15 +64,6 @@ vector<string> tokenize(const string &s)
 	return result;
 }
 
-vector<ComparableToken> buildVectorOfComparableTokens(const vector<string> &v)
-{
-	vector<ComparableToken> result;
-	result.reserve(v.size());
-	for (size_t i = 0; i < v.size(); ++i)
-		result.push_back(ComparableToken(v[i]));
-	return result;
-}
-
 class Solver
 {
 public:
@@ -87,29 +74,93 @@ public:
 		while (in >> line)
 		{
 			cin >> line;
-			tokenLines.push_back(buildVectorOfComparableTokens(tokenize(line)));
+			vector<string> tokenized = tokenize(line);
+			tokenLines.push_back(vector<ComparableToken>(tokenized.begin(), tokenized.end()));
 		}
 		
 		sort(tokenLines.begin(), tokenLines.end());
 	
 		for (auto it = tokenLines.begin(); it != tokenLines.end(); ++it)
 		{
-			for (auto jt = it->begin(); jt != it->end(); ++jt)
-				out << jt->rawString();
+		    copy(it->begin(), it->end(), ostream_iterator<string>(out, ""));
 			out << endl;
 		}
 	}
-	string solve(const string &text)
+	string solve(const string &data)
 	{
-		istringstream in(text);
+		istringstream in(data);
 		ostringstream out;
 		solve(in, out);
-		return out.toString();
+		return out.str();
 	}
 };
 
-int main()
+template<class T>
+ostream& operator << (ostream &out, const vector<T> &v)
 {
+	out << "{\n";
+	copy(v.begin(), v.end(), ostream_iterator<T>(out, "\n"));
+	return out << "}";
+}
+
+template<class Input, class Output>
+bool checkAnswer(const Input &input, const Output &output, const Output &expected)
+{
+	if (output != expected)
+	{
+		cerr << "\tTest failed!\n";
+		cerr << "On input:\n" << input << "\n";
+		cerr << "Function returned:\n" << output << "\n";
+		cerr << "Expected:\n" << expected << "\n";
+
+		return false;
+	}
+	return true;
+}
+
+void testTokenize()
+{
+	static const int testsNumber = 7;
+	static const string input[testsNumber] = 
+	{
+		"sdf344r", 
+		"t43td", 
+		"df1344", 
+		"12", 
+		"we",
+		"",
+		".gerf@*($#rg849sd2ddd2r0gi"
+	};
+	static const vector<string> output[testsNumber] = 
+	{
+		{"sdf", "344", "r"}, 
+		{"t", "43", "td"},
+		{"df", "1344"},
+		{"12"},
+		{"we"},
+		{},
+		{".gerf@*($#rg", "849", "sd", "2", "ddd", "2", "r", "0", "gi"}
+	};
+
+	cerr << "Testing tokenize()...\n";
+	int fails = 0;
+	for (int i = 0; i < testsNumber; ++i)
+		if (!checkAnswer(input[i], tokenize(input[i]), output[i]))
+			++fails;
+	cerr << "Finished testing tokenize(): ";
+	if (fails)
+		cerr << "FAILED " << fails << "/" << testsNumber << endl;
+	else
+		cerr << "SUCCESS\n";
+}
+
+int main(int argc, char **argv)
+{
+	if (argc > 1 && !strcmp(argv[1], "--test"))
+	{
+		testTokenize();
+		return 0;
+	}
 	Solver solver;
 	solver.solve(cin, cout);
 
