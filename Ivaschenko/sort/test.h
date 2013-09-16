@@ -34,12 +34,12 @@ std::string generateBlock(int len, bool type)
 
 void testParsing()
 {	
-	std::vector< std::pair< std::string, std::vector< std::string> > > manualTests = 
+	std::vector< std::pair< std::string, std::vector<std::string> > > manualTests = 
 	{
-		std::make_pair("some", std::initializer_list<std::string>{"some"}),
-		std::make_pair("1478", std::initializer_list<std::string>{"1478"}),
-		std::make_pair("14asd78", std::initializer_list<std::string>{"14", "asd", "78"}),
-		std::make_pair("/*(^#&@#&!^^#@**!#", std::initializer_list<std::string>{"/*(^#&@#&!^^#@**!#"})
+		{"some", {"some"}},
+		{"1478", {"1478"}},
+		{"14asd78", {"14", "asd", "78"}},
+		{"/*(^#&@#&!^^#@**!#", {"/*(^#&@#&!^^#@**!#"}}
 	};
 	
 	for (auto test : manualTests)
@@ -65,9 +65,9 @@ void testTokenConstructing()
 {
 	std::vector< std::pair<std::string, bool> > manualTests =
 	{
-		std::make_pair("something", false),
-		std::make_pair("7174732773882994778298854878299477299127759927784991794", true),
-		std::make_pair("&@^^^^@*&$&@%%??@?!?!#", false)
+		{"something", false},
+		{"7174732773882994778298854878299477299127759927784991794", true},
+		{"&@^^^^@*&$&@%%??@?!?!#", false}
 	};
 	
 	for (auto test : manualTests)
@@ -121,11 +121,8 @@ void integrationTest()
 {
 	std::vector< std::pair< std::vector<std::string>, std::vector<std::string> > > manualTests =
 	{
-		std::make_pair(std::initializer_list<std::string>{"1204some", "1*1*1*1*", "a+b=c", "a+b=4", ""}, 
-					   std::initializer_list<std::string>{"", "a+b=4", "a+b=c", "1*1*1*1*", "1204some"}),
-					   
-		std::make_pair(std::initializer_list<std::string>{"11", "11", "5", "55"}, 
-					   std::initializer_list<std::string>{"5", "11", "11", "55"})
+		{{"1204some", "1*1*1*1*", "a+b=c", "a+b=4", ""}, {"", "a+b=4", "a+b=c", "1*1*1*1*", "1204some"}},
+		{{"11", "11", "5", "55"}, {"5", "11", "11", "55"}}
 	};
 	for (auto test : manualTests)
 		testAssert("Failed manual test in integrationTest()", test.second == sortStrings(test.first));

@@ -72,7 +72,7 @@ void processArguments(int argc, char **argv)
 			showHelp();
 			exit(0);
 		}
-		else std::cerr << "Warning: unknown argument " << argv[i] << std::endl;
+		else std::cerr << "Warning: ignoring unknown argument " << argv[i] << std::endl;
 	}
 	if (launchTest)
 	{
@@ -84,6 +84,7 @@ void processArguments(int argc, char **argv)
 int main(int argc, char **argv)
 {
 	processArguments(argc, argv);
+	
 	for (auto line : sortStrings(std::cin))
 		std::cout << line << std::endl;
     return 0;
