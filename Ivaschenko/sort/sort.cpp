@@ -61,23 +61,29 @@ void showHelp()
 	std::cout << "USAGE: sort [-t|--test] [-h|--help]" << std::endl;
 }
 
-int main(int argc, char **argv)
+void processArguments(int argc, char **argv)
 {
 	bool launchTest = false;
 	for (int i = 1; i < argc; i++)
 	{
-		launchTest |= !strcmp("--test", argv[i]) || !strcmp("-t", argv[i]);
-		if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) 
+		if (!strcmp("--test", argv[i]) || !strcmp("-t", argv[i])) launchTest = true;
+		else if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) 
 		{
 			showHelp();
-			return 0;
+			exit(0);
 		}
+		else std::cerr << "Warning: unknown argument " << argv[i] << std::endl;
 	}
 	if (launchTest)
 	{
 		unitTest();
 		integrationTest();
 	}
+}
+
+int main(int argc, char **argv)
+{
+	processArguments(argc, argv);
 	for (auto line : sortStrings(std::cin))
 		std::cout << line << std::endl;
     return 0;
