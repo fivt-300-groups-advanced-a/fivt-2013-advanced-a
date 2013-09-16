@@ -9,7 +9,8 @@
 #include "token.h"
 
 std::vector<std::string> parseString(const std::string &s);
-std::vector<token> constructTokens(const std::vector<std::string> &v);
+std::vector<Token> constructTokens(const std::vector<std::string> &v);
+std::vector<std::string> sortStrings(const std::vector<std::string> &v);
 
 std::random_device rndDevice;	
 
@@ -33,12 +34,12 @@ std::string generateBlock(int len, bool type)
 
 void testParsing()
 {	
-	std::vector< std::pair< std::string, std::vector< std::string> > > manualTests = 
+	std::vector< std::pair< std::string, std::vector<std::string> > > manualTests = 
 	{
-		std::make_pair("some", std::initializer_list<std::string>{"some"}),
-		std::make_pair("1478", std::initializer_list<std::string>{"1478"}),
-		std::make_pair("14asd78", std::initializer_list<std::string>{"14", "asd", "78"}),
-		std::make_pair("/*(^#&@#&!^^#@**!#", std::initializer_list<std::string>{"/*(^#&@#&!^^#@**!#"})
+		{"some", {"some"}},
+		{"1478", {"1478"}},
+		{"14asd78", {"14", "asd", "78"}},
+		{"/*(^#&@#&!^^#@**!#", {"/*(^#&@#&!^^#@**!#"}}
 	};
 	
 	for (auto test : manualTests)
@@ -64,20 +65,20 @@ void testTokenConstructing()
 {
 	std::vector< std::pair<std::string, bool> > manualTests =
 	{
-		std::make_pair("something", false),
-		std::make_pair("7174732773882994778298854878299477299127759927784991794", true),
-		std::make_pair("&@^^^^@*&$&@%%??@?!?!#", false)
+		{"something", false},
+		{"7174732773882994778298854878299477299127759927784991794", true},
+		{"&@^^^^@*&$&@%%??@?!?!#", false}
 	};
 	
 	for (auto test : manualTests)
-		testAssert("Failed manual test '" + test.first + "'", token(test.first).isNumber() == test.second);
+		testAssert("Failed manual test '" + test.first + "' in testTokenConstructing()", Token(test.first).isNumber() == test.second);
 	
 	const int randomTestNumber = 100, maxBlockLength = 20;
 	std::uniform_int_distribution<int> textGenerator(1, maxBlockLength);
 	for (int i = 0; i < randomTestNumber; i++)
 	{
 		std::string s = generateBlock(textGenerator(rndDevice), i & 1);
-		testAssert("Failed test '" + s + "'", token(s).isNumber() == bool(i & 1));
+		testAssert("Failed test '" + s + "'", Token(s).isNumber() == bool(i & 1));
 	}
 	std::cerr << "Constructing tested" << std::endl;
 }
@@ -101,10 +102,12 @@ void testTokenComparator()
 	{
 		std::string message = "Failed manual test ";
 		message += "'" + std::get<0>(test) + "' ";
-		message += std::get<2>(test) ? "<" : ">";
+		message += std::get<2>(test) ? "<" : ">=";
 		message += " '" + std::get<1>(test) + "'";
-		testAssert(message, token(std::get<0>(test)) < token(std::get<1>(test)));
+		message += " in testTokenComparator()";
+		testAssert(message, (Token(std::get<0>(test)) < Token(std::get<1>(test))) == std::get<2>(test));
 	}
+	std::cerr << "Token comparsion tested" << std::endl;
 }
 
 void unitTest()
@@ -116,6 +119,14 @@ void unitTest()
 
 void integrationTest()
 {
+	std::vector< std::pair< std::vector<std::string>, std::vector<std::string> > > manualTests =
+	{
+		{{"1204some", "1*1*1*1*", "a+b=c", "a+b=4", ""}, {"", "a+b=4", "a+b=c", "1*1*1*1*", "1204some"}},
+		{{"11", "11", "5", "55"}, {"5", "11", "11", "55"}}
+	};
+	for (auto test : manualTests)
+		testAssert("Failed manual test in integrationTest()", test.second == sortStrings(test.first));
+	std::cerr << "Integration test completed" << std::endl;
 }
 
 #endif

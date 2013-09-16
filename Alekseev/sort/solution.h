@@ -1,22 +1,11 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <sstream>
+#ifndef SOLUTION_H
+#define SOLUTION_H
 
-#include <cstdlib>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 using namespace std;
-
-void myAssert(bool condition, const char *msg)
-{
-	if (!condition)
-	{
-		cerr << "ASSERT " << msg;
-		abort();
-	}
-}
-#define myAssert(x) myAssert(x, "at line " __LINE__ " on condition "#x)
 
 class ComparableToken
 {
@@ -36,6 +25,10 @@ public:
 	bool isNumber() const { return _isNumber; }
 	int number() const { return _number; }
 	
+	operator const string&() const
+	{
+		return _raw;
+	}
 	bool operator < (const ComparableToken &t) const
 	{
 		if (_isNumber && t._isNumber && _number != t._number)
@@ -68,50 +61,31 @@ vector<string> tokenize(const string &s)
 	return result;
 }
 
-vector<ComparableToken> buildVectorOfComparableTokens(const vector<string> &v)
-{
-	vector<ComparableToken> result;
-	result.reserve(v.size());
-	for (size_t i = 0; i < v.size(); ++i)
-		result.push_back(ComparableToken(v[i]));
-	return result;
-}
-
 class Solver
 {
 public:
-	void solve(istream &in, ostream &out)
+	vector<string> sortNames(const vector<string> &names)
 	{
 		vector< vector<ComparableToken> > tokenLines;
-		string line;
-		while (in >> line)
+		tokenLines.reserve(names.size());
+		for (auto name : names)
 		{
-			cin >> line;
-			tokenLines.push_back(buildVectorOfComparableTokens(tokenize(line)));
+			vector<string> tokenized = tokenize(name);
+			tokenLines.push_back(vector<ComparableToken>(tokenized.begin(), tokenized.end()));
 		}
 		
 		sort(tokenLines.begin(), tokenLines.end());
 	
-		for (auto it = tokenLines.begin(); it != tokenLines.end(); ++it)
+	    vector<string> result;
+	    result.reserve(names.size());
+		for (auto tokenizedName : tokenLines)
 		{
-			for (auto jt = it->begin(); jt != it->end(); ++jt)
-				out << jt->rawString();
-			out << endl;
+			result.push_back("");
+			for (ComparableToken token : tokenizedName)
+				result.back().append(token.rawString());
 		}
-	}
-	string solve(const string &text)
-	{
-		istringstream in(text);
-		ostringstream out;
-		solve(in, out);
-		return out.toString();
+		return result;
 	}
 };
 
-int main()
-{
-	Solver solver;
-	solver.solve(cin, cout);
-
-	return 0;
-}
+#endif // SOLUTION_H

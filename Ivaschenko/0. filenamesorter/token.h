@@ -3,7 +3,7 @@
 
 #include <string>
 
-class token
+class Token
 {
 	private:
 		std::string rawData;
@@ -24,8 +24,8 @@ class token
 		}
 
 	public:
-		explicit token(const std::string &ndata, int nvalue, bool flag): rawData(ndata), isNum(flag) {}
-		explicit token(const std::string &s): rawData(s), isNum((bool) isdigit(s[0])) {}
+		explicit Token(const std::string &ndata, int nvalue, bool flag): rawData(ndata), isNum(flag) {}
+		explicit Token(const std::string &s): rawData(s), isNum((bool) isdigit(s[0])) {}
 
 		const bool isNumber() const
 		{
@@ -37,7 +37,7 @@ class token
 			return rawData;
 		}
 
-		bool operator < (const token &t) const
+		bool operator < (const Token &t) const
 		{
 			if (isNum != t.isNum) return isNum < t.isNum;
 			if (isNum) return compareNumbers(rawData, t.rawData);
