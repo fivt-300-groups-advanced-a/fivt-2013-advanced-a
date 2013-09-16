@@ -8,7 +8,7 @@
 #include <cassert>
 #include <ctime>
 
-#define LL long long
+#define i64 long long
 
 using namespace std;
 
@@ -23,11 +23,11 @@ struct TPart
 	static const int EQUAL = 0;
 	static const int MORE = 1;
 	int type;
-	LL number;
+	i64 number;
 	string str;
 
 	TPart(){}
-	TPart(int _type, string _str, LL _number)
+	TPart(int _type, string _str, i64 _number)
 	{
 		type = _type;
 		if (_type == STRING_TYPE)
@@ -72,11 +72,6 @@ struct TPart
 	}
 };
 
-/*bool isNumber(char c)
-{
-	return c >= '0' && c <= '9';
-}*/
-
 struct TFileName
 {
 	string startString;
@@ -104,7 +99,7 @@ struct TFileName
 		parts.clear();
 		int curType = UNDEF;
 		string curString = "";
-		LL curNumber = 0;
+		i64 curNumber = 0;
 		for (int j = 0; j < startString.length(); j++)
 		{
 			if (isdigit(startString[j]))
@@ -149,21 +144,88 @@ bool operator < (const TFileName & first, const TFileName & second)
 }
 
 const int maxn = 100;
-
-int n;
 TFileName e[maxn];
 
-int main()
+void runTest(int testNumber, int n)
 {
-	freopen("input.txt", "r", stdin);
-	freopen("output.txt", "w", stdout);
-	scanf("%d", &n);
+	printf("Run test #%d (n = %d)\n", testNumber, n);
+	printf("Input:\n");
+	for (int q = 0; q < n; q++)
+		cout << q << " string: " << e[q].startString << endl;
+	printf("\n");
 	for (int q = 0; q < n; q++)
 	{
-		cin >> e[q].startString;
+		//cin >> e[q].startString;
 		e[q].parse();
 	}
 	sort(e, e + n);
+	printf("Checking asserts\n");
+	for (int q = 0; q < n - 1; q++)	
+		assert(!(e[q + 1] < e[q]));
+	printf("No assertion failed\n");
+	printf("Sorted array:\n");
 	for (int q = 0; q < n; q++)
+	{
+		printf("%d string: ", q);
 		e[q].print();
+	}
+	printf("\n");
+}
+
+inline void init(int strNumber, const string value)
+{
+	e[strNumber].startString = value;
+}
+
+void UnitTests()
+{
+	init(0, "d3.txt4");
+	init(1, "d3.txt");
+	init(2, "a1.txt");
+	init(3, "b5.jpg");
+	init(4, "345.qwerty.546456");
+	init(5, "a10.txt");
+	init(6, "a2.txt");
+	runTest(1, 7);
+
+	for(int q = 0; q < 100; q++)
+	{
+		string tmp = "";
+		int len = rand() % 10 + 1;
+		for(int j = 0; j < len; j++)
+		{
+			char c;
+			if (rand() & 1)
+				c = '0' + rand() % 10;
+			else c = ('a' + rand() % 26);
+			tmp += c;
+		}
+		init(q, tmp);
+	}
+	runTest(2, 100);
+
+	init(0, "123abc");
+	init(1, "124abc");
+	runTest(3, 2);
+	
+	init(0, "123abc123");
+	init(1, "123abc122");
+	runTest(4, 2);
+
+	init(0, "456ghjt");
+	init(1, "456ghj");
+	runTest(5, 2);
+
+	init(0, "456ert");
+	init(1, "456era");
+	runTest(6, 2);
+
+
+}
+
+int main()
+{
+	//freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+	UnitTests();		
 }
