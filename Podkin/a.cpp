@@ -19,9 +19,11 @@ bool comp_num(const string &x, const string &y){
 
 struct token{
 	string word;
-	token (const string &buffer){
+	
+    token (const string &buffer){
 		word = buffer;
 	}
+
 	bool operator < (const token &comp) const{
 		if (isdigit(word[0]) != isdigit(comp.word[0]))
 			return (isdigit(word[0]) ? 1 : 0);
@@ -85,7 +87,8 @@ bool test_tokenize(){
 	test.clear();
 	word = "as1fv0";
 	tokenize(test);
-	if (test.size() != 4 || test[0].word != "as" || test[1].word != "1" || test[2].word != "fv" || test[3].word != "0"){
+	if (test.size() != 4 || test[0].word != "as" || test[1].word != "1" ||
+            test[2].word != "fv" || test[3].word != "0"){
 		for (int i = 0; i < (int)test.size(); i++)
 			cout << test[i].word << " ";
 		cout << endl;
@@ -95,7 +98,8 @@ bool test_tokenize(){
 	test.clear();
 	word = "1fv0a1";
 	tokenize(test);
-	if (test.size() != 5 || test[0].word != "1" || test[1].word != "fv" || test[2].word != "0" || test[3].word != "a" || test[4].word != "1"){
+	if (test.size() != 5 || test[0].word != "1" || test[1].word != "fv" ||
+            test[2].word != "0" || test[3].word != "a" || test[4].word != "1"){
 		cout << word << endl;
 		cnt = 0;
 	}
