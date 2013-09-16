@@ -11,7 +11,6 @@
 #include "token.h"
 #include "test.h"
 
-
 std::vector<std::string> parseString(const std::string &s)
 {
 	std::vector<std::string> result;
