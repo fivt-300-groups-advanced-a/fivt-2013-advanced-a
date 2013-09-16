@@ -6,6 +6,7 @@
 #include <map>
 
 #include <cassert>
+#include <cstring>
 
 #include "token.h"
 #include "test.h"
@@ -55,12 +56,28 @@ std::vector<std::string> sortStrings(std::istream &in)
 	return sortStrings(lines);
 }
 
-int main()
+void showHelp()
 {
-#ifdef UNIT_TEST
-	unitTest();
-	integrationTest();
-#endif
+	std::cout << "USAGE: sort [-t|--test] [-h|--help]" << std::endl;
+}
+
+int main(int argc, char **argv)
+{
+	bool launchTest = false;
+	for (int i = 1; i < argc; i++)
+	{
+		launchTest |= !strcmp("--test", argv[i]) || !strcmp("-t", argv[i]);
+		if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) 
+		{
+			showHelp();
+			return 0;
+		}
+	}
+	if (launchTest)
+	{
+		unitTest();
+		integrationTest();
+	}
 	for (auto line : sortStrings(std::cin))
 		std::cout << line << std::endl;
     return 0;
