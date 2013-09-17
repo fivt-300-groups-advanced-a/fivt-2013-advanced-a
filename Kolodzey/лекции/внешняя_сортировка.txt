@@ -142,3 +142,87 @@ struct A{
 Если хочешь написать неявное преобразование
 //оправдание
 /*implicit*/
+
+
+
+
+///////==///////
+include <iostream>
+include <fsream>
+sync_with_stdio(false); //отключить синхронизацию буферов для cin и scanf
+std::cin >> x >> t;
+
+ifstream in::("o.txt");
+in >> x >> z;
+Для красоты можно переопределить оператор <<
+(cout << 5) —> ostream, поэтому можно дальше выводить
+
+//всё передавать по ссылке
+istream& operator >> (istream& in, T& t) {
+	return (in >> t.x >> t.y);
+}
+
+sort (a.begin(), a.end(), Cmp())
+//последний параметр — созданный объект, у которого есть круглые скобки
+
+struct Cmp {
+	bool operator() (int x, int y) const
+	{
+	    return x > y;
+	}
+};
+
+//greater<int>();
+//стандартный less возвращает a < b; можно переопределить оператор <;
+
+
+"std::less"
+
+READER
+"std::read" >>
+
+
+struct Reader {
+	int operator () ()  //функтор; круглые скобки очень удобно, когда хочется иметь возможность передавать скобки
+	//ну можно и метод next или read
+}
+
+sort (Reader r, ……………………)
+{
+	<T> t = r();
+}
+
+
+====Шаблонная сортировка пузырьком=====
+
+template <class Iterator, class Comparator>//описываем, что типы Iterator и Comparator — динамические
+
+void sort (Iterator b, Iterator e, Comparator cmp = std::less[typeof(*b)])
+{
+	for (Iterator i = b; i != e; ++i)
+	{
+		for (Iterator j = i; j !=e, ++j)
+		    if(cmp(*j,*i))
+		    {
+		    	swap(*i, *j);
+		    }
+	}
+}
+//можно написать template <typename Iterator>, вообще без разницы, только в стилистике
+
+======
+
+ компилятор будет создавать отдельные функции для всех необходимых типов и оптимизировать их по отдельгности
+
+//iterator traits
+
+
+template <class T>
+
+struct less {
+	bool operator() (const T& a, const T& b) const {
+	    return a < b;
+	}
+}
+
+//const_ref <T>::type - возвращает значение для примитивных типов и ссылку для более сложных
