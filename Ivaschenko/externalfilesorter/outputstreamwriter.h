@@ -47,12 +47,15 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 			return true;
 		}
 
-		bool operator () (const std::vector<DataType> &v)
+		template<class Iterator> bool operator () (Iterator begin, Iterator end, std::string prefix = "{", std::string suffix = "}")
 		{
-			if (!this->ready() || !(*this->stream << "(")) return false;
-			for (typename std::vector<DataType>::size_type i = 0; i + 1 < v.size(); i++)
-				if (!(*this->stream << v[i] << delimeter)) return false;
-			if (!(*this->stream << v.back() << ")")) return false;
+			if (!this->ready() || !(*this->stream << prefix)) return false;
+			for (Iterator it = begin; it != end;)
+			{
+				if (!(*this->stream << *it)) return false;
+				if (++it != end && !(*this->stream << delimeter)) return false;
+			}
+			if (!(*this->stream << suffix)) return false;
 			return newLine();
 		}
 

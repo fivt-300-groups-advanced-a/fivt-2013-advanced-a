@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <set>
 
 #include "inputstreamreader.h"
 #include "outputstreamwriter.h"
@@ -12,8 +13,8 @@
 int main()
 {
 	OutputStreamWriter<int> out;
-	std::vector<int> v = {1, 2, 10};
-	out(v);
+	std::set<int> v = {1, 193, 10};
+	out(v.begin(), v.end(), "[", "]");
 	out.setDelimeter(" ");
 	out(42), out(572), out(1);
 	out.newLine();
