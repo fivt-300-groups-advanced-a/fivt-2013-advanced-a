@@ -11,14 +11,14 @@
 
 int main()
 {
-	BinaryFileWriter<int> out("input.txt");
-	out(42);
+	OutputStreamWriter<int> out;
+	std::vector<int> v = {1, 2, 10};
+	out(v);
+	out.setDelimeter(" ");
+	out(42), out(572), out(1);
+	out.newLine();
+	out.setDelimeter(" something ");
+	out(47), out(-84), out(39 + 8491);
 	out.unbindStream();
-
-	BinaryFileReader<int> in("input.txt");
-	int x;
-	in(x);
-	std::cout << x;
-	in.unbindStream();
 	return 0;
 }

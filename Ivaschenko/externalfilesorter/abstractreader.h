@@ -28,6 +28,11 @@ template <typename DataType> class AbstractReader
 			return stream && *stream;
 		}
 
+		std::istream* getStream() const
+		{
+			return stream;
+		}
+
 	protected:
 		std::istream *stream;
 };
