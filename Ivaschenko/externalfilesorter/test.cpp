@@ -1,14 +1,11 @@
-#include "inputstreamreader.h"
-#include "binaryfilereader.h"
-
 #include <iostream>
 #include <fstream>
 #include <set>
 
-#include "inputstreamreader.h"
-#include "outputstreamwriter.h"
-#include "binaryfilereader.h"
-#include "binaryfilewriter.h"
+#include "io/inputstreamreader.h"
+#include "io/outputstreamwriter.h"
+#include "io/binaryfilereader.h"
+#include "io/binaryfilewriter.h"
 
 int main()
 {
