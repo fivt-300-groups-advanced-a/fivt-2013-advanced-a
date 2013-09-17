@@ -4,16 +4,21 @@
 #include <iostream>
 #include <fstream>
 
+#include "inputstreamreader.h"
+#include "outputstreamwriter.h"
+#include "binaryfilereader.h"
+#include "binaryfilewriter.h"
+
 int main()
 {
-	std::ofstream stream("input.txt", std::ios_base::binary);
-	int q = 42;
-	stream.write((char *) &q, 4);
-	stream.close();
+	BinaryFileWriter<int> out("input.txt");
+	out(42);
+	out.unbindStream();
 
-	BinaryFileReader<int> reader("input.txt");
+	BinaryFileReader<int> in("input.txt");
 	int x;
-	reader(x);
-	std::cout << x << std::endl;
+	in(x);
+	std::cout << x;
+	in.unbindStream();
 	return 0;
 }

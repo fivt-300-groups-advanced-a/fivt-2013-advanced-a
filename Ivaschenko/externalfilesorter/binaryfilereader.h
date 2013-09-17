@@ -29,11 +29,6 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 			ownStream = true;
 		}
 
-		~BinaryFileReader()
-		{
-			unbindStream();
-		}
-
 		void unbindStream()
 		{
 			if (ownStream) delete this->stream;
@@ -47,23 +42,18 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 			ownStream = false;
 		}
 
-		void operator () (DataType &element)
+		bool operator () (DataType &element)
 		{
-			if (this->hasNext())
-			{
-				this->stream->read(buffer, sizeof(DataType));
-				memcpy(&element, buffer, sizeof(DataType));
-			}
+			return this->hasNext() && this->stream->read((char*) &element, sizeof(DataType));
 		}
 
-		void skip(int tokens)
+		bool skip(int tokens)
 		{
-			this->stream->seekg(tokens * sizeof(DataType), std::ios_base::cur);
+			return this->stream->seekg(tokens * sizeof(DataType), std::ios_base::cur);
 		}
 
 	private:
 		bool ownStream;
-		char buffer[sizeof(DataType)];
 };
 
 #endif // BINARYFILEREADER_H

@@ -1,10 +1,6 @@
 #ifndef INPUTSTREAMREADER_H
 #define INPUTSTREAMREADER_H
 
-#include <iostream>
-
-#include <cstring>
-
 #include "abstractreader.h"
 
 template<typename DataType> class InputStreamReader : public AbstractReader<DataType>
@@ -14,21 +10,11 @@ template<typename DataType> class InputStreamReader : public AbstractReader<Data
 		{
 			this->stream = &in;
 		}
-		
-		void unbindStream()
-		{
-			this->stream = 0;
-		}
 
-		void bindStream(std::istream &in)
+		bool operator() (DataType &element)
 		{
-			this->stream = in;
-		}
-
-		void operator() (DataType &element)
-		{
-			if (this->hasNext()) this->stream >> element;
+			return this->hasNext() && (*this->stream >> element);
 		}
 };
 
-#endif
+#endif // INPUTSTREAMREADER_H
