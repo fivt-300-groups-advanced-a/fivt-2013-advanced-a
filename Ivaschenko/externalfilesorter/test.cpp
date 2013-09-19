@@ -9,14 +9,12 @@
 
 int main()
 {
-	OutputStreamWriter<int> out;
-	std::set<int> v = {1, 193, 10};
-	out(v.begin(), v.end(), "[", "]");
-	out.setDelimeter(" ");
-	out(42), out(572), out(1);
-	out.newLine();
-	out.setDelimeter(" something ");
-	out(47), out(-84), out(39 + 8491);
-	out.unbindStream();
+	InputStreamReader<int> reader;
+	std::vector<int> data(3, 0);
+	reader.addDelimeter('{');
+	reader.addDelimeter('}');
+	reader.addDelimeter(',');
+	reader(data.begin(), data.end());
+	for (int i = 0; i < 3; i++) std::cout << data[i] << std::endl;
 	return 0;
 }

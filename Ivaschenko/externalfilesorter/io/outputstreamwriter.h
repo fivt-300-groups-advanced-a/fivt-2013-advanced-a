@@ -47,13 +47,17 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 			return true;
 		}
 
-		template<class Iterator> bool operator () (Iterator begin, Iterator end, std::string prefix = "{", std::string suffix = "}")
+		template<class ForwardIterator> bool operator ()
+			(
+				ForwardIterator begin, ForwardIterator end,
+				std::string prefix = "{", std::string suffix = "}"
+			)
 		{
 			if (!this->ready() || !(*this->stream << prefix)) return false;
-			for (Iterator it = begin; it != end;)
+			for (; begin != end;)
 			{
-				if (!(*this->stream << *it)) return false;
-				if (++it != end && !(*this->stream << delimeter)) return false;
+				if (!(*this->stream << *begin)) return false;
+				if (++begin != end && !(*this->stream << delimeter)) return false;
 			}
 			if (!(*this->stream << suffix)) return false;
 			return newLine();
