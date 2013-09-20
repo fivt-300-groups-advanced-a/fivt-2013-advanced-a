@@ -2,10 +2,11 @@
 #define INPUTSTREAMREADER_H
 
 #include <set>
+#include <type_traits>
 
 #include "abstractreader.h"
 
-template<typename DataType> class InputStreamReader : public AbstractReader<DataType>
+template<typename DataType, typename Enable = void> class InputStreamReader : public AbstractReader<DataType>
 {
 	public:
 		explicit InputStreamReader(std::istream &in = std::cin)
@@ -19,21 +20,24 @@ template<typename DataType> class InputStreamReader : public AbstractReader<Data
 		}
 };
 
-template<> class InputStreamReader<int> : public AbstractReader<int>
+template<typename IntegerType> class InputStreamReader
+		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
+			: public AbstractReader<IntegerType>
 {
 	public:
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
 			this->stream = &in;
-			radix = 10;
+			radix = 10u;
 			addDelimeter(' ');
 		}
 
-		bool operator() (int &element)
+		bool operator() (IntegerType &element)
 		{
 			while (true)
 			{
 				char c;
+
 				do if (!this->stream->read(&c, 1)) return false;
 				while (isDelimeter(c));
 
@@ -42,12 +46,13 @@ template<> class InputStreamReader<int> : public AbstractReader<int>
 					element = 0;
 					while (digitValue(c) >= 0)
 					{
-						element = element * radix + digitValue(c);
+						element = element * (IntegerType) radix + (IntegerType) digitValue(c);
 						if (!this->stream->read(&c, 1)) return false;
 					}
 					if (isDelimeter(c)) return element;
 					else continue;
 				}
+
 				do if (!this->stream->read(&c, 1)) return false;
 				while (!isDelimeter(c));
 			}
@@ -63,12 +68,12 @@ template<> class InputStreamReader<int> : public AbstractReader<int>
 			return true;
 		}
 
-		int getRadix() const
+		unsigned int getRadix() const
 		{
 			return radix;
 		}
 
-		void setRadix(int nRadix)
+		void setRadix(unsigned int nRadix)
 		{
 			if (isValidRadix(nRadix)) radix = nRadix;
 		}
@@ -99,21 +104,24 @@ template<> class InputStreamReader<int> : public AbstractReader<int>
 		}
 
 	private:
-		int radix;
+		unsigned int radix;
 		std::set<char> delimeters;
 
-		bool isValidRadix(int r)
+		bool isValidRadix(unsigned int r)
 		{
 			return r >= 2 && r <= 36;
 		}
 
+		/*
+		 * returns integer value of digit and -1 if invalid character
+		 */
 		int digitValue(char c)
 		{
 			if (isdigit(c)) return c - '0';
 			if (isalpha(c))
 			{
 				int value = tolower(c) - 'a' + 10;
-				return (0 <= value && value < radix) ? value : -1;
+				return (0 <= value && value < (int) radix) ? value : -1;
 			}
 			return -1;
 		}
