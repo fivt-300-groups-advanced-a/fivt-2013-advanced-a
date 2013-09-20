@@ -1,24 +1,20 @@
-#include "inputstreamreader.h"
-#include "binaryfilereader.h"
-
 #include <iostream>
 #include <fstream>
+#include <set>
 
-#include "inputstreamreader.h"
-#include "outputstreamwriter.h"
-#include "binaryfilereader.h"
-#include "binaryfilewriter.h"
+#include "io/inputstreamreader.h"
+#include "io/outputstreamwriter.h"
+#include "io/binaryfilereader.h"
+#include "io/binaryfilewriter.h"
 
 int main()
 {
-	BinaryFileWriter<int> out("input.txt");
-	out(42);
-	out.unbindStream();
-
-	BinaryFileReader<int> in("input.txt");
-	int x;
-	in(x);
-	std::cout << x;
-	in.unbindStream();
+	InputStreamReader<int> reader;
+	std::vector<int> data(3, 0);
+	reader.addDelimeter('{');
+	reader.addDelimeter('}');
+	reader.addDelimeter(',');
+	reader(data.begin(), data.end());
+	for (int i = 0; i < 3; i++) std::cout << data[i] << std::endl;
 	return 0;
 }

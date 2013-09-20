@@ -28,6 +28,11 @@ template <typename DataType> class AbstractWriter
 			return stream && *stream;
 		}
 
+		std::istream* getStream() const
+		{
+			return stream;
+		}
+
 	protected:
 		std::ostream *stream;
 };
