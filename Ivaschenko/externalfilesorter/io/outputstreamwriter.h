@@ -5,9 +5,16 @@
 
 #include <vector>
 
+/**
+ * Class implementing AbstractWriter interface
+ * Used for writing fixed-type data (and sequences of data) to output stream
+ */
 template<typename DataType> class OutputStreamWriter : public AbstractWriter<DataType>
 {
 	public:
+		/**
+		 * Initialising from any output stream (stdout by default)
+		 */
 		explicit OutputStreamWriter(std::ostream &out = std::cout)
 		{
 			delimeter = ", ";
@@ -15,22 +22,34 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 			startLine = true;
 		}
 
+		/**
+		 * Unbinds stream, adding new line if necessary
+		 */
 		void unbindStream()
 		{
 			if (!startLine) newLine();
 			this->stream = 0;
 		}
 
+		/**
+		 * Sets new delimeter
+		 */
 		void setDelimeter(const std::string &nDelimeter)
 		{
 			delimeter = nDelimeter;
 		}
 
+		/**
+		 * Returns current delimeter
+		 */
 		std::string getDelimeter() const
 		{
 			return delimeter;
 		}
 
+		/**
+		 * Adds a new line
+		 */
 		bool newLine()
 		{
 			if (!this->ready() || !(*this->stream << std::endl)) return false;
@@ -38,6 +57,10 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 			return true;
 		}
 
+		/**
+		 * Writes an element
+		 * Returns true in case of success, false otherwise
+		 */
 		bool operator () (const DataType &element)
 		{
 			if (!this->ready()) return false;
@@ -47,6 +70,9 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 			return true;
 		}
 
+		/**
+		 * Writes a sequence of data using specified prefix, suffix and current delimeter
+		 */
 		template<class ForwardIterator> bool operator ()
 			(
 				ForwardIterator begin, ForwardIterator end,
