@@ -23,7 +23,8 @@ public:
     {}
     explicit OStreamWriter(const char *fileName, std::ios_base::openmode mode = std::ios_base::out, const std::string *suffix = ""):
         _stream(new std::ofstream(fileName, mode)),
-        _ownStream(true)
+        _ownStream(true),
+        _suffix(suffix)
     {}
     ~OStreamWriter()
     {
@@ -38,7 +39,7 @@ public:
         _ownStream = false;
     }
 
-    const StringType &suffix() const { return suffix; }
+    const StringType &suffix() const { return _suffix; }
     void setSuffix(const StringType &suffix)
     {
         _suffix = suffix;
