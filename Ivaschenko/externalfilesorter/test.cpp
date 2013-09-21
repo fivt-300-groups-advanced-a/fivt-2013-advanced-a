@@ -9,6 +9,7 @@
 
 int main()
 {
+	std::cout << x << std::endl;
 	InputStreamReader<int> reader;
 	std::vector<int> data(3, 0);
 	reader.addDelimeter('{');

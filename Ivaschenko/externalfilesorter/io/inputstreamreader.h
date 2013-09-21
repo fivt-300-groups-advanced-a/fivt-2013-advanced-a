@@ -168,16 +168,12 @@ template<typename IntegerType> class InputStreamReader
 		}
 
 		/**
-		 * returns integer value of digit and -1 if invalid character
+		 * Returns integer value of digit and -1 if invalid character
 		 */
 		int digitValue(char c)
 		{
-			if (isdigit(c)) return c - '0';
-			if (isalpha(c))
-			{
-				int value = tolower(c) - 'a' + 10;
-				return (0 <= value && value < (int) radix) ? value : -1;
-			}
+			int value = isdigit(c) ? c - '0' : tolower(c) - 'a' + 10;
+			return (0 <= value && value < (int) radix) ? value : -1;
 			return -1;
 		}
 };

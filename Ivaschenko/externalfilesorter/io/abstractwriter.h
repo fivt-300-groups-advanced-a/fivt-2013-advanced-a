@@ -51,7 +51,7 @@ template <typename DataType> class AbstractWriter
 		 * Returns a pointer to the binded stream
 		 * It can be used for adjusting precision or other options for example
 		 */
-		std::istream* getStream() const
+		std::ostream* getStream() const
 		{
 			return stream;
 		}
