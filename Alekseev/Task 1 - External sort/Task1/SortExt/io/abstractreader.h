@@ -5,6 +5,8 @@ template <typename T>
 class AbstractReader
 {
 public:
+    typedef T DataType;
+
     virtual T next() = 0;
     virtual bool hasNext() = 0;
 };

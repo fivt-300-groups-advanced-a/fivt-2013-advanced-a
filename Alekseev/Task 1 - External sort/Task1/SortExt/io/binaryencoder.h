@@ -16,6 +16,10 @@ public:
         for (unsigned int i = 0; i < sizeof(T); ++i)
             writer->put((char*)(&some)[i]);
     }
+    void flush()
+    {
+        writer->flush();
+    }
 
 private:
     AbstractWriter<char> *writer;

@@ -10,7 +10,6 @@ template <typename T, typename CharT = char, class TraitsT = std::char_traits<Ch
 class IStreamReader : public AbstractReader<T>
 {
 public:
-    typedef T DataType;
     typedef CharT CharType;
     typedef TraitsT TraitsType;
     typedef std::basic_istream<CharType, TraitsType> StreamType;
@@ -25,13 +24,13 @@ public:
     {}
     ~IStreamReader()
     {
-        clearStream();
+        closeOwnStream();
     }
 
     StreamType &stream() const { return *_stream; }
     void setStream(StreamType &s)
     {
-        clearStream();
+        closeOwnStream();
         _stream = &s;
         _ownStream = false;
     }
@@ -47,8 +46,7 @@ public:
         return _stream && *_stream;
     }
 
-protected:
-    void clearStream()
+    void closeOwnStream()
     {
         if (_ownStream)
         {
@@ -57,9 +55,10 @@ protected:
             _ownStream = false;
         }
     }
+protected:
     void setOwnStream(StreamType *stream)
     {
-        clearStream();
+        closeOwnStream();
         _stream = stream;
         _ownStream = true;
     }

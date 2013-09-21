@@ -8,6 +8,11 @@ HEADERS += \
     io/abstractwriter.h \
     io/ostreamwriter.h \
     io/ostreambinarywriter.h \
-    io/binaryencoder.h
+    io/binaryencoder.h \
+    io/fscanfreader.h \
+    io/binaryfilereader.h \
+    io/filecommunicator.h \
+    io/fprintfwriter.h \
+    io/binaryfilewriter.h
 
 SOURCES +=

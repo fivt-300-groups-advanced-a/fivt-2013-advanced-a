@@ -7,9 +7,7 @@ template <typename T>
 class OStreamBinaryWriter : public OStreamWriter<T>
 {
 public:
-//  :NOTE: unfortunately IStreamReader<T>::StreamType as constructor parameter doesn't work
-//    explicit IStreamBinaryReader(IStreamReader<T>::StreamType &stream = std::cin):
-    explicit OStreamBinaryWriter(std::basic_istream<char> &stream = std::cout):
+    explicit OStreamBinaryWriter(std::basic_ostream<char> &stream = std::cout):
         OStreamWriter<T>(stream)
     {}
     explicit OStreamBinaryWriter(const char *fileName):

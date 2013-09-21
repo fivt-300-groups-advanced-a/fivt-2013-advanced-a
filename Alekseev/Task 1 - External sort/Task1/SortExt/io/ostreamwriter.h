@@ -10,7 +10,6 @@ template <typename T, typename CharT = char, class TraitsT = std::char_traits<Ch
 class OStreamWriter : AbstractWriter<T>
 {
 public:
-    typedef T DataType;
     typedef CharT CharType;
     typedef TraitsT TraitsType;
     typedef std::basic_ostream<CharType, TraitsType> StreamType;
@@ -48,6 +47,10 @@ public:
     virtual void put(const T &some)
     {
         *_stream << some << _suffix;
+    }
+    void flush()
+    {
+        _stream->flush();
     }
 
 protected:
