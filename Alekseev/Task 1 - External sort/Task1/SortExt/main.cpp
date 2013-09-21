@@ -1,25 +1,14 @@
 #include <iostream>
-#include <fstream>
 
-#include "io/binaryreader.h"
-
-#include "io/binarywriter.h"
-#include "io/writer.h"
-
-#include <cstdlib>
+#include "istreamreader.h"
+#include "istreambinaryreader.h"
 
 int main()
 {
-//    std::ifstream bin("inp.txt", std::ios::binary | std::ios::in);
-    BinaryReader<char> breader(&std::cin);
-    int ok = breader.next();
+    IStreamBinaryReader<char> reader;
 
-    BinaryWriter<char> briter(&std::cout);
-    briter.put(ok);
-
-    Writer<int> writer(&std::cout);
-    briter.put(' ');
-    writer.put(ok);
+    while (reader.hasNext())
+        std::cout << (int)reader.next() << std::endl;
 
     return 0;
 }

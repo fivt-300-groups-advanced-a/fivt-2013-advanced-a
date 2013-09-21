@@ -1,9 +1,9 @@
-
+INCLUDEPATH += $$PWD
 
 HEADERS += \
-    typedreader.h \
-    reader.h \
-    binaryreader.h \
-    typedwriter.h \
-    writer.h \
-    binarywriter.h
+    io/abstractreader.h \
+    io/istreamreader.h \
+    io/istreambinaryreader.h \
+    io/binarydecoder.h
+
+SOURCES +=
