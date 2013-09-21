@@ -4,7 +4,7 @@
 #include "abstractreader.h"
 
 template <typename T>
-class BinaryDecoder : AbstractReader<T>
+class BinaryDecoder : public AbstractReader<T>
 {
 public:
     // :NOTE: if the reader uses istream, it probably should have noskipws manipulator

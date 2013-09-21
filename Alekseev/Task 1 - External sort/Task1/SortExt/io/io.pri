@@ -13,6 +13,7 @@ HEADERS += \
     io/binaryfilereader.h \
     io/filecommunicator.h \
     io/fprintfwriter.h \
-    io/binaryfilewriter.h
+    io/binaryfilewriter.h \
+    io/streamcommunicator.h
 
 SOURCES +=

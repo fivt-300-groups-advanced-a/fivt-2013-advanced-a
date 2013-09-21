@@ -5,38 +5,23 @@
 #include <fstream>
 
 #include "abstractwriter.h"
+#include "streamcommunicator.h"
 
 template <typename T, typename CharT = char, class TraitsT = std::char_traits<CharT> >
-class OStreamWriter : AbstractWriter<T>
+class OStreamWriter : public AbstractWriter<T>, public StreamCommunicator<std::basic_ostream<CharT, TraitsT> >
 {
 public:
-    typedef CharT CharType;
-    typedef TraitsT TraitsType;
-    typedef std::basic_ostream<CharType, TraitsType> StreamType;
-    typedef std::basic_string<CharType, TraitsType> StringType;
+    typedef std::basic_ostream<CharT, TraitsT> StreamType;
+    typedef std::basic_string<CharT, TraitsT> StringType;
 
     explicit OStreamWriter(StreamType &stream = std::cout, const StringType &suffix = ""):
-        _stream(&stream),
-        _ownStream(false),
+        StreamCommunicator< StreamType >(stream),
         _suffix(suffix)
     {}
     explicit OStreamWriter(const char *fileName, std::ios_base::openmode mode = std::ios_base::out, const std::string *suffix = ""):
-        _stream(new std::ofstream(fileName, mode)),
-        _ownStream(true),
+        StreamCommunicator< StreamType >(fileName, mode),
         _suffix(suffix)
     {}
-    ~OStreamWriter()
-    {
-        clearStream();
-    }
-
-    StreamType &stream() const { return *_stream; }
-    void setStream(StreamType &s)
-    {
-        clearStream();
-        _stream = &s;
-        _ownStream = false;
-    }
 
     const StringType &suffix() const { return _suffix; }
     void setSuffix(const StringType &suffix)
@@ -46,34 +31,14 @@ public:
 
     virtual void put(const T &some)
     {
-        *_stream << some << _suffix;
+        this->stream() << some << _suffix;
     }
     void flush()
     {
-        _stream->flush();
-    }
-
-protected:
-    void clearStream()
-    {
-        if (_ownStream)
-        {
-            delete _stream;
-            _stream = 0;
-            _ownStream = false;
-        }
-    }
-
-    void setOwnStream(StreamType *stream)
-    {
-        clearStream();
-        _stream = stream;
-        _ownStream = true;
+        this->stream().flush();
     }
 
 private:
-    StreamType * _stream;
-    bool _ownStream;
     StringType _suffix;
 };
 

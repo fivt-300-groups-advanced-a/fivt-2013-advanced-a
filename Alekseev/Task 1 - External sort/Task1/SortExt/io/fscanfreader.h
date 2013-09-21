@@ -7,7 +7,7 @@
 #include "abstractreader.h"
 
 template <typename T>
-class FscanfReader : FileCommunicator, AbstractReader<T>
+class FscanfReader : public FileCommunicator, public AbstractReader<T>
 {
 public:
     FscanfReader(FILE *file, const char *fmt):

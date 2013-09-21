@@ -5,7 +5,7 @@
 #include "abstractreader.h"
 
 template <typename T>
-class BinaryFileReader: FileCommunicator, AbstractReader<T>
+class BinaryFileReader: public FileCommunicator, public AbstractReader<T>
 {
 public:
     explicit BinaryFileReader(FILE *file):

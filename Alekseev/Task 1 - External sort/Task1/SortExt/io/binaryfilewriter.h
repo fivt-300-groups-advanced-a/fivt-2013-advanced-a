@@ -5,7 +5,7 @@
 #include "abstractwriter.h"
 
 template <typename T>
-class BinaryFileWriter: FileCommunicator, AbstractWriter<T>
+class BinaryFileWriter: public FileCommunicator, public AbstractWriter<T>
 {
 public:
     explicit BinaryFileWriter(FILE *file):

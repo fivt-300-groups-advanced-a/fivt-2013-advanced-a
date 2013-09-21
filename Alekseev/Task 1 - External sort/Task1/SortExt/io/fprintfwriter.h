@@ -7,7 +7,7 @@
 #include "filecommunicator.h"
 
 template <typename T>
-class FprintfWriter : FileCommunicator, AbstractWriter<T>
+class FprintfWriter : public FileCommunicator, public AbstractWriter<T>
 {
 public:
     FprintfWriter(FILE *file, const char *fmt):
