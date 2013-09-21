@@ -1,29 +1,31 @@
-#ifndef ISTREAMREADER_H
-#define ISTREAMREADER_H
+#ifndef OSTREAMWRITER_H
+#define OSTREAMWRITER_H
 
 #include <iostream>
 #include <fstream>
 
-#include "abstractreader.h"
+#include "abstractwriter.h"
 
 template <typename T, typename CharT = char, class TraitsT = std::char_traits<CharT> >
-class IStreamReader : public AbstractReader<T>
+class OStreamWriter : AbstractWriter<T>
 {
 public:
     typedef T DataType;
     typedef CharT CharType;
     typedef TraitsT TraitsType;
-    typedef std::basic_istream<CharType, TraitsType> StreamType;
+    typedef std::basic_ostream<CharType, TraitsType> StreamType;
+    typedef std::basic_string<CharType, TraitsType> StringType;
 
-    explicit IStreamReader(StreamType &stream = std::cin):
+    explicit OStreamWriter(StreamType &stream = std::cout, const StringType &suffix = ""):
         _stream(&stream),
-        _ownStream(false)
+        _ownStream(false),
+        _suffix(suffix)
     {}
-    explicit IStreamReader(const char *fileName, std::ios_base::openmode mode = std::ios_base::in):
-        _stream(new std::ifstream(fileName, mode)),
+    explicit OStreamWriter(const char *fileName, std::ios_base::openmode mode = std::ios_base::out, const std::string *suffix = ""):
+        _stream(new std::ofstream(fileName, mode)),
         _ownStream(true)
     {}
-    ~IStreamReader()
+    ~OStreamWriter()
     {
         clearStream();
     }
@@ -36,15 +38,15 @@ public:
         _ownStream = false;
     }
 
-    virtual T next()
+    const StringType &suffix() const { return suffix; }
+    void setSuffix(const StringType &suffix)
     {
-        T result;
-        *_stream >> result;
-        return result;
+        _suffix = suffix;
     }
-    virtual bool hasNext()
+
+    virtual void put(const T &some)
     {
-        return _stream && *_stream;
+        *_stream << some << _suffix;
     }
 
 protected:
@@ -57,6 +59,7 @@ protected:
             _ownStream = false;
         }
     }
+
     void setOwnStream(StreamType *stream)
     {
         clearStream();
@@ -67,6 +70,7 @@ protected:
 private:
     StreamType * _stream;
     bool _ownStream;
+    StringType _suffix;
 };
 
-#endif // ISTREAMREADER_H
+#endif // OSTREAMWRITER_H

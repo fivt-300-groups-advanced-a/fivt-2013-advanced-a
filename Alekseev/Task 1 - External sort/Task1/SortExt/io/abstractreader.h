@@ -1,9 +1,7 @@
 #ifndef ABSTRACTREADER_H
 #define ABSTRACTREADER_H
 
-#include <iterator>
-
-template<typename T>
+template <typename T>
 class AbstractReader
 {
 public:

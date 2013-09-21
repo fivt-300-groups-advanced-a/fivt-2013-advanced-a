@@ -1,14 +1,15 @@
 #include <iostream>
 
 #include "istreamreader.h"
-#include "istreambinaryreader.h"
+#include "ostreamwriter.h"
 
 int main()
 {
-    IStreamBinaryReader<char> reader;
+    IStreamReader<char> reader;
+    OStreamWriter<int> writer(std::cout, "\n");
 
     while (reader.hasNext())
-        std::cout << (int)reader.next() << std::endl;
+        writer.put(reader.next());
 
     return 0;
 }
