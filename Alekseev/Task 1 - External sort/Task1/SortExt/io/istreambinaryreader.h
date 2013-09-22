@@ -1,25 +1,28 @@
 #ifndef ISTREAMBINARYREADER_H
 #define ISTREAMBINARYREADER_H
 
-#include "istreamreader.h"
+#include "abstractreader.h"
+#include "streamcommunicator.h"
 
 template <typename T>
-class IStreamBinaryReader : public IStreamReader<T>
+class IStreamBinaryReader : public AbstractReader<T>, public StreamCommunicator<std::istream>
 {
 public:
-//  :NOTE: unfortunately IStreamReader<T>::StreamType as constructor parameter doesn't work
-//    explicit IStreamBinaryReader(IStreamReader<T>::StreamType &stream = std::cin):
-    explicit IStreamBinaryReader(std::basic_istream<char> &stream = std::cin):
-        IStreamReader<T>(stream)
+    explicit IStreamBinaryReader(std::istream &stream = std::cin):
+        StreamCommunicator<std::istream>(stream)
     {}
     explicit IStreamBinaryReader(const char *fileName):
-        IStreamReader<T>(fileName, std::ios_base::in | std::ios_base::binary)
+        StreamCommunicator<std::istream>(fileName, std::ios_base::in | std::ios_base::binary)
     {}
 
     T next()
     {
         this->stream().read(buffer, sizeof(T));
         return *((T*)buffer);
+    }
+    bool hasNext()
+    {
+        return this->stream();
     }
 
 private:

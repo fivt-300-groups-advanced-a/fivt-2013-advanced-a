@@ -1,22 +1,27 @@
 #ifndef OSTREAMBINARYWRITER_H
 #define OSTREAMBINARYWRITER_H
 
-#include "ostreamwriter.h"
+#include "abstractwriter.h"
+#include "streamcommunicator.h"
 
 template <typename T>
-class OStreamBinaryWriter : public OStreamWriter<T>
+class OStreamBinaryWriter : public AbstractWriter<T>, public StreamCommunicator<std::ostream>
 {
 public:
-    explicit OStreamBinaryWriter(std::basic_ostream<char> &stream = std::cout):
-        OStreamWriter<T>(stream)
+    explicit OStreamBinaryWriter(std::basic_ostream<char> &stream):
+        StreamCommunicator<std::ostream>(stream)
     {}
     explicit OStreamBinaryWriter(const char *fileName):
-        OStreamWriter<T>(fileName, std::ios_base::out | std::ios_base::binary)
+        StreamCommunicator<std::ostream>(fileName, std::ios_base::out | std::ios_base::binary)
     {}
 
     void put(const T &some)
     {
         stream().write((char*)&some, sizeof(T));
+    }
+    void flush()
+    {
+        stream().flush();
     }
 };
 
