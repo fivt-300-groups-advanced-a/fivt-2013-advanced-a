@@ -9,8 +9,10 @@
 /**
  * Class implementing AbstractReader interface
  * Used for reading fixed-type data from input stream
+ *
+ * TODO: specialising for floating point data types and std::strings
  */
-template<typename DataType, typename Enable = void> class InputStreamReader : public AbstractReader<DataType>
+template<typename DataType, typename = void> class InputStreamReader : public AbstractReader<DataType>
 {
 	public:
 		/**
@@ -58,7 +60,7 @@ template<typename IntegerType> class InputStreamReader
 		 * Read an element. Reads input char by char searching of group of consecutive digits surrounded by delimeters
 		 * Returns true in case of success, false otherwise
 		 */
-		bool operator() (IntegerType &element)
+		bool operator() (IntegerType &number)
 		{
 			if (!this->ready()) return false;
 			while (true)
@@ -70,13 +72,13 @@ template<typename IntegerType> class InputStreamReader
 
 				if (digitValue(c) >= 0)
 				{
-					element = 0;
+					number = 0;
 					while (digitValue(c) >= 0)
 					{
-						element = element * (IntegerType) radix + (IntegerType) digitValue(c);
+						number = number * (IntegerType) radix + (IntegerType) digitValue(c);
 						if (!this->stream->read(&c, 1)) return false;
 					}
-					if (isDelimeter(c)) return element;
+					if (isDelimeter(c)) return number;
 					else continue;
 				}
 
@@ -177,5 +179,43 @@ template<typename IntegerType> class InputStreamReader
 			return -1;
 		}
 };
+
+
+/**
+ * Specification of InputStreamReader for all floating point types
+ * TODO:
+ *		-> Reading numbers in exponential, decimal and common fractions
+ *		-> Multi-radix
+ *		-> Adjustable floating point character
+ */
+template<typename FloatType> class InputStreamReader
+		<FloatType, typename std::enable_if< std::is_floating_point<FloatType>::value >::type>
+			: public AbstractReader<FloatType>
+{
+	public:
+		bool operator() (FloatType &number)
+		{
+			return this->ready();
+		}
+};
+
+
+/**
+ * Specification of InputStreamReader for std::strings
+ * TODO:
+ *		-> Reading string with adjustable set of delimeters
+ *		-> Including line by line and word by word
+ */
+template<> class InputStreamReader
+		<std::string, void>
+			: public AbstractReader<std::string>
+{
+	public:
+		bool operator() (std::string &element)
+		{
+			return this->ready();
+		}
+};
+
 
 #endif // INPUTSTREAMREADER_H

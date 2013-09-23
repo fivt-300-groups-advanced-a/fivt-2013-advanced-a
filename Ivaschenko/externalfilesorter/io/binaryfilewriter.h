@@ -63,7 +63,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		bool operator () (const DataType &element)
 		{
-			return this->ready() && this->stream->write((const char *) &element, sizeof(DataType));
+			return this->ready() && this->stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
 		}
 
 	private:

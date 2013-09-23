@@ -1,3 +1,4 @@
+#include <typeinfo>
 #include <iostream>
 #include <fstream>
 #include <set>
@@ -9,13 +10,10 @@
 
 int main()
 {
-	std::cout << x << std::endl;
-	InputStreamReader<int> reader;
-	std::vector<int> data(3, 0);
-	reader.addDelimeter('{');
-	reader.addDelimeter('}');
-	reader.addDelimeter(',');
-	reader(data.begin(), data.end());
-	for (int i = 0; i < 3; i++) std::cout << data[i] << std::endl;
+	InputStreamReader<int> intReader;
+	InputStreamReader<float> floatReader;
+	InputStreamReader<std::string> stringReader;
+
+	intReader.isDelimeter(' ');
 	return 0;
 }
