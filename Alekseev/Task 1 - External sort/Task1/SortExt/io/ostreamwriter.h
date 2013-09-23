@@ -14,11 +14,11 @@ public:
     typedef std::basic_ostream<CharT, TraitsT> StreamType;
     typedef std::basic_string<CharT, TraitsT> StringType;
 
-    explicit OStreamWriter(StreamType &stream = std::cout, const StringType &suffix = ""):
+    explicit OStreamWriter(StreamType &stream, const StringType &suffix = "\n"):
         StreamCommunicator< StreamType >(stream),
         _suffix(suffix)
     {}
-    explicit OStreamWriter(const char *fileName, std::ios_base::openmode mode = std::ios_base::out, const std::string *suffix = ""):
+    explicit OStreamWriter(const char *fileName, std::ios_base::openmode mode = std::ios_base::out, const std::string *suffix = "\n"):
         StreamCommunicator< StreamType >(fileName, mode),
         _suffix(suffix)
     {}

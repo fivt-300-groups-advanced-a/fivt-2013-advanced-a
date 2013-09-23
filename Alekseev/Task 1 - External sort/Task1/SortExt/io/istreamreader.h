@@ -12,7 +12,7 @@ class IStreamReader : public AbstractReader<T>, public StreamCommunicator<std::b
 {
 public:
     typedef std::basic_istream<CharT, TraitsT> StreamType;
-    explicit IStreamReader(StreamType &stream = std::cin):
+    explicit IStreamReader(StreamType &stream):
         StreamCommunicator< StreamType >(stream)
     {}
     explicit IStreamReader(const char *fileName, std::ios_base::openmode mode = std::ios_base::in):
