@@ -12,7 +12,7 @@ template <typename DataType> class AbstractWriter
 		/**
 		 * Default destructor unbinds stream if it's binded
 		 */
-		~AbstractWriter()
+		virtual ~AbstractWriter()
 		{
 			unbindStream();
 		}
@@ -26,7 +26,7 @@ template <typename DataType> class AbstractWriter
 		/**
 		 * Binds stream to the reader
 		 */
-		void bindStream(std::ostream &in)
+		virtual void bindStream(std::ostream &in)
 		{
 			stream = &in;
 		}
@@ -34,7 +34,7 @@ template <typename DataType> class AbstractWriter
 		/**
 		 * Unbinds currently binded stream
 		 */
-		void unbindStream()
+		virtual void unbindStream()
 		{
 			stream = 0;
 		}
@@ -42,7 +42,7 @@ template <typename DataType> class AbstractWriter
 		/**
 		 * Checks if writer is ready to write data
 		 */
-		bool ready()
+		virtual bool ready()
 		{
 			return stream && *stream;
 		}
@@ -51,7 +51,7 @@ template <typename DataType> class AbstractWriter
 		 * Returns a pointer to the binded stream
 		 * It can be used for adjusting precision or other options for example
 		 */
-		std::ostream* getStream() const
+		virtual std::ostream* getStream() const
 		{
 			return stream;
 		}

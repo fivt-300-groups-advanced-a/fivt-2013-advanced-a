@@ -12,7 +12,7 @@ template <typename DataType> class AbstractReader
 		/**
 		 * Default destructor unbinds stream if it's binded
 		 */
-		~AbstractReader()
+		virtual ~AbstractReader()
 		{
 			unbindStream();
 		}
@@ -26,7 +26,7 @@ template <typename DataType> class AbstractReader
 		/**
 		 * Binds stream to the reader
 		 */
-		void bindStream(std::istream &in)
+		virtual void bindStream(std::istream &in)
 		{
 			stream = &in;
 		}
@@ -34,7 +34,7 @@ template <typename DataType> class AbstractReader
 		/**
 		 * Unbinds currently binded stream
 		 */
-		void unbindStream()
+		virtual void unbindStream()
 		{
 			stream = 0;
 		}
@@ -42,7 +42,7 @@ template <typename DataType> class AbstractReader
 		/**
 		 * Checks if reader is ready to read data
 		 */
-		bool ready() const
+		virtual bool ready() const
 		{
 			return stream && *stream;
 		}
@@ -51,7 +51,7 @@ template <typename DataType> class AbstractReader
 		 * Returns a pointer to the binded stream
 		 * It can be used for adjusting precision or other options for example
 		 */
-		std::istream* getStream() const
+		virtual std::istream* getStream() const
 		{
 			return stream;
 		}
