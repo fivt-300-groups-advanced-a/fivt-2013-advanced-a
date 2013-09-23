@@ -6,9 +6,7 @@
 
 template <class T> class Abstract_reader {
     public:
-        virtual bool operator () (T &next){
-            return 0;
-        }
+        virtual bool operator () (T &next) = 0;
 
     protected:
         std::ifstream *in;
