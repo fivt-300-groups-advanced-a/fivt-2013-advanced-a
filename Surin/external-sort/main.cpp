@@ -9,11 +9,18 @@
 #include "binary_file_io.h"
 #include "sort.h"
 #include "comparator.h"
+#include "istream_io.h"
 using namespace std;
 
 #define INF 1e+9
 
-
+template<class T>
+class oop{
+public:
+    bool operator () (const T & x, const T & y) {
+        return true;
+    }
+};
 
 int main() {
     //ios_base::sync_with_stdio(false);
@@ -30,6 +37,6 @@ int main() {
     ss >> zz;
     cout << ss.eos();
     cout << "\n" << x << " " << y;*/
- //   cout <<  CPair<int, int, CLess<int>, CInvOp<int, CLess<int> > > ()(make_pair(1, 2), make_pair(1, 3));
-    bigSort(new BFReader<int>("file1"), new BFWriter<int>("file2"), new CLess<int>());
+    cout <<  CPair<int, int, CLess<int>, CInvOp<int, CLess<int> > > ()(make_pair(1, 2), make_pair(1, 3));
+ //   bigSort<int>(new BFReader<int>("file1"), new BFWriter<int>("file2"));
 }

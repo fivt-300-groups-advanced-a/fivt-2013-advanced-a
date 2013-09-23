@@ -11,7 +11,6 @@ private:
         fread((void *)(&x), sizeof(T), 1, fd);
     }
     FILE * fd = NULL;
-    T * buffer = NULL;
 public:
     void open(char * filename) {
         close();
@@ -21,12 +20,7 @@ public:
         open(filename);
     }
     virtual Reader<T> & operator >>(T & x) {
-        if (buffer != NULL) {
-            x = *buffer;
-            buffer = NULL;
-        } else {
-            read(x);
-        }
+        read(x);
         return *this;
     }
     ~BFReader() {
@@ -37,9 +31,6 @@ public:
         fd = NULL;
     }
     virtual bool eos() {
-        if (buffer != NULL) return false;
-        buffer = (T*)malloc(sizeof(T));
-        read(*buffer);
         return feof(fd);
     }
 };

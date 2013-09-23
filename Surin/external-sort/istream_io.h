@@ -9,22 +9,13 @@ private:
         _is >> x;
     }
     IS & _is;
-    T * buffer = NULL;
 public:
     ISReader(IS & is): _is(is) {}
     virtual Reader<T> & operator >>(T & x) {
-        if (buffer != NULL) {
-            x = *buffer;
-            buffer = NULL;
-        } else {
-            read(x);
-        }
+        read(x);
         return *this;
     }
     virtual bool eos() {
-        if (buffer != NULL) return false;
-        buffer = (T*)malloc(sizeof(T));
-        read(*buffer);
         return _is.eof();
     }
 };
