@@ -2,12 +2,10 @@
 
 #define TEXT_FILE_READER
 
-#include "abstract_reader.h"
 #include <string>
 #include <fstream>
 
-template <class T> class Text_file_reader : 
-    public Abstract_reader <T> {
+template <class T> class Text_file_reader {
     public:
         explicit Text_file_reader(std::ifstream &new_stream){
             this->in = &new_stream;
