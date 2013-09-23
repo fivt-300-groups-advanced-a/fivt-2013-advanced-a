@@ -67,7 +67,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		bool operator () (DataType &element)
 		{
-			return this->ready() && this->stream->read((char*) &element, sizeof(DataType));
+			return this->ready() && this->stream->read(reinterpret_cast<char*>(&element), sizeof(DataType));
 		}
 
 		/**
