@@ -74,7 +74,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 * Skips specified number of elements
 		 * Return value is true if skip was successfull and false otherwise
 		 */
-		bool skip(int elements)
+		virtual bool skip(int elements)
 		{
 			return this->stream->seekg(elements * sizeof(DataType), std::ios_base::cur);
 		}

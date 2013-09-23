@@ -8,6 +8,8 @@
 #include "io/binaryfilereader.h"
 #include "io/binaryfilewriter.h"
 
+#include <gtest/gtest.h>
+
 int main()
 {
 	InputStreamReader<int> intReader;
@@ -15,5 +17,6 @@ int main()
 	InputStreamReader<std::string> stringReader;
 
 	intReader.isDelimeter(' ');
+	EXPECT_EQ(2 + 2, 4);
 	return 0;
 }
