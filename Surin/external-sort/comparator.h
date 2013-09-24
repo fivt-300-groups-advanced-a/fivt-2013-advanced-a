@@ -3,7 +3,7 @@
 #include <utility>
 #include <type_traits>
 
-template<class T, typename = void>
+template<class T>
 class Comp {
 public:
     virtual bool operator ()(const T &, const T &) = 0;
@@ -40,8 +40,11 @@ public:
     }
 };
 
+template<class T, class cmp, typename = void>
+class CInvOp : public Comp<T> {};
+
 template<class T, class cmp>
-class CInvOp : public Comp<T, typename std::enable_if<std::is_base_of<Comp<T>, cmp>::value >::type >{
+class CInvOp<T, cmp, typename std::enable_if<std::is_base_of<Comp<T>, cmp>::value >::type> {
 cmp & C;
 public:
     CInvOp(): C(*(new cmp())) {}
