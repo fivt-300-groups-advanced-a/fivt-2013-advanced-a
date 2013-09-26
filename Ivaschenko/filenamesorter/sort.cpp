@@ -6,10 +6,10 @@
 #include <map>
 
 #include <cassert>
+#include <cstring>
 
 #include "token.h"
 #include "test.h"
-
 
 std::vector<std::string> parseString(const std::string &s)
 {
@@ -55,12 +55,35 @@ std::vector<std::string> sortStrings(std::istream &in)
 	return sortStrings(lines);
 }
 
-int main()
+void showHelp()
 {
-#ifdef UNIT_TEST
-	unitTest();
-	integrationTest();
-#endif
+	std::cout << "USAGE: sort [-t|--test] [-h|--help]" << std::endl;
+}
+
+void processArguments(int argc, char **argv)
+{
+	bool launchTest = false;
+	for (int i = 1; i < argc; i++)
+	{
+		if (!strcmp("--test", argv[i]) || !strcmp("-t", argv[i])) launchTest = true;
+		else if (!strcmp("--help", argv[i]) || !strcmp("-h", argv[i])) 
+		{
+			showHelp();
+			exit(0);
+		}
+		else std::cerr << "Warning: ignoring unknown argument " << argv[i] << std::endl;
+	}
+	if (launchTest)
+	{
+		unitTest();
+		integrationTest();
+	}
+}
+
+int main(int argc, char **argv)
+{
+	processArguments(argc, argv);
+	
 	for (auto line : sortStrings(std::cin))
 		std::cout << line << std::endl;
     return 0;
