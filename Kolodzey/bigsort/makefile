@@ -1,7 +1,13 @@
+#тесты состоят из тестирующих функций и не содержат main
+#эта штука автоматически добавляет все исходники, лежащие в папке tests
+#и подключает к ним соответствующий файл из папки source
+
+#для тестирования функций, вызывающих несколько блоков, перепишу шаблон…
+
 # SYNOPSIS:
 #
 #   make [all]  - makes everything.
-#   make TARGET - makes the given target.
+#   make TARGET - makes the given target. ex make tests/bubblesort_unittest
 
 CXX = clang++
 
@@ -10,8 +16,8 @@ GTEST_DIR = gtest-1.7.0
 TESTS_DIR = tests
 BIGSORT_DIR = source
 
-#названия тестов
-TESTS = $(addprefix $(TESTS_DIR)/, bubblesort_unittest)
+#названия тестов; цель all = построить тесты из всех исходников в tests/
+TESTS = $(subst .cpp,,$(wildcard $(TESTS_DIR)/*.cpp))
 
 # Flags passed to the preprocessor.
 # Set Google Test's header directory as a system directory, such that
@@ -59,19 +65,17 @@ $(BIN_DIR)/gtest_main.a: $(BIN_DIR)/gtest-all.o $(BIN_DIR)/gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
 
-#######bubblesort_unittest######
-$(BIN_DIR)/bubblesort.o: $(BIGSORT_DIR)/bubblesort.cpp $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(BIGSORT_DIR)/bubblesort.ccp \
-	-o $(BIN_DIR)/bubblesort.o
+#сборка простой тестирующей функции, вызывающей только 1 блок кода
+#вместо % подставьте название интересующего блока
+$(BIN_DIR)/%.o: $(BIGSORT_DIR)/%.cpp $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(BIN_DIR)/bubblesort_unittest.o: $(TESTS_DIR)/bubblesort_unittest.cpp \
-	                              $(BIGSORT_DIR)/bigsort.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(TESTS_DIR)/bubblesort_unittest.cpp \
-	-o $(BIN_DIR)/bubblesort_unittest.o
+$(BIN_DIR)/%_unittest.o: $(TESTS_DIR)/%_unittest.cpp \
+	                     $(BIGSORT_DIR)/bigsort.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-$(TESTS_DIR)/bubblesort_unittest:  $(addprefix $(BIN_DIR)/,\
-	                               bubblesort.o bubblesort_unittest.o \
-	                               gtest_main.a)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+$(TESTS_DIR)/%_unittest:  $(addprefix $(BIN_DIR)/,%.o %_unittest.o \
+	                                              gtest_main.a)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 
