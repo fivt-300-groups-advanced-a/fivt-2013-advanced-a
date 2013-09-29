@@ -7,12 +7,14 @@ template <class StreamType>
 class StreamCommunicator
 {
 public:
-    explicit StreamCommunicator(StreamType &stream = std::cin):
+    struct OwnStreamTag {};
+
+    explicit StreamCommunicator(StreamType &stream):
         _stream(&stream),
         _ownStream(false)
     {}
-    explicit StreamCommunicator(const char *fileName, std::ios_base::openmode mode = std::ios_base::in):
-        _stream(new std::ifstream(fileName, mode)),
+    explicit StreamCommunicator(OwnStreamTag, StreamType &stream):
+        _stream(&stream),
         _ownStream(true)
     {}
     ~StreamCommunicator()
