@@ -1,6 +1,7 @@
 #ifndef COMPARATOR_H
 #define COMPARATOR_H
 #include <utility>
+#include <type_traits>
 
 template<class T>
 class Comp {
@@ -39,9 +40,15 @@ public:
     }
 };
 
+template<bool = false>
+class Condition{};
+template<>
+class Condition<false>{private: virtual void INVALID_TYPE() = 0;};
+
+// better than Ivaschenko
 template<class T, class cmp>
-class CInvOp {
-cmp & C;
+class CInvOp: Condition<std::is_base_of<Comp<T>, cmp>::value> {
+    cmp & C;
 public:
     CInvOp(): C(*(new cmp())) {}
     CInvOp(cmp & _p): C(_p) {}

@@ -35,8 +35,14 @@ char * tempFileName(int x) {
     return ss;
 }
 
+
 template<class T, class cmp=CLess<T> >
-void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC, int MAX_BUF=30000000, void qsort(T*, int sz, cmp *)=stsort) {
+void bigSort(Reader<T> * ccin, Writer<T> * ccout, int MAX_BUF, cmp * CC = new cmp(), void qsort(T*, int sz, cmp *)=stsort) {
+    bigSort(ccin, ccout, CC, MAX_BUF, qsort);
+}
+
+template<class T, class cmp=CLess<T> >
+void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_BUF=30000000, void qsort(T*, int sz, cmp *)=stsort) {
     T * buffer = (T*)malloc(MAX_BUF);
     if (buffer == 0) throw "not enough memory";
     int n = readBlock(ccin, buffer, MAX_BUF);
