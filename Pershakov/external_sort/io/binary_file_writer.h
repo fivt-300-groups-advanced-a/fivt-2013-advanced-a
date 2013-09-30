@@ -1,25 +1,25 @@
-#ifndef TEXT_FILE_WRITER
+#ifndef BINARY_FILE_WRITER
 
-#define TEXT_FILE_WRITER
+#define BINARY_FILE_WRITER
 
 #include <fstream>
 #include <string>
 
-template <class T> class TextFileWriter {
+template <class T> class BinaryFileWriter {
     public:
-        ~TextFileWriter(){
+        ~BinaryFileWriter(){
             close();
         }
 
-        explicit TextFileWriter(std::ofstream &new_stream){
+        explicit BinaryFileWriter(std::ofstream &new_stream){
             setStream(new_stream);
         }
 
-        explicit TextFileWriter(const std::string &filename){
+        explicit BinaryFileWriter(const std::string &filename){
             setStream(filename);
         }
 
-        explicit TextFileWriter(char *filename){
+        explicit BinaryFileWriter(char *filename){
             setStream(filename);
         }
 
@@ -34,17 +34,19 @@ template <class T> class TextFileWriter {
         }
 
         void setStream(const std::string &filename){
-            out = new std::ofstream(filename.c_str(), std::ofstream::out);
+            out = new std::ofstream(filename.c_str(), 
+                    std::ofstream::binary | std::ofstream::out);
         }
 
         void setStream(char *filename){
-            out = new std::ofstream(filename, std::ofstream::out);
+            out = new std::ofstream(filename, 
+                    std::ofstream::binary | std::ofstream::out);
         }
 
-        bool operator () (const T &next, const std::string &separator = " "){
+        bool operator () (const T &next){
             if (!out)
                 return false;
-            *out << next << separator;
+            out->write((char*)&next, sizeof(T));
             return true;
         }
 

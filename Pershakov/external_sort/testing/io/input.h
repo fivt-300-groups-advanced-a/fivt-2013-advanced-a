@@ -62,7 +62,7 @@ TEST(TestTextFileReader, constructFromStream){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestTextFileReader, succesfulReading){
+TEST(TestTextFileReader, successfulReading){
     std::ofstream out("text_file_reader.in", std::ofstream::out);
     int a = 56, b = -533324, c = 3232;
     out << a << " " << b << " " << c << std::endl;
@@ -140,7 +140,6 @@ TEST(TestBinaryFileReader, constructFromConstString){
     EXPECT_EQ(a, a_new);
 }
 
-
 TEST(TestBinaryFileReader, constructFromStream){
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
@@ -156,7 +155,7 @@ TEST(TestBinaryFileReader, constructFromStream){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestBinaryFileReader, succesfulReading){
+TEST(TestBinaryFileReader, successfulReading){
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
     int a = -5643, b = 1212;
