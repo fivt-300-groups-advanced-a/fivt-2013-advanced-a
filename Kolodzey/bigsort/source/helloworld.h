@@ -1,2 +1,0 @@
-//prints Helloworld!
-void helloworld();
