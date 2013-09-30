@@ -24,6 +24,7 @@ template <class T> class BinaryFileReader {
         bool operator () (T &next){
             return in->read((char*)&next, sizeof(T));
         }
+
     private:
         std::ifstream *in;
 };
