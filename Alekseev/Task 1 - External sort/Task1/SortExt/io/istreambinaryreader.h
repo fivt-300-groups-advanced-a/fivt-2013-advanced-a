@@ -1,11 +1,11 @@
 #ifndef ISTREAMBINARYREADER_H
 #define ISTREAMBINARYREADER_H
 
-#include "abstractreader.h"
+//#include "abstractreader.h"
 #include "streamcommunicator.h"
 
 template <typename T>
-class IStreamBinaryReader : public AbstractReader<T>, public StreamCommunicator<std::istream>
+class IStreamBinaryReader : public StreamCommunicator<std::istream>
 {
 public:
     explicit IStreamBinaryReader(std::istream &stream = std::cin):
@@ -15,14 +15,15 @@ public:
         StreamCommunicator<std::istream>(fileName, std::ios_base::in | std::ios_base::binary)
     {}
 
-    T next()
+    bool operator() (T &result)
     {
-        this->stream().read(buffer, sizeof(T));
-        return *((T*)buffer);
-    }
-    bool hasNext()
-    {
-        return this->stream();
+        if (!stream())
+            return false;
+        stream().read(buffer, sizeof(T));
+        if (!stream())
+            return false;
+        result = *reinterpret_cast<T*>(buffer);
+        return true;
     }
 
 private:

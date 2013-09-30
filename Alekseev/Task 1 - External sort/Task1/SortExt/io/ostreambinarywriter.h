@@ -1,7 +1,7 @@
 #ifndef OSTREAMBINARYWRITER_H
 #define OSTREAMBINARYWRITER_H
 
-#include "abstractwriter.h"
+//#include "abstractwriter.h"
 #include "streamcommunicator.h"
 
 template <typename T>
@@ -15,11 +15,11 @@ public:
         StreamCommunicator<std::ostream>(fileName, std::ios_base::out | std::ios_base::binary)
     {}
 
-    void put(const T &some)
+    void put(const T &some) override
     {
-        stream().write((char*)&some, sizeof(T));
+        stream().write(reinterpret_cast<const char*>(&some), sizeof(T));
     }
-    void flush()
+    void flush() override
     {
         stream().flush();
     }
