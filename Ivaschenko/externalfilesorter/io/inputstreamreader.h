@@ -46,13 +46,14 @@ template<typename IntegerType> class InputStreamReader
 {
 	public:
 		/**
-		 * Initialising from any input stream, default radix is 10, defualt delimeter is space
+		 * Initialising from any input stream, default radix is 10, defualt delimeter is space and eoln
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
 			this->stream = &in;
 			radix = 10u;
 			addDelimeter(' ');
+			addDelimeter('\n');
 		}
 
 
