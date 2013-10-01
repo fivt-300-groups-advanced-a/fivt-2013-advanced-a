@@ -34,14 +34,17 @@ template <class T> class TextFileWriter {
         }
 
         void setStream(const std::string &filename){
-            out = new std::ofstream(filename.c_str(), std::ofstream::out);
+            out = new std::ofstream(filename.c_str(), 
+                    std::ofstream::out);
         }
 
         void setStream(char *filename){
-            out = new std::ofstream(filename, std::ofstream::out);
+            out = new std::ofstream(filename, 
+                    std::ofstream::out);
         }
 
-        bool operator () (const T &next, const std::string &separator = " "){
+        bool operator () (const T &next, 
+                const std::string &separator = " "){
             if (!out)
                 return false;
             *out << next << separator;

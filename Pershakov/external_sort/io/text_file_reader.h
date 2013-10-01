@@ -33,12 +33,14 @@ template <class T> class TextFileReader {
             in = &new_stream;
         }
 
-        void setStream(const std::string filename){
-            in = new std::ifstream(filename.c_str());
+        void setStream(const std::string &filename){
+            in = new std::ifstream(filename.c_str(), 
+                    std::ifstream::in);
         }
 
         void setStream(char *filename){
-            in = new std::ifstream(filename);
+            in = new std::ifstream(filename,
+                    std::ifstream::in);
         }
 
         bool operator () (T &next){
