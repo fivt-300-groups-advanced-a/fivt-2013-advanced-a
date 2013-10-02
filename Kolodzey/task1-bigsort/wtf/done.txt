@@ -1,0 +1,18 @@
+Установлено:
+mc, make, doxygen, clang/gnu++, скачано googletest (googletest даже собирается)
+Работаю под mac os x 10.8, код пишу в sublime.
+Использую itrerm, потому что там f14 = shift + f4, а не shift + f6.
+
+Сделано:
+
+==понято git==
+документация: http://git-scm.com/documentation
+
+==понято, как устроен проект==
+Картинка про файлы .o
+http://podelise.ru/tw_files2/urls_202/1/d-719/7z-docs/1_html_m2fe3dd4a.jpg
+
+==понято make, собрано googletest==
+читайте makefile, причём сначала тот, который в sample: там просто сборка проекта
+в task1-bigsort лежит makefile, собирающий unit-testы использующие googletest
+годная документация: http://linux.yaroslavl.ru/docs/prog/gnu_make_3-79_russian_manual.html

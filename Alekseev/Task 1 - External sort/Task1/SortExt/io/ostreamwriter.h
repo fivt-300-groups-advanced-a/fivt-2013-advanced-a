@@ -4,7 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "abstractwriter.h"
+//#include "abstractwriter.h"
 #include "streamcommunicator.h"
 
 template <typename T, typename CharT = char, class TraitsT = std::char_traits<CharT> >
@@ -33,7 +33,7 @@ public:
     {
         this->stream() << some << _suffix;
     }
-    void flush()
+    void flush() override
     {
         this->stream().flush();
     }
