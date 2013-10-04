@@ -7,7 +7,7 @@
  * TextFileReader testing
  */
 
-TEST(TestTextFileReader, constructFromiStdString){
+TEST(TestTextFileReader, constructFromStdString){
     std::ofstream out("text_file_reader.in", std::ofstream::out);
     int a = 6;
     out << a;
@@ -35,19 +35,6 @@ TEST(TestTextFileReader, constructFromCString){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestTextFileReader, constructFromConstString){
-    std::ofstream out("text_file_reader.in", std::ofstream::out);
-    int a = 7;
-    out << a;
-    out.close();
-
-    TextFileReader<int> reader("text_file_reader.in");
-
-    int a_new;
-    EXPECT_TRUE(reader(a_new));
-    EXPECT_EQ(a, a_new);
-}
-
 TEST(TestTextFileReader, constructFromStream){
     std::ofstream out("text_file_reader.in", std::ofstream::out);
     int a = 6;
@@ -62,7 +49,7 @@ TEST(TestTextFileReader, constructFromStream){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestTextFileReader, succesfulReading){
+TEST(TestTextFileReader, successfulReading){
     std::ofstream out("text_file_reader.in", std::ofstream::out);
     int a = 56, b = -533324, c = 3232;
     out << a << " " << b << " " << c << std::endl;
@@ -127,20 +114,6 @@ TEST(TestBinaryFileReader, constructFromCString){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestBinaryFileReader, constructFromConstString){
-    std::ofstream out("binary_file_reader.in", 
-            std::ofstream::out | std::ofstream::binary);
-    int a = -56;
-    out.write((char*)&a, sizeof(int));
-    out.close();
-
-    BinaryFileReader<int> reader("binary_file_reader.in");
-    int a_new;
-    EXPECT_TRUE(reader(a_new));
-    EXPECT_EQ(a, a_new);
-}
-
-
 TEST(TestBinaryFileReader, constructFromStream){
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
@@ -156,7 +129,7 @@ TEST(TestBinaryFileReader, constructFromStream){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestBinaryFileReader, succesfulReading){
+TEST(TestBinaryFileReader, successfulReading){
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
     int a = -5643, b = 1212;
