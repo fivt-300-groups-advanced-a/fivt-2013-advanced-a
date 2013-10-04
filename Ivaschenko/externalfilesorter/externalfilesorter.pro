@@ -9,4 +9,5 @@ HEADERS += \
     io/inputstreamreader.h \
     io/abstractwriter.h \
     io/outputstreamwriter.h \
-    io/binaryfilewriter.h
+    io/binaryfilewriter.h \
+    externalfilesorter.h

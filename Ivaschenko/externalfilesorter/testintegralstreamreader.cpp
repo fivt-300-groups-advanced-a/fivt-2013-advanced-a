@@ -25,8 +25,8 @@ std::ifstream *prepareInput(const std::vector<std::string> &list)
  */
 TEST(InputStreamReader, BaseIntegralFunctions)
 {
-	std::ifstream *in = prepareInput({"    1   2 3 4 5 6 7 ", "7 6 5 4 trash 888notnumber numbernot888 3 2 1"});
-	std::vector< std::vector<int> > tests = {{1, 2, 3, 4, 5, 6, 7}, {7, 6, 5, 4, 3, 2, 1}};
+	std::ifstream *in = prepareInput({"    1   -2 3 4 5 6 -7 ", "7 -6 5 4 trash 888notnumber numbernot888 3 2 1 -172-"});
+	std::vector< std::vector<int> > tests = {{1, -2, 3, 4, 5, 6, -7}, {7, -6, 5, 4, 3, 2, 1}};
 	InputStreamReader<int> reader(*in);
 
 	int currentValue, lineNumber = 0;
@@ -63,7 +63,7 @@ TEST(InputStreamReader, IntegralDelimeterTricks)
 
 	std::vector<TestCase> tests =
 	{
-		TestCase({"1,2,4, 4 ,8,9"}, {1, 2, 4, 8, 9}, {','})
+		TestCase({"1,2,4, 4 ,8,9"}, {1, 2, 4, 8, 9}, {',', '\n'})
 	};
 
 	int currentValue, testNumber = 0;
@@ -87,7 +87,6 @@ TEST(InputStreamReader, IntegralDelimeterTricks)
 
 /*
  * Testing reading collections
- * TODO: for ints, for others
  */
 TEST(InputStreamReader, CollectionReading)
 {

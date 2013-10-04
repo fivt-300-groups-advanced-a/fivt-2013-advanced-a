@@ -39,7 +39,7 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
  *		- Reading sequences separated by adjustable delimeters
  *		- Reading non-decimal integers
  * TODO: reading hex in 0x%d format and oct in 0%d format
- * FIXME: '-' symbol is treated incorrectly!
+ * FIXME: '-' symbol is processed incorrectly!
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
