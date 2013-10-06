@@ -1,0 +1,20 @@
+var NAVTREEINDEX0 =
+{
+"bigsort_8h.html":[1,0,0,0],
+"bigsort_8h.html#acf0527b5b9f1973207c03956b15529b3":[1,0,0,0,0],
+"bigsort_8h.html#ad7165b144b515b73e85b1453513c8de2":[1,0,0,0,1],
+"bigsort_8h_source.html":[1,0,0,0],
+"bubblesort_8cpp.html":[1,0,0,1],
+"bubblesort_8cpp.html#acf0527b5b9f1973207c03956b15529b3":[1,0,0,1,0],
+"bubblesort_8cpp_source.html":[1,0,0,1],
+"dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html":[1,0,0],
+"files.html":[1,0],
+"globals.html":[1,1,0],
+"globals_func.html":[1,1,1],
+"index.html":[],
+"pages.html":[],
+"reversedbubblesort_8cpp.html":[1,0,0,2],
+"reversedbubblesort_8cpp.html#ad7165b144b515b73e85b1453513c8de2":[1,0,0,2,0],
+"reversedbubblesort_8cpp_source.html":[1,0,0,2],
+"todo.html":[0]
+};
