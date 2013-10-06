@@ -1,4 +1,7 @@
-QMAKE_CXXFLAGS += -std=gnu++0x
+include(gtest.pri)
+
+QMAKE_CXXFLAGS += -std=gnu++0x -lgtest -pthread
+QMAKE_LIBS += /usr/local/lib/libgtest.a
 
 HEADERS += \
     io/binaryfilereader.h \
@@ -6,7 +9,6 @@ HEADERS += \
     io/inputstreamreader.h \
     io/abstractwriter.h \
     io/outputstreamwriter.h \
-    io/binaryfilewriter.h
-
-SOURCES += \
-    test.cpp
+    io/binaryfilewriter.h \
+    externalfilesorter.h \
+    sorters/standartsorter.h

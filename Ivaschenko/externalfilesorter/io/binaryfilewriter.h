@@ -24,7 +24,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const std::string &fileName)
 		{
-			this->stream = new std::ofstream(fileName.c_str());
+			this->stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -33,7 +33,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const char *fileName)
 		{
-			this->stream = new std::ofstream(fileName);
+			this->stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -43,6 +43,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		void unbindStream()
 		{
+			if (this->stream) this->stream->flush();
 			if (ownStream) delete this->stream;
 			this->stream = 0;
 		}
@@ -63,7 +64,8 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		bool operator () (const DataType &element)
 		{
-			return this->ready() && this->stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
+			if (!this->ready()) return false;
+			return this->stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
 		}
 
 	private:

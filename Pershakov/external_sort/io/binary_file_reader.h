@@ -7,23 +7,46 @@
 
 template <class T> class BinaryFileReader {
     public:
-        explicit BinaryFileReader(std::ifstream &new_stream){
-            in = &new_stream;
+        ~BinaryFileReader(){
+            close();
         }
 
-        explicit BinaryFileReader(std::string filename){
-            in = new std::ifstream(filename.c_str(), 
-                        std::ifstream::binary | std::ifstream::in); 
+        explicit BinaryFileReader(std::ifstream &new_stream){
+            setStream(new_stream);
+        }
+
+        explicit BinaryFileReader(const std::string &filename){
+            setStream(filename);
         }
 
         explicit BinaryFileReader(char *filename){
+            setStream(filename);
+        }
+
+        void close(){
+            if (in)
+                in->close();
+            in = NULL;
+        }
+
+        void setStream(std::ifstream &new_stream){
+            in = &new_stream;
+        }
+
+        void setStream(const std::string &filename){
+            in = new std::ifstream(filename.c_str(), 
+                    std::ifstream::in | std::ifstream::binary);
+        }
+
+        void setStream(char *filename){
             in = new std::ifstream(filename, 
-                        std::ifstream::binary | std::istream::in);
+                    std::ifstream::in | std::ifstream::binary);
         }
 
         bool operator () (T &next){
             return in->read((char*)&next, sizeof(T));
         }
+
     private:
         std::ifstream *in;
 };

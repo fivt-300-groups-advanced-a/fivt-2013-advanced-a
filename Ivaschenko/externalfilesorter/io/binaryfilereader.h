@@ -29,7 +29,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		explicit BinaryFileReader(const std::string &fileName)
 		{
-			this->stream = new std::ifstream(fileName.c_str());
+			this->stream = new std::ifstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -38,7 +38,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		explicit BinaryFileReader(const char *fileName)
 		{
-			this->stream = new std::ifstream(fileName);
+			this->stream = new std::ifstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
