@@ -8,9 +8,9 @@ int main()
     
     int* a;
     void (*fun) (int*, int*) = &std::sort;
-    bigsort::bigsort (a, a, a, 232546, 
+    bigsort::bigsort (a, fin, fout, 232546, 
                       std::less<int>(), std::less<int>(), fun,
-                      a, a);
+                      fin, fout);
 
 
     return 0;

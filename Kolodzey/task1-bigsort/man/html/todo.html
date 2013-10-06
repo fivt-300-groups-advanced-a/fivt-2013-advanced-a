@@ -101,10 +101,8 @@ $(document).ready(function(){initNavTree('todo.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><dl class="reflist">
-<dt><a class="anchor" id="_todo000003"></a>Член <a class="el" href="namespacebigsort.html#ac55416c967c5cb46429e3b2a03a168d1">bigsort::bigsort</a>  (T *pValue, Reader reader, Writer writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader tmpReader, TmpWriter tmpWriter)</dt>
-<dd><p class="startdd">научиться передавать std::sort и std::ofstream </p>
-<p class="enddd">переписать как класс, чтобы не передавать фальшивые параметры?  </p>
-</dd>
+<dt><a class="anchor" id="_todo000003"></a>Член <a class="el" href="namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9">bigsort::bigsort</a>  (T *pValue, Reader &amp;reader, Writer &amp;writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader &amp;tmpReader, TmpWriter &amp;tmpWriter)</dt>
+<dd>научиться передавать std::sort по-человечески Переписать функцию как класс, чтобы не передавать фальшивые параметры? Или хитрым образом запилить значения по умолчанию И автопределение типа считываемого  </dd>
 <dt><a class="anchor" id="_todo000002"></a>Член <a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a>  (int a[], int len)</dt>
 <dd>убрать к чёртовой матери, ибо всё равно не используется  </dd>
 <dt><a class="anchor" id="_todo000001"></a>Член <a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a>  (int a[], int len)</dt>
@@ -115,7 +113,7 @@ $(document).ready(function(){initNavTree('todo.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:01:13. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:23:47. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

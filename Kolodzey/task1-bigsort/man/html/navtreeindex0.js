@@ -2,8 +2,8 @@ var NAVTREEINDEX0 =
 {
 "bigsort_8h.html":[2,0,0,0],
 "bigsort_8h.html#a2c19c68fe6b3ef82e837b00210738c7e":[2,0,0,0,1],
+"bigsort_8h.html#a6d560cc95939b2b9cabfea8ed092d4c9":[2,0,0,0,0],
 "bigsort_8h.html#aafceedf48ed2c8dfc743408232c7ef07":[2,0,0,0,2],
-"bigsort_8h.html#ac55416c967c5cb46429e3b2a03a168d1":[2,0,0,0,0],
 "bigsort_8h_source.html":[2,0,0,0],
 "bubblesort_8cpp.html":[2,0,0,1],
 "bubblesort_8cpp_source.html":[2,0,0,1],
