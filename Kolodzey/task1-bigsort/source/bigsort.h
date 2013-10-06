@@ -62,12 +62,20 @@
 ///Работаю под mac os x 10.8, код пишу в sublime.
 ///Использую itrerm, потому что там f14 = shift + f4, а не shift + f6.
 
+#include <string>
+#include <algorithm>
+#include <functional>
+#include <iostream>
+
+///\brief Пространство имён, в котором всё и находится
+namespace bigsort
+{
 
 ///\brief Функция сортировки пузырьком в обратную сторону
 ///
 ///Написана, чтобы потестить, точно так же, как и bubblesort()
 ///\todo убрать к чёртовой матери, ибо всё равно не используется
-void reversedBubblesort(int a[], int len);
+	void reversedBubblesort(int a[], int len);
 
 
 ///\brief Функция сортировки пузырьком.
@@ -75,4 +83,19 @@ void reversedBubblesort(int a[], int len);
 ///Написана, чтобы потестить систему unit-тестирования
 ///Cмысловой нагрузки не несёт, так же как и reversedBubblesort()
 ///\todo убрать к чёртовой матери, ибо всё равно не используется
-void bubblesort(int a[], int len);
+	void bubblesort(int a[], int len);
+
+
+///\brief та самая функция, ради которой всё писалось
+	template <class T, class Reader,    class Writer, 
+	                   class TmpReader, class TmpWriter,
+	                   class Sorter, class SortCmp, class MergeCmp>
+	void bigsort(T* pValue,
+						  Reader reader, Writer writer,
+		         		  size_t memory,
+		         		  MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter,
+		         		  TmpReader tmpReader, TmpWriter tmpWriter)
+	{
+		std::cout << "Ha-ha-ha, I'm a sorting function!!\n";
+	}
+};

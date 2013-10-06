@@ -1,19 +1,17 @@
-#include <iostream>
+#include <fstream>
 #include "bigsort.h"
 
 int main()
 {
-    int a[5] = {1, 3, 5, 4, 2};
+    std::ifstream fin("input.txt");
+    std::ofstream fout("output.txt");
     
-    bubblesort(a, 5);
-    for (int i = 0; i < 5; ++i)
-    	std::cout << a[i] << " ";
-    std::cout << std::endl;
+    int* a;
+    void (*fun) (int*, int*) = &std::sort;
+    bigsort::bigsort (a, a, a, 232546, 
+                      std::less<int>(), std::less<int>(), fun,
+                      a, a);
 
-    reversedBubblesort(a, 5);
-        for (int i = 0; i < 5; ++i)
-    	std::cout << a[i] << " ";
-    std::cout << std::endl;
 
     return 0;
 }
