@@ -30,6 +30,11 @@
 ///========
 ///сделанное выписано в обратном хронологическом порядке
 ///
+///понято, как передать ifstream аргументом
+///----------------------------------------
+///Нужно помнить, что потоки ввода-вывода нельзя копировать
+///Поэтому reader-ы и writer-ы нужно передавать по ссылке
+///
 ///понято doxygen, сделана документация
 ///------------------------------------
 /// <a href="http://www.stack.nl/~dimitri/doxygen/manual/index.html">
@@ -88,17 +93,22 @@ namespace bigsort
 
 ///\brief та самая функция, ради которой всё писалось
 ///
-///\todo научиться передавать std::sort и std::ofstream
-///\todo переписать как класс, чтобы не передавать фальшивые параметры?
+///\todo научиться передавать std::sort по-человечески
+///Переписать функцию как класс, чтобы не передавать фальшивые параметры?
+///Или хитрым образом запилить значения по умолчанию
+///И автопределение типа считываемого
 	template <class T, class Reader,    class Writer, 
 	                   class TmpReader, class TmpWriter,
 	                   class Sorter, class SortCmp, class MergeCmp>
 	void bigsort(T* pValue,
-						  Reader reader, Writer writer,
+						  Reader &reader, Writer &writer,
 		         		  size_t memory,
 		         		  MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter,
-		         		  TmpReader tmpReader, TmpWriter tmpWriter)
+		         		  TmpReader &tmpReader, TmpWriter &tmpWriter)
 	{
 		std::cout << "Ha-ha-ha, I'm a sorting function!!\n";
+		int a[3] = {1, 3, 2};
+		sorter(a, a + 3);
+		std:: cout << a[1] << std::endl;
 	}
 };

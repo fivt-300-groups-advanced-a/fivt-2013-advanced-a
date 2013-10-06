@@ -133,8 +133,11 @@ $(document).ready(function(){initNavTree('bigsort_8h_source.html','');});
 <div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;                          TmpReader &amp;tmpReader, TmpWriter &amp;tmpWriter)</div>
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    {</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;        std::cout &lt;&lt; <span class="stringliteral">&quot;Ha-ha-ha, I&#39;m a sorting function!!\n&quot;</span>;</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    }</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;};</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;        <span class="keywordtype">int</span> a[3] = {1, 3, 2};</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;        sorter(a, a + 3);</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;        std:: cout &lt;&lt; a[1] &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    }</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;};</div>
 <div class="ttc" id="namespacebigsort_html_aafceedf48ed2c8dfc743408232c7ef07"><div class="ttname"><a href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a></div><div class="ttdeci">void reversedBubblesort(int a[], int len)</div><div class="ttdoc">Функция сортировки пузырьком в обратную сторону </div><div class="ttdef"><b>Definition:</b> <a href="reversedbubblesort_8cpp_source.html#l00003">reversedbubblesort.cpp:3</a></div></div>
 <div class="ttc" id="namespacebigsort_html_a2c19c68fe6b3ef82e837b00210738c7e"><div class="ttname"><a href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a></div><div class="ttdeci">void bubblesort(int a[], int len)</div><div class="ttdoc">Функция сортировки пузырьком. </div><div class="ttdef"><b>Definition:</b> <a href="bubblesort_8cpp_source.html#l00003">bubblesort.cpp:3</a></div></div>
 <div class="ttc" id="namespacebigsort_html_a6d560cc95939b2b9cabfea8ed092d4c9"><div class="ttname"><a href="namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9">bigsort::bigsort</a></div><div class="ttdeci">void bigsort(T *pValue, Reader &amp;reader, Writer &amp;writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader &amp;tmpReader, TmpWriter &amp;tmpWriter)</div><div class="ttdoc">та самая функция, ради которой всё писалось </div><div class="ttdef"><b>Definition:</b> <a href="bigsort_8h_source.html#l00103">bigsort.h:103</a></div></div>
@@ -144,7 +147,7 @@ $(document).ready(function(){initNavTree('bigsort_8h_source.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="bigsort_8h.html">bigsort.h</a></li>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:23:47. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:28:15. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
