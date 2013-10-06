@@ -12,7 +12,7 @@
 
 /*
  * ExternalFileSorter class is used for sorting extenal fixed-type data files using
- * default or custom reader, writer, sorter and comparator functor
+ * default or custom reader, writer, sorter and comparator functors
  */
 template<typename DataType> class ExternalFileSorter
 {
@@ -28,7 +28,9 @@ template<typename DataType> class ExternalFileSorter
 		 *		- std::sort for Sorter
 		 *		- std::less for Comparator
 		 * Uses not more than (avaialbeMemory) bytes for storing data at any moment
+		 * Uses own realisation of binary heap because std::priority_queue is slow and inconvinient
 		 * Returns true if succeeded and false if error occured or data set is empty
+		 * Important: default sorting is unstable!
 		 */
 		template<typename Reader, typename Writer, typename Sorter, typename Comparator>
 		bool sort(std::size_t availableMemory,
@@ -101,20 +103,21 @@ template<typename DataType> class ExternalFileSorter
 			dataSize = 0;
 			std::size_t currentSize = 0;
 
-			while (reader(buffer[currentSize++]))
+			while (reader(buffer[currentSize]))
 			{
+				++currentSize, ++dataSize;
 				if (currentSize == bufferSize)
 				{
 					sorter(buffer, buffer + currentSize, comparator);
-					if (!writeFile(getFileName(tempFiles), buffer, bufferSize)) return 0;
+					if (!writeFile(getFileName(tempFiles), buffer, currentSize)) return 0;
 					currentSize = 0;
 					++tempFiles;
 				}
-				dataSize++;
 			}
 			if (currentSize != 0)
 			{
-				if (!writeFile(getFileName(tempFiles), buffer, bufferSize)) return 0;
+				sorter(buffer, buffer + currentSize, comparator);
+				if (!writeFile(getFileName(tempFiles), buffer, currentSize)) return 0;
 				currentSize = 0;
 				++tempFiles;
 			}
@@ -124,30 +127,55 @@ template<typename DataType> class ExternalFileSorter
 		}
 
 		/*
-		 * TODO: construct heap!
+		 * Constructs heap from array (heap) of size (tempFiles)
+		 * Has linear complexity (at most 2 * tempFiles calls of comparator())
 		 */
-		template<typename RAccessIterator, typename Comparator>
-		void constructHeap(RAccessIterator start, RAccessIterator end, Comparator &comparator)
+		template<typename Comparator> void constructHeap(Comparator &comparator)
 		{
-
+			heapSize = 0;
+			for (size_t i = 0; i < tempFiles; i++)
+				pushHeap(comparator);
 		}
 
 		/*
-		 * TODO: pop heap!
+		 * Pops min element from heap
+		 * Does not more than 2 * log(heapSize) calls of comparator()
 		 */
 		template<typename Comparator> void popHeap(Comparator &comparator)
 		{
-
+			assert(heapSize > 0);
+			swap(heap[0], heap[--heapSize]);
+			size_t curpos = 0;
+			while (2 * curpos + 1 < heapSize)
+			{
+				size_t child = 2 * curpos + 1;
+				if (child + 1 < heapSize && comparator(heap[child + 1].first, heap[child].first))
+					++child;
+				if (comparator(heap[child].first, heap[curpos].first))
+					heap[curpos].swap(heap[child]), curpos = child;
+				else break;
+			}
 		}
 
 		/*
-		 * TODO: push heap!
+		 * Inserts element to heap assuming that it is in position (heapSize) from begining of (heap)
+		 * Does not more than log(heapSize) calls of comparator()
 		 */
 		template<typename Comparator> void pushHeap(Comparator &comparator)
 		{
-
+			size_t curpos = heapSize++;
+			while (curpos != 0)
+			{
+				if (comparator(heap[curpos].first, heap[(curpos - 1) >> 1].first))
+					heap[curpos].swap(heap[(curpos - 1) >> 1]);
+				curpos = (curpos - 1) >> 1;
+			}
 		}
 
+		/*
+		 * Merges temporary sorted files created after reading data into one and outputs to (writer)
+		 * Returns true if no error occured
+		 */
 		template<typename Writer, typename Comparator>
 		bool mergeFiles(Writer &writer, Comparator &comparator)
 		{
@@ -162,7 +190,7 @@ template<typename DataType> class ExternalFileSorter
 				streams[i]->operator() (heap[i].first);
 				heap[i].second = i;
 			}
-			constructHeap(heap, heap + tempFiles, comparator);
+			constructHeap(comparator);
 
 			for (size_t i = 0; i < dataSize; i++)
 			{
@@ -171,8 +199,10 @@ template<typename DataType> class ExternalFileSorter
 				int id = heap[0].second;
 				popHeap(comparator);
 				if (streams[id]->operator() (heap[heapSize].first))
-					heap[heapSize++].second = id;
-				pushHeap(comparator);
+				{
+					heap[heapSize].second = id;
+					pushHeap(comparator);
+				}
 			}
 
 			assert(heapSize == 0);

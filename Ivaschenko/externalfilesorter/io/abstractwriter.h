@@ -36,6 +36,7 @@ template <typename DataType> class AbstractWriter
 		 */
 		virtual void unbindStream()
 		{
+			if (this->stream) this->stream->flush();
 			stream = 0;
 		}
 

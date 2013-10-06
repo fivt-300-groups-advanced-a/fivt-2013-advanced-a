@@ -78,7 +78,7 @@ template<typename IntegerType> class InputStreamReader
 					while (digitValue(c) >= 0)
 					{
 						number = number * (IntegerType) radix + (IntegerType) digitValue(c);
-						if (!this->stream->read(&c, 1)) return false;
+						if (!this->stream->read(&c, 1)) return true; // Last element before EOF
 					}
 					if (isDelimeter(c)) return number;
 					else continue;
