@@ -2,12 +2,15 @@ var NAVTREE =
 [
   [ "Bigsort", "index.html", [
     [ "Список задач", "todo.html", null ],
-    [ "Файлы", null, [
-      [ "Файлы", "files.html", "files" ],
-      [ "Список членов всех файлов", "globals.html", [
-        [ "Указатель", "globals.html", null ],
-        [ "Функции", "globals_func.html", null ]
+    [ "Пространства имен", null, [
+      [ "Пространства имен", "namespaces.html", "namespaces" ],
+      [ "Члены пространств имен", "namespacemembers.html", [
+        [ "Указатель", "namespacemembers.html", null ],
+        [ "Функции", "namespacemembers_func.html", null ]
       ] ]
+    ] ],
+    [ "Файлы", null, [
+      [ "Файлы", "files.html", "files" ]
     ] ]
   ] ]
 ];

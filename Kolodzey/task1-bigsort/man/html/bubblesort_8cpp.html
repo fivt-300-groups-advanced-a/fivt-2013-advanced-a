@@ -46,6 +46,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
     <ul class="tablist">
       <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
       <li><a href="pages.html"><span>Описания</span></a></li>
+      <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
       <li class="current"><a href="files.html"><span>Файлы</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -68,7 +69,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>Файлы</span></a></li>
-      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -91,7 +91,7 @@ $(document).ready(function(){initNavTree('bubblesort_8cpp.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Пространства имен</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -101,61 +101,20 @@ $(document).ready(function(){initNavTree('bubblesort_8cpp.html','');});
 </div>
 
 <div class="header">
-  <div class="summary">
-<a href="#func-members">Функции</a>  </div>
   <div class="headertitle">
 <div class="title">Файл bubblesort.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-
+<div class="textblock"><code>#include &quot;<a class="el" href="bigsort_8h_source.html">bigsort.h</a>&quot;</code><br/>
+</div>
 <p><a href="bubblesort_8cpp_source.html">См. исходные тексты.</a></p>
-<table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
-Функции</h2></td></tr>
-<tr class="memitem:acf0527b5b9f1973207c03956b15529b3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="bubblesort_8cpp.html#acf0527b5b9f1973207c03956b15529b3">bubblesort</a> (int a[], int len)</td></tr>
-<tr class="memdesc:acf0527b5b9f1973207c03956b15529b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Функция сортировки пузырьком.  <a href="#acf0527b5b9f1973207c03956b15529b3">Подробнее...</a><br/></td></tr>
-<tr class="separator:acf0527b5b9f1973207c03956b15529b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table>
-<h2 class="groupheader">Функции</h2>
-<a class="anchor" id="acf0527b5b9f1973207c03956b15529b3"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bubblesort </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>a</em>[], </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Функция сортировки пузырьком. </p>
-<p>Написана, чтобы потестить систему unit-тестирования Cмысловой нагрузки не несёт, так же как и <a class="el" href="bigsort_8h.html#ad7165b144b515b73e85b1453513c8de2" title="Функция сортировки пузырьком в обратную сторону ">reversedBubblesort()</a> </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Необходимо сделать:</a></b></dt><dd>убрать к чёртовой матери, ибо всё равно не используется </dd></dl>
-
-<p>См. определение в файле <a class="el" href="bubblesort_8cpp_source.html">bubblesort.cpp</a> строка <a class="el" href="bubblesort_8cpp_source.html#l00001">1</a></p>
-
-</div>
-</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="bubblesort_8cpp.html">bubblesort.cpp</a></li>
-    <li class="footer">Документация по Bigsort. Последние изменения: Вс 6 Окт 2013 22:54:26. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:01:13. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

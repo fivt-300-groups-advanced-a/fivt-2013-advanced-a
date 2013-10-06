@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>Bigsort: Список задач</title>
+<title>Bigsort: Файл source/mainsort.cpp</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -45,9 +45,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
-      <li class="current"><a href="pages.html"><span>Описания</span></a></li>
+      <li><a href="pages.html"><span>Описания</span></a></li>
       <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
-      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -66,6 +66,11 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
       </li>
     </ul>
   </div>
+  <div id="navrow2" class="tabs2">
+    <ul class="tablist">
+      <li><a href="files.html"><span>Файлы</span></a></li>
+    </ul>
+  </div>
 </div><!-- top -->
 <div id="side-nav" class="ui-resizable side-nav-resizable">
   <div id="nav-tree">
@@ -78,7 +83,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('todo.html','');});
+$(document).ready(function(){initNavTree('mainsort_8cpp.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -97,25 +102,23 @@ $(document).ready(function(){initNavTree('todo.html','');});
 
 <div class="header">
   <div class="headertitle">
-<div class="title">Список задач </div>  </div>
+<div class="title">Файл mainsort.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><dl class="reflist">
-<dt><a class="anchor" id="_todo000003"></a>Член <a class="el" href="namespacebigsort.html#ac55416c967c5cb46429e3b2a03a168d1">bigsort::bigsort</a>  (T *pValue, Reader reader, Writer writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader tmpReader, TmpWriter tmpWriter)</dt>
-<dd><p class="startdd">научиться передавать std::sort и std::ofstream </p>
-<p class="enddd">переписать как класс, чтобы не передавать фальшивые параметры?  </p>
-</dd>
-<dt><a class="anchor" id="_todo000002"></a>Член <a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a>  (int a[], int len)</dt>
-<dd>убрать к чёртовой матери, ибо всё равно не используется  </dd>
-<dt><a class="anchor" id="_todo000001"></a>Член <a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a>  (int a[], int len)</dt>
-<dd>убрать к чёртовой матери, ибо всё равно не используется </dd>
-</dl>
-</div></div><!-- contents -->
+<div class="textblock"><code>#include &lt;iostream&gt;</code><br/>
+<code>#include &lt;string&gt;</code><br/>
+<code>#include &lt;algorithm&gt;</code><br/>
+<code>#include &lt;functional&gt;</code><br/>
+<code>#include &quot;<a class="el" href="bigsort_8h_source.html">bigsort.h</a>&quot;</code><br/>
+</div>
+<p><a href="mainsort_8cpp_source.html">См. исходные тексты.</a></p>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:01:13. Создано системой
+    <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="mainsort_8cpp.html">mainsort.cpp</a></li>
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 02:58:27. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

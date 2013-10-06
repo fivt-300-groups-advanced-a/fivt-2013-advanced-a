@@ -87,6 +87,9 @@ namespace bigsort
 
 
 ///\brief та самая функция, ради которой всё писалось
+///
+///\todo научиться передавать std::sort и std::ofstream
+///\todo переписать как класс, чтобы не передавать фальшивые параметры?
 	template <class T, class Reader,    class Writer, 
 	                   class TmpReader, class TmpWriter,
 	                   class Sorter, class SortCmp, class MergeCmp>
