@@ -1,5 +1,5 @@
-#ifndef EXTERNALFILESORTER_H
-#define EXTERNALFILESORTER_H
+#ifndef EXTERNALSORTER_H
+#define EXTERNALSORTER_H
 
 #include <cstdio>
 #include <cassert>
@@ -10,11 +10,14 @@
 #include "io/binaryfilewriter.h"
 #include "io/binaryfilereader.h"
 
+#include "utils/binaryheap.h"
+#include "utils/stablebinaryheap.h"
+
 /*
  * ExternalFileSorter class is used for sorting extenal fixed-type data files using
  * default or custom reader, writer, sorter and comparator functors
  */
-template<typename DataType> class ExternalFileSorter
+template<typename DataType> class ExternalSorter
 {
 	public:
 		/*
@@ -30,10 +33,35 @@ template<typename DataType> class ExternalFileSorter
 		 * Uses not more than (avaialbeMemory) bytes for storing data at any moment
 		 * Uses own realisation of binary heap because std::priority_queue is slow and inconvinient
 		 * Returns true if succeeded and false if error occured or data set is empty
-		 * Important: default sorting is unstable!
+		 * Important: default sorting is unstable
 		 */
 		template<typename Reader, typename Writer, typename Sorter, typename Comparator>
-		bool sort(std::size_t availableMemory,
+		bool sort(  std::size_t availableMemory,
+					Reader &reader,
+					Writer &writer,
+					Sorter sorter,
+					Comparator comparator = std::less<DataType>())
+		{
+			cleanUp();
+			int bufferSize = availableMemory / sizeof(DataType);
+			if (!bufferSize) return false;
+			if (!readData(bufferSize, reader, sorter, comparator))
+			{
+				cleanUp();
+				return false;
+			}
+			BinaryHeap<DataType> heap;
+			bool success = mergeFiles(writer, comparator, heap);
+			cleanUp();
+			return success;
+		}
+
+		/*
+		 * Stable variant of ExternalFileSorter::sort function
+		 * Important: requires stable Sorter
+		 */
+		template<typename Reader, typename Writer, typename Sorter, typename Comparator>
+		bool stableSort(std::size_t availableMemory,
 				  Reader &reader,
 				  Writer &writer,
 				  Sorter sorter,
@@ -47,14 +75,14 @@ template<typename DataType> class ExternalFileSorter
 				cleanUp();
 				return false;
 			}
-			bool success = mergeFiles(writer, comparator);
+			StableBinaryHeap<DataType> heap;
+			bool success = mergeFiles(writer, comparator, heap);
 			cleanUp();
 			return success;
 		}
 
 	private:
-		std::size_t tempFiles, dataSize, heapSize;
-		std::pair<DataType, int> *heap;
+		std::size_t tempFiles, dataSize;
 
 		/*
 		 * Returns temporary file name #number.
@@ -62,7 +90,7 @@ template<typename DataType> class ExternalFileSorter
 		 */
 		std::string getFileName(int number)
 		{
-			char name[100];
+			char name[100]; // FIXME: fixed size
 			sprintf(name, "%d", number);
 			return ".part" + std::string(name) + ".tmp";
 		}
@@ -93,7 +121,7 @@ template<typename DataType> class ExternalFileSorter
 
 		/*
 		 * Reads data from reader to buffer, sorts it and outputs to temporary files
-		 * Returns number of created files (<= 0 if error)
+		 * Returns number of created files (less or equal 0 if error)
 		 */
 		template<typename Reader, typename Sorter, typename Comparator>
 		int readData(std::size_t bufferSize, Reader &reader, Sorter &sorter, Comparator &comparator)
@@ -127,89 +155,43 @@ template<typename DataType> class ExternalFileSorter
 		}
 
 		/*
-		 * Constructs heap from array (heap) of size (tempFiles)
-		 * Has linear complexity (at most 2 * tempFiles calls of comparator())
-		 */
-		template<typename Comparator> void constructHeap(Comparator &comparator)
-		{
-			heapSize = 0;
-			for (size_t i = 0; i < tempFiles; i++)
-				pushHeap(comparator);
-		}
-
-		/*
-		 * Pops min element from heap
-		 * Does not more than 2 * log(heapSize) calls of comparator()
-		 */
-		template<typename Comparator> void popHeap(Comparator &comparator)
-		{
-			assert(heapSize > 0);
-			swap(heap[0], heap[--heapSize]);
-			size_t curpos = 0;
-			while (2 * curpos + 1 < heapSize)
-			{
-				size_t child = 2 * curpos + 1;
-				if (child + 1 < heapSize && comparator(heap[child + 1].first, heap[child].first))
-					++child;
-				if (comparator(heap[child].first, heap[curpos].first))
-					heap[curpos].swap(heap[child]), curpos = child;
-				else break;
-			}
-		}
-
-		/*
-		 * Inserts element to heap assuming that it is in position (heapSize) from begining of (heap)
-		 * Does not more than log(heapSize) calls of comparator()
-		 */
-		template<typename Comparator> void pushHeap(Comparator &comparator)
-		{
-			size_t curpos = heapSize++;
-			while (curpos != 0)
-			{
-				if (comparator(heap[curpos].first, heap[(curpos - 1) >> 1].first))
-					heap[curpos].swap(heap[(curpos - 1) >> 1]);
-				curpos = (curpos - 1) >> 1;
-			}
-		}
-
-		/*
 		 * Merges temporary sorted files created after reading data into one and outputs to (writer)
+		 * Uses mergesort algorithm with binary heap (HeapClass)
 		 * Returns true if no error occured
 		 */
-		template<typename Writer, typename Comparator>
-		bool mergeFiles(Writer &writer, Comparator &comparator)
+		template<typename Writer, typename Comparator, typename HeapClass>
+		bool mergeFiles(Writer &writer, Comparator &comparator, HeapClass &heap)
 		{
 			assert(tempFiles != 0);
 			std::vector< BinaryFileReader<DataType>* > streams(tempFiles);
-			heap = new std::pair<DataType, int>[tempFiles];
-			heapSize = tempFiles;
+			heap.data = new std::pair<DataType, int>[tempFiles];
 
 			for (std::size_t i = 0; i < tempFiles; i++)
 			{
 				streams[i] = new BinaryFileReader<DataType>(getFileName(i));
-				streams[i]->operator() (heap[i].first);
-				heap[i].second = i;
+				streams[i]->operator() (heap.data[i].first);
+				heap.data[i].second = i;
 			}
-			constructHeap(comparator);
+			heap.construct(tempFiles, comparator);
 
-			for (size_t i = 0; i < dataSize; i++)
+			for (std::size_t i = 0; i < dataSize; i++)
 			{
-				if (!heapSize) return false;
-				if (!writer(heap[0].first)) return false;
-				int id = heap[0].second;
-				popHeap(comparator);
-				if (streams[id]->operator() (heap[heapSize].first))
+				if (!heap.size) return false;
+				if (!writer(heap.data[0].first)) return false;
+				int id = heap.data[0].second;
+				heap.pop(comparator);
+				if (streams[id]->operator() (heap.data[heap.size].first))
 				{
-					heap[heapSize].second = id;
-					pushHeap(comparator);
+					heap.data[heap.size].second = id;
+					heap.push(comparator);
 				}
 			}
 
-			assert(heapSize == 0);
-			delete [] heap;
+			assert(heap.size == 0);
+			delete [] heap.data;
 			for (std::size_t i = 0; i < tempFiles; i++) delete streams[i];
 			return true;
 		}
 };
 
-#endif // EXTERNALFILESORTER_H
+#endif // EXTERNALSORTER_H

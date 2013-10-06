@@ -8,7 +8,7 @@
 
 #include "sorters/standartsorter.h"
 
-#include "externalfilesorter.h"
+#include "externalsorter.h"
 
 #include <gtest/gtest.h>
 
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
 	InputStreamReader<int> reader;
 	OutputStreamWriter<int> writer;
-	ExternalFileSorter<int> sorter;
+	ExternalSorter<int> sorter;
 
 	sorter.sort(4, reader, writer, StandartSorter<int>(), std::less<int>());
 	::testing::InitGoogleTest(&argc, argv);
