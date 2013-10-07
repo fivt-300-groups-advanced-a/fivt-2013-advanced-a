@@ -7,8 +7,8 @@
 
 template<typename Type> class Reader{
     public:
-        explicit Reader(std::ifstream &Input){
-            Stream = &Input;
+        explicit Reader(std::ifstream &YourStream){
+            Stream = &YourStream;
         }
         explicit Reader(const std::string &FileName){
             Stream = new std::ifstream(FileName.c_str());

@@ -4,12 +4,10 @@ class Reader
 {
 	protected:
 		istream * inputStream;	
-		filebuf fileBuffer;
 	public:
 		Reader(const char * fileName)
 		{
-			fileBuffer.open(fileName, ios::in);
-			inputStream = new istream(&fileBuffer);
+			inputStream = new ifstream(fileName, ios::in);
 		}
 		template <class Type>
 		bool operator () (Type & x)
