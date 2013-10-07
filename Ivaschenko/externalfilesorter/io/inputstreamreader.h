@@ -39,6 +39,7 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
  *		- Reading sequences separated by adjustable delimeters
  *		- Reading non-decimal integers
  * TODO: reading hex in 0x%d format and oct in 0%d format
+ * FIXME: '-' symbol is processed incorrectly!
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
@@ -46,13 +47,14 @@ template<typename IntegerType> class InputStreamReader
 {
 	public:
 		/**
-		 * Initialising from any input stream, default radix is 10, defualt delimeter is space
+		 * Initialising from any input stream, default radix is 10, defualt delimeter is space and eoln
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
 			this->stream = &in;
 			radix = 10u;
 			addDelimeter(' ');
+			addDelimeter('\n');
 		}
 
 
@@ -76,7 +78,7 @@ template<typename IntegerType> class InputStreamReader
 					while (digitValue(c) >= 0)
 					{
 						number = number * (IntegerType) radix + (IntegerType) digitValue(c);
-						if (!this->stream->read(&c, 1)) return false;
+						if (!this->stream->read(&c, 1)) return true; // Last element before EOF
 					}
 					if (isDelimeter(c)) return number;
 					else continue;

@@ -5,18 +5,20 @@
 
 #include "io/inputstreamreader.h"
 #include "io/outputstreamwriter.h"
-#include "io/binaryfilereader.h"
-#include "io/binaryfilewriter.h"
+
+#include "sorters/standartsorter.h"
+
+#include "externalfilesorter.h"
 
 #include <gtest/gtest.h>
 
-int main()
+int main(int argc, char **argv)
 {
-	InputStreamReader<int> intReader;
-	InputStreamReader<float> floatReader;
-	InputStreamReader<std::string> stringReader;
+	InputStreamReader<int> reader;
+	OutputStreamWriter<int> writer;
+	ExternalFileSorter<int> sorter;
 
-	intReader.isDelimeter(' ');
-	EXPECT_EQ(2 + 2, 4);
-	return 0;
+	sorter.sort(4, reader, writer, StandartSorter<int>(), std::less<int>());
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
 }

@@ -29,6 +29,7 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 		 */
 		void unbindStream()
 		{
+			if (this->stream) this->stream->flush();
 			if (!startLine) newLine();
 			this->stream = 0;
 		}
