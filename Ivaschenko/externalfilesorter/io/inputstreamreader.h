@@ -39,7 +39,6 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
  *		- Reading sequences separated by adjustable delimeters
  *		- Reading non-decimal integers
  * TODO: reading hex in 0x%d format and oct in 0%d format
- * FIXME: '-' symbol is processed incorrectly!
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
@@ -47,31 +46,34 @@ template<typename IntegerType> class InputStreamReader
 {
 	public:
 		/**
-		 * Initialising from any input stream, default radix is 10, defualt delimeter is space and eoln
+		 * Initialising from any input stream, default radix is 10.
+		 * Defualt delimeters are space and eoln
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
 			this->stream = &in;
 			radix = 10u;
+			resetDelimeters();
 			addDelimeter(' ');
 			addDelimeter('\n');
 		}
 
 
 		/**
-		 * Read an element. Reads input char by char searching of group of consecutive digits surrounded by delimeters
-		 * Returns true in case of success, false otherwise
+		 * Read an element. Reads input char by char searching of group of consecutive digits
+		 * surrounded by delimeters. Returns true in case of success, false otherwise
 		 */
 		bool operator() (IntegerType &number)
 		{
 			if (!this->ready()) return false;
+			char c = 0;
 			while (true)
 			{
-				char c;
+				while (c == 0 || isDelimeter(c))
+					if (!this->stream->read(&c, 1)) return false;
 
-				do if (!this->stream->read(&c, 1)) return false;
-				while (isDelimeter(c));
-
+				bool minus = c == '-' && std::is_signed<IntegerType>::value;
+				if (minus && !this->stream->read(&c, 1)) return false;
 				if (digitValue(c) >= 0)
 				{
 					number = 0;
@@ -80,12 +82,16 @@ template<typename IntegerType> class InputStreamReader
 						number = number * (IntegerType) radix + (IntegerType) digitValue(c);
 						if (!this->stream->read(&c, 1)) return true; // Last element before EOF
 					}
-					if (isDelimeter(c)) return number;
+					if (isDelimeter(c))
+					{
+						if (minus) number = -number;
+						return true;
+					}
 					else continue;
 				}
 
-				do if (!this->stream->read(&c, 1)) return false;
-				while (!isDelimeter(c));
+				while (!isDelimeter(c))
+					if (!this->stream->read(&c, 1)) return false;
 			}
 		}
 
@@ -93,10 +99,7 @@ template<typename IntegerType> class InputStreamReader
 		 * Reads sequence of numbers by two output iterators
 		 * Returns true in case of success, false otherwise
 		 */
-		template<class OutputIterator> bool operator ()
-			(
-				OutputIterator begin, OutputIterator end
-			)
+		template<class OutputIterator> bool operator () (OutputIterator begin, OutputIterator end)
 		{
 			for (; begin != end; ++begin)
 				if (!this->operator() (*begin)) return false;
@@ -124,44 +127,62 @@ template<typename IntegerType> class InputStreamReader
 		 */
 		std::set<char> getDelimeters() const
 		{
-			return delimeters;
+			std::set<char> answer;
+			for (int i = 0; i < alphabet; ++i)
+				if (delimeterMask[i])
+					answer.insert(i);
+			return answer;
+		}
+
+		void resetDelimeters()
+		{
+			for (int i = 0; i < alphabet; ++i)
+				delimeterMask[i] = 0;
 		}
 
 		/**
 		 * Applies a new set of delimeters
 		 */
-		void setDelimeters(const std::set<char> &nDelimeters)
+		template <typename ForwardIterator>
+		void setDelimeters(ForwardIterator begin, ForwardIterator end)
 		{
-			delimeters = nDelimeters;
+			resetDelimeters();
+			for (; begin != end; ++begin)
+				addDelimeter(*begin);
+			if (std::is_signed<IntegerType>::value)
+				removeDelimeter('-');
 		}
 
 		/**
 		 * Checks whether c is delimeter
 		 */
-		bool isDelimeter(char c) const
+		bool isDelimeter(unsigned char c) const
 		{
-			return delimeters.count(c);
+			return delimeterMask[c];
 		}
 
 		/**
 		 * Adds delimeter to the set
 		 */
-		void addDelimeter(char c)
+		void addDelimeter(unsigned char c)
 		{
-			delimeters.insert(c);
+			if (!std::is_signed<IntegerType>::value || c != '-')
+				delimeterMask[c] = 1;
 		}
 
 		/**
 		 * Removes delimeter from the set
 		 */
-		void removeDelimeter(char c)
+		void removeDelimeter(unsigned char c)
 		{
-			delimeters.erase(c);
+			delimeterMask[c] = 0;
 		}
 
 	private:
+		static const int alphabet = 256;
+
 		unsigned int radix;
-		std::set<char> delimeters;
+		bool delimeterMask[alphabet];
 
 		/**
 		 * Checks whether radix is valid
@@ -185,10 +206,9 @@ template<typename IntegerType> class InputStreamReader
 
 /**
  * Specification of InputStreamReader for all floating point types
- * TODO:
- *		-> Reading numbers in exponential, decimal and common fractions
- *		-> Multi-radix
- *		-> Adjustable floating point character
+ * TODO: Reading numbers in exponential form, decimal and common fractions
+ * TODO: Multi-radix
+ * TODO: Adjustable floating point character
  */
 template<typename FloatType> class InputStreamReader
 		<FloatType, typename std::enable_if< std::is_floating_point<FloatType>::value >::type>
@@ -204,9 +224,7 @@ template<typename FloatType> class InputStreamReader
 
 /**
  * Specification of InputStreamReader for std::strings
- * TODO:
- *		-> Reading string with adjustable set of delimeters
- *		-> Including line by line and word by word
+ * TODO: Reading tokens with adjustable set of delimeters, including line by line and word by word
  */
 template<> class InputStreamReader
 		<std::string, void>

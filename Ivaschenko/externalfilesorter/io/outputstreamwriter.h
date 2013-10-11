@@ -8,8 +8,6 @@
 /**
  * Class implementing AbstractWriter interface
  * Used for writing fixed-type data (and sequences of data) to output stream
- *
- * TODO: specialisation for integer and float types
  */
 template<typename DataType> class OutputStreamWriter : public AbstractWriter<DataType>
 {
