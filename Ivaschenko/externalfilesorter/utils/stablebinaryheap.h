@@ -17,12 +17,12 @@ template <typename DataType> class StableBinaryHeap
 
 		/*
 		 * Constructs heap from array (heap) of size (tempFiles)
-		 * Has linear complexity (at most 2 * tempFiles calls of comparator())
+		 * Has linear complexity (at most 4 * tempFiles calls of comparator())
 		 */
-		template<typename Comparator> void construct(std::size_t size, Comparator &comparator)
+		template<typename Comparator> void construct(std::size_t newSize, Comparator &comparator)
 		{
 			size = 0;
-			for (std::size_t i = 0; i < size; i++)
+			for (std::size_t i = 0; i < newSize; i++)
 				push(comparator);
 		}
 
@@ -38,9 +38,9 @@ template <typename DataType> class StableBinaryHeap
 			while (2 * curpos + 1 < size)
 			{
 				std::size_t child = 2 * curpos + 1;
-				if (child + 1 < size && comparator(data[child + 1].first, data[child].first))
+				if (child + 1 < size && comparePair(data[child + 1], data[child], comparator))
 					++child;
-				if (comparePair(data[child].first, data[curpos].first))
+				if (comparePair(data[child], data[curpos], comparator))
 					data[curpos].swap(data[child]), curpos = child;
 				else break;
 			}
@@ -55,7 +55,7 @@ template <typename DataType> class StableBinaryHeap
 			size_t curpos = size++;
 			while (curpos != 0)
 			{
-				if (comparePair(data[curpos].first, data[(curpos - 1) >> 1].first))
+				if (comparePair(data[curpos], data[(curpos - 1) >> 1], comparator))
 					data[curpos].swap(data[(curpos - 1) >> 1]);
 				curpos = (curpos - 1) >> 1;
 			}
@@ -63,7 +63,7 @@ template <typename DataType> class StableBinaryHeap
 
 	private:
 		/*
-		 * Lexicographyc operator <
+		 * Lexicographic operator <
 		 */
 		template<typename Comparator>
 		bool comparePair(const std::pair<DataType, int> &a, const std::pair<DataType, int> &b, Comparator &cmp)

@@ -19,10 +19,10 @@ template <typename DataType> class BinaryHeap
 		 * Constructs heap from array (heap) of size (tempFiles)
 		 * Has linear complexity (at most 2 * tempFiles calls of comparator())
 		 */
-		template<typename Comparator> void construct(std::size_t size, Comparator &comparator)
+		template<typename Comparator> void construct(std::size_t newSize, Comparator &comparator)
 		{
 			size = 0;
-			for (std::size_t i = 0; i < size; i++)
+			for (std::size_t i = 0; i < newSize; i++)
 				push(comparator);
 		}
 
