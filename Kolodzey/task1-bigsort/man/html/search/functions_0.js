@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['bubblesort',['bubblesort',['../bigsort_8h.html#acf0527b5b9f1973207c03956b15529b3',1,'bubblesort(int a[], int len):&#160;bubblesort.cpp'],['../bubblesort_8cpp.html#acf0527b5b9f1973207c03956b15529b3',1,'bubblesort(int a[], int len):&#160;bubblesort.cpp']]]
+  ['bigsort',['bigsort',['../namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9',1,'bigsort']]],
+  ['bubblesort',['bubblesort',['../namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e',1,'bigsort']]]
 ];

@@ -30,6 +30,17 @@
 ///========
 ///сделанное выписано в обратном хронологическом порядке
 ///
+///понято, как передать ifstream аргументом
+///----------------------------------------
+///Нужно помнить, что потоки ввода-вывода нельзя копировать
+///Поэтому reader-ы и writer-ы нужно передавать по ссылке
+///
+///понято, как скомпилировать шаблонную функцию
+///--------------------------------------------
+///Шаблонная ф-ия должна быть в header-е, иначе проект не соберётся
+///Иначе откуда компилятору знать о том, при каких конкретных параметрах
+///ты её вызовешь?
+///
 ///понято doxygen, сделана документация
 ///------------------------------------
 /// <a href="http://www.stack.nl/~dimitri/doxygen/manual/index.html">
@@ -48,6 +59,7 @@
 ///--------------------------
 /// <a href="http://podelise.ru/tw_files2/urls_202/1/d-719/7z-docs/1_html_m2fe3dd4a.jpg">
 ///Картинка про файлы .o</a>
+///Зы. Читайте конспект за 07.10.2013 в папке ../lesson-notes 
 ///
 ///понято git
 ///----------
@@ -62,12 +74,20 @@
 ///Работаю под mac os x 10.8, код пишу в sublime.
 ///Использую itrerm, потому что там f14 = shift + f4, а не shift + f6.
 
+#include <string>
+#include <algorithm>
+#include <functional>
+#include <iostream>
+
+///\brief Пространство имён, в котором всё и находится
+namespace bigsort
+{
 
 ///\brief Функция сортировки пузырьком в обратную сторону
 ///
 ///Написана, чтобы потестить, точно так же, как и bubblesort()
 ///\todo убрать к чёртовой матери, ибо всё равно не используется
-void reversedBubblesort(int a[], int len);
+	void reversedBubblesort(int a[], int len);
 
 
 ///\brief Функция сортировки пузырьком.
@@ -75,4 +95,34 @@ void reversedBubblesort(int a[], int len);
 ///Написана, чтобы потестить систему unit-тестирования
 ///Cмысловой нагрузки не несёт, так же как и reversedBubblesort()
 ///\todo убрать к чёртовой матери, ибо всё равно не используется
-void bubblesort(int a[], int len);
+	void bubblesort(int a[], int len);
+
+
+///\brief та самая функция, ради которой всё писалось
+///
+///\todo научиться передавать std::sort по-человечески
+///Переписать функцию как класс, чтобы не передавать фальшивые параметры?
+///Или хитрым образом запилить значения по умолчанию
+///И автопределение типа считываемого
+	template <class T, class Reader,    class Writer, 
+	                   class TmpStream,
+	                   class Sorter, class SortCmp, class MergeCmp>
+	void bigsort(T &tmpVal,
+						  Reader &reader, Writer &writer,
+		         		  int k,
+		         		  MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter,
+		         		  TmpStream tmpStream)
+	{
+		writer << "Ha-ha-ha, I'm a sorting function!!\n";
+		
+		int pfile = 0;
+		
+		while (!reader.eof())
+		{
+			reader >> tmpVal;
+			std::cout << tmpVal << "will be written to" << pfile << std::endl;
+			tmpStream[pfile] << tmpVal << " ";
+			pfile = (pfile + 1) % k;
+		}
+	}
+};

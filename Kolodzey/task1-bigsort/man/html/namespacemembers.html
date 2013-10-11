@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.5"/>
-<title>Bigsort: Исходный файл source/bubblesort.cpp</title>
+<title>Bigsort: Члены пространств имен</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -46,8 +46,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
     <ul class="tablist">
       <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
       <li><a href="pages.html"><span>Описания</span></a></li>
-      <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
-      <li class="current"><a href="files.html"><span>Файлы</span></a></li>
+      <li class="current"><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
+      <li><a href="files.html"><span>Файлы</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -68,7 +68,14 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="files.html"><span>Файлы</span></a></li>
+      <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
+      <li class="current"><a href="namespacemembers.html"><span>Члены&#160;пространств&#160;имен</span></a></li>
+    </ul>
+  </div>
+  <div id="navrow3" class="tabs2">
+    <ul class="tablist">
+      <li class="current"><a href="namespacemembers.html"><span>Указатель</span></a></li>
+      <li><a href="namespacemembers_func.html"><span>Функции</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -83,7 +90,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   </div>
 </div>
 <script type="text/javascript">
-$(document).ready(function(){initNavTree('bubblesort_8cpp_source.html','');});
+$(document).ready(function(){initNavTree('namespacemembers.html','');});
 </script>
 <div id="doc-content">
 <!-- window showing the filter options -->
@@ -100,32 +107,23 @@ $(document).ready(function(){initNavTree('bubblesort_8cpp_source.html','');});
 </iframe>
 </div>
 
-<div class="header">
-  <div class="headertitle">
-<div class="title">bubblesort.cpp</div>  </div>
-</div><!--header-->
 <div class="contents">
-<a href="bubblesort_8cpp.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="bigsort_8h.html">bigsort.h</a>&quot;</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
-<div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">    3</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a>(<span class="keywordtype">int</span> a[], <span class="keywordtype">int</span> len)</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = len - 1; i &gt; 0; --i)</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; i; ++j)</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;            <span class="keywordflow">if</span> (a[j] &gt; a[j + 1])</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;            {</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;                <span class="keywordtype">int</span> t = a[j];</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;                a[j] = a[j + 1];</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;                a[j + 1] = t;</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;            }</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;}</div>
-<div class="ttc" id="bigsort_8h_html"><div class="ttname"><a href="bigsort_8h.html">bigsort.h</a></div></div>
-<div class="ttc" id="namespacebigsort_html_a2c19c68fe6b3ef82e837b00210738c7e"><div class="ttname"><a href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a></div><div class="ttdeci">void bubblesort(int a[], int len)</div><div class="ttdoc">Функция сортировки пузырьком. </div><div class="ttdef"><b>Definition:</b> <a href="bubblesort_8cpp_source.html#l00003">bubblesort.cpp:3</a></div></div>
-</div><!-- fragment --></div><!-- contents -->
+<div class="textblock">Полный список членов простанств имен.</div><ul>
+<li>bigsort()
+: <a class="el" href="namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9">bigsort</a>
+</li>
+<li>bubblesort()
+: <a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort</a>
+</li>
+<li>reversedBubblesort()
+: <a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort</a>
+</li>
+</ul>
+</div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="bubblesort_8cpp.html">bubblesort.cpp</a></li>
     <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>

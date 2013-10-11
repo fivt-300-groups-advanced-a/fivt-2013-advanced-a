@@ -46,6 +46,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
     <ul class="tablist">
       <li><a href="index.html"><span>Титульная&#160;страница</span></a></li>
       <li><a href="pages.html"><span>Описания</span></a></li>
+      <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
       <li class="current"><a href="files.html"><span>Файлы</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -68,7 +69,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>Файлы</span></a></li>
-      <li><a href="globals.html"><span>Список&#160;членов&#160;всех&#160;файлов</span></a></li>
     </ul>
   </div>
 </div><!-- top -->
@@ -91,7 +91,7 @@ $(document).ready(function(){initNavTree('reversedbubblesort_8cpp_source.html','
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Пространства имен</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -105,25 +105,28 @@ $(document).ready(function(){initNavTree('reversedbubblesort_8cpp_source.html','
 <div class="title">reversedbubblesort.cpp</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="reversedbubblesort_8cpp.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno"><a class="line" href="reversedbubblesort_8cpp.html#ad7165b144b515b73e85b1453513c8de2">    1</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="reversedbubblesort_8cpp.html#ad7165b144b515b73e85b1453513c8de2">reversedBubblesort</a>(<span class="keywordtype">int</span> a[], <span class="keywordtype">int</span> len)</div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;{</div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = len - 1; i &gt; 0; --i)</div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; i; ++j)</div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;            <span class="keywordflow">if</span> (a[j] &lt; a[j + 1])</div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;            {</div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;                <span class="keywordtype">int</span> t = a[j];</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;                a[j] = a[j + 1];</div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;                a[j + 1] = t;</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;            }</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;}</div>
-<div class="ttc" id="reversedbubblesort_8cpp_html_ad7165b144b515b73e85b1453513c8de2"><div class="ttname"><a href="reversedbubblesort_8cpp.html#ad7165b144b515b73e85b1453513c8de2">reversedBubblesort</a></div><div class="ttdeci">void reversedBubblesort(int a[], int len)</div><div class="ttdoc">Функция сортировки пузырьком в обратную сторону </div><div class="ttdef"><b>Definition:</b> <a href="reversedbubblesort_8cpp_source.html#l00001">reversedbubblesort.cpp:1</a></div></div>
+<a href="reversedbubblesort_8cpp.html">См. документацию.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="bigsort_8h.html">bigsort.h</a>&quot;</span></div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;</div>
+<div class="line"><a name="l00003"></a><span class="lineno"><a class="line" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">    3</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a>(<span class="keywordtype">int</span> a[], <span class="keywordtype">int</span> len)</div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;{</div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = len - 1; i &gt; 0; --i)</div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> j = 0; j &lt; i; ++j)</div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;            <span class="keywordflow">if</span> (a[j] &lt; a[j + 1])</div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;            {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;                <span class="keywordtype">int</span> t = a[j];</div>
+<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;                a[j] = a[j + 1];</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;                a[j + 1] = t;</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;            }</div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;}</div>
+<div class="ttc" id="namespacebigsort_html_aafceedf48ed2c8dfc743408232c7ef07"><div class="ttname"><a href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a></div><div class="ttdeci">void reversedBubblesort(int a[], int len)</div><div class="ttdoc">Функция сортировки пузырьком в обратную сторону </div><div class="ttdef"><b>Definition:</b> <a href="reversedbubblesort_8cpp_source.html#l00003">reversedbubblesort.cpp:3</a></div></div>
+<div class="ttc" id="bigsort_8h_html"><div class="ttname"><a href="bigsort_8h.html">bigsort.h</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="reversedbubblesort_8cpp.html">reversedbubblesort.cpp</a></li>
-    <li class="footer">Документация по Bigsort. Последние изменения: Вс 6 Окт 2013 22:54:26. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

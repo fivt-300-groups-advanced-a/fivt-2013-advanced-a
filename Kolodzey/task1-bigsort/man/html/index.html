@@ -46,6 +46,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Поиск');
     <ul class="tablist">
       <li class="current"><a href="index.html"><span>Титульная&#160;страница</span></a></li>
       <li><a href="pages.html"><span>Описания</span></a></li>
+      <li><a href="namespaces.html"><span>Пространства&#160;имен</span></a></li>
       <li><a href="files.html"><span>Файлы</span></a></li>
       <li>
         <div id="MSearchBox" class="MSearchBoxInactive">
@@ -85,7 +86,7 @@ $(document).ready(function(){initNavTree('index.html','');});
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Указатель</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Пространства имен</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Файлы</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Функции</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Страницы</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -110,6 +111,10 @@ $(document).ready(function(){initNavTree('index.html','');});
 <p>Если вы мои одногруппники, читайте то, что написано под заголовком «Сделано», чтобы разобраться, как ЭТО вообще получилось</p>
 <h1>Сделано: </h1>
 <p>сделанное выписано в обратном хронологическом порядке</p>
+<h2>понято, как передать ifstream аргументом </h2>
+<p>Нужно помнить, что потоки ввода-вывода нельзя копировать Поэтому reader-ы и writer-ы нужно передавать по ссылке</p>
+<h2>понято, как скомпилировать шаблонную функцию </h2>
+<p>Шаблонная ф-ия должна быть в header-е, иначе проект не соберётся Иначе откуда компилятору знать о том, при каких конкретных параметрах ты её вызовешь?</p>
 <h2>понято doxygen, сделана документация </h2>
 <p><a href="http://www.stack.nl/~dimitri/doxygen/manual/index.html">документация по doxygen</a></p>
 <h2>понято make, собрано googletest </h2>
@@ -125,7 +130,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Документация по Bigsort. Последние изменения: Вс 6 Окт 2013 22:54:26. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
