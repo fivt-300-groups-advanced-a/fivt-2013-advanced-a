@@ -1,21 +1,20 @@
 #include <fstream>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "io/inputstreamreader.h"
 
-/*
- * Auxillary function to write few lines into file
- */
-std::ifstream *prepareInput(const std::vector<std::string> &list)
+namespace
 {
-	const std::string fileName = "testFile.txt";
-
-	std::ofstream out(fileName);
-	for (std::string line : list)
-		out << line << '\n';
-	out.close();
-
-	return new std::ifstream(fileName);
+	/*
+	 * Returns stream, containing some lines of text
+	 */
+	std::istream *prepareInput(const std::vector<std::string> &list)
+	{
+		std::string rawData = "";
+		for (auto line : list) rawData += line + '\n';
+		return new std::istringstream(rawData);
+	}
 }
 
 /*
@@ -23,9 +22,9 @@ std::ifstream *prepareInput(const std::vector<std::string> &list)
  *   - for ints
  * TODO: for float, strings and some structure
  */
-TEST(InputStreamReader, BaseIntegralFunctions)
+TEST(InputStreamReader, BaseIntegerFunctions)
 {
-	std::ifstream *in = prepareInput({"    1   -2 3 4 5 6 -7 ", "7 -6 5 4 trash 888notnumber numbernot888 3 2 1 -172-"});
+	std::istream *in = prepareInput({"    1   -2 3 4 5 6 -7 ", "7 -6 5 4 trash 888notnumber numbernot888 3 2 1 -172-"});
 	std::vector< std::vector<int> > tests = {{1, -2, 3, 4, 5, 6, -7}, {7, -6, 5, 4, 3, 2, 1}};
 	InputStreamReader<int> reader(*in);
 
@@ -41,7 +40,6 @@ TEST(InputStreamReader, BaseIntegralFunctions)
 	}
 
 	ASSERT_FALSE(reader(currentValue));
-	in->close();
 	delete in;
 }
 
@@ -49,7 +47,7 @@ TEST(InputStreamReader, BaseIntegralFunctions)
  * Testing delimeters options of InputStreamReader (for integral types)
  * TODO: test small functions like getters, setters, etc.
  */
-TEST(InputStreamReader, IntegralDelimeterTricks)
+TEST(InputStreamReader, IntegerDelimeterTricks)
 {
 	struct TestCase
 	{
@@ -69,7 +67,7 @@ TEST(InputStreamReader, IntegralDelimeterTricks)
 	int currentValue, testNumber = 0;
 	for (auto test : tests)
 	{
-		std::ifstream *in = prepareInput(test.input);
+		std::istream *in = prepareInput(test.input);
 		InputStreamReader<int> reader(*in);
 		int tokenNumber = 0;
 		reader.setDelimeters(test.delimeters.begin(), test.delimeters.end());
@@ -79,7 +77,6 @@ TEST(InputStreamReader, IntegralDelimeterTricks)
 			EXPECT_EQ(currentValue, *jt) << "Incorrect token #" << tokenNumber << " in test #" << testNumber;
 		}
 		ASSERT_FALSE(reader(currentValue));
-		in->close();
 		delete in;
 		++testNumber;
 	}
@@ -109,7 +106,7 @@ TEST(InputStreamReader, IntegerCollectionReading)
 	int testNumber = 0;
 	for (auto test : tests)
 	{
-		std::ifstream *in = prepareInput(test.input);
+		std::istream *in = prepareInput(test.input);
 		InputStreamReader<int> reader(*in);
 		reader.setDelimeters(test.delimeters.begin(), test.delimeters.end());
 		std::vector<int> result(test.answer.size());
@@ -117,7 +114,6 @@ TEST(InputStreamReader, IntegerCollectionReading)
 		ASSERT_TRUE(reader(result.begin(), result.end())) << "Failed to read input of test #" << testNumber;
 		EXPECT_EQ(result, test.answer) << "Incorrect answer on test #" << testNumber;
 
-		in->close();
 		delete in;
 	}
 }
@@ -127,7 +123,7 @@ TEST(InputStreamReader, IntegerCollectionReading)
  */
 TEST(InputStreamReader, NonDecimalIntegers)
 {
-	std::ifstream *in = prepareInput({"A AB -10C DEADBEEF", "A1A -6 5 4 trash AAAnotnumber numbernotAAA 3 2 1 -1A2-"});
+	std::istream *in = prepareInput({"A AB -10C DEADBEEF", "A1A -6 5 4 trash AAAnotnumber numbernotAAA 3 2 1 -1A2-"});
 	std::vector< std::vector<int> > tests = {{0xA, 0xAB, -0x10C, 0xDEADBEEF}, {0xA1A, -0x6, 5, 4, 3, 2, 1}};
 	InputStreamReader<int> reader(*in);
 
@@ -146,7 +142,6 @@ TEST(InputStreamReader, NonDecimalIntegers)
 	}
 
 	ASSERT_FALSE(reader(currentValue));
-	in->close();
 	delete in;
 }
 

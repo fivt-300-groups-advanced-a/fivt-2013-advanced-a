@@ -13,14 +13,14 @@
 #include "utils/binaryheap.h"
 #include "utils/stablebinaryheap.h"
 
-/*
+/**
  * ExternalFileSorter class is used for sorting extenal fixed-type data files using
  * default or custom reader, writer, sorter and comparator functors
  */
 template<typename DataType> class ExternalSorter
 {
 	public:
-		/*
+		/**
 		 * Reads external data from reader spliting it into pieces each not more (availableMemory) bytes
 		 * Sorts each piece and writes them into files in binary format
 		 * Then performs merging of this files using mergesort algorithm with binary heap
@@ -61,7 +61,7 @@ template<typename DataType> class ExternalSorter
 			return success;
 		}
 
-		/*
+		/**
 		 * Stable variant of ExternalFileSorter::sort function
 		 * (see ExtenalFileSorter::sort function for details)
 		 * Important: requires stable Sorter
@@ -86,7 +86,7 @@ template<typename DataType> class ExternalSorter
 	private:
 		std::size_t tempFiles, dataSize;
 
-		/*
+		/**
 		 * Writes an array of data to file in binary format
 		 * Returns true if succeeded
 		 */
@@ -100,7 +100,7 @@ template<typename DataType> class ExternalSorter
 			return true;
 		}
 
-		/*
+		/**
 		 * Reads data from reader to buffer, sorts it and outputs to temporary files
 		 * Returns number of created files (less or equal 0 if error)
 		 */
@@ -135,7 +135,7 @@ template<typename DataType> class ExternalSorter
 			return tempFiles;
 		}
 
-		/*
+		/**
 		 * Merges temporary sorted files created after reading data into one and outputs to (writer)
 		 * Uses mergesort algorithm with binary heap (HeapClass)
 		 * Returns true if no error occured

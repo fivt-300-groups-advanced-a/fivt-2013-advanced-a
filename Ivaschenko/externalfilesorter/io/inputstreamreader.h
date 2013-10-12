@@ -20,7 +20,7 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
-			this->stream = &in;
+			this->bindStream(in);
 		}
 
 		/**
@@ -51,7 +51,7 @@ template<typename IntegerType> class InputStreamReader
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
-			this->stream = &in;
+			this->bindStream(in);
 			radix = 10u;
 			resetDelimeters();
 			addDelimeter(' ');
@@ -231,10 +231,95 @@ template<> class InputStreamReader
 			: public AbstractReader<std::string>
 {
 	public:
+		/**
+		 * Initialise reader from any input stream
+		 * Default delimeters are space and end of line
+		 */
+		InputStreamReader(std::istream &in = std::cin)
+		{
+			this->bindStream(in);
+			resetDelimeters();
+			addDelimeter(' ');
+			addDelimeter('\n');
+		}
+
+		/**
+		 * Reads next token surrounded by delimeters
+		 */
 		bool operator() (std::string &element)
 		{
-			return this->ready();
+			if (!this->ready()) return false;
+			element.clear();
+			char c;
+
+			do if (!this->stream->read(&c, 1)) return false;
+			while (isDelimeter(c));
+
+			do
+			{
+				element += c;
+				if (!this->stream->read(&c, 1)) return true;
+			}
+			while (!isDelimeter(c));
+			return true;
 		}
+
+		/**
+		 * Returns set of delimeters
+		 */
+		std::set<char> getDelimeters() const
+		{
+			std::set<char> answer;
+			for (int i = 0; i < alphabet; ++i)
+				if (delimeterMask[i])
+					answer.insert(i);
+			return answer;
+		}
+
+		void resetDelimeters()
+		{
+			for (int i = 0; i < alphabet; ++i)
+				delimeterMask[i] = 0;
+		}
+
+		/**
+		 * Applies a new set of delimeters
+		 */
+		template <typename ForwardIterator>
+		void setDelimeters(ForwardIterator begin, ForwardIterator end)
+		{
+			resetDelimeters();
+			for (; begin != end; ++begin)
+				addDelimeter(*begin);
+		}
+
+		/**
+		 * Checks whether c is delimeter
+		 */
+		bool isDelimeter(unsigned char c) const
+		{
+			return delimeterMask[c];
+		}
+
+		/**
+		 * Adds delimeter to the set
+		 */
+		void addDelimeter(unsigned char c)
+		{
+			delimeterMask[c] = 1;
+		}
+
+		/**
+		 * Removes delimeter from the set
+		 */
+		void removeDelimeter(unsigned char c)
+		{
+			delimeterMask[c] = 0;
+		}
+
+	private:
+		static const int alphabet = 256;
+		bool delimeterMask[alphabet];
 };
 
 

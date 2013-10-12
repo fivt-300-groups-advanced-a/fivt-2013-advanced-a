@@ -3,7 +3,7 @@
 
 #include <utility>
 
-/*
+/**
  * Utility class containing realisation of binary heap
  * Can store std::pair<DataType, int>
  * Unstable. Does not store data.
@@ -15,7 +15,7 @@ template <typename DataType> class BinaryHeap
 		std::pair<DataType, int> *data;
 		std::size_t size;
 
-		/*
+		/**
 		 * Constructs heap from array (heap) of size (tempFiles)
 		 * Has linear complexity (at most 2 * tempFiles calls of comparator())
 		 */
@@ -26,7 +26,7 @@ template <typename DataType> class BinaryHeap
 				push(comparator);
 		}
 
-		/*
+		/**
 		 * Pops min element from heap
 		 * Does not more than 2 * log(heapSize) calls of comparator()
 		 */
@@ -46,7 +46,7 @@ template <typename DataType> class BinaryHeap
 			}
 		}
 
-		/*
+		/**
 		 * Inserts element to heap assuming that it is in position (heapSize) from begining of (heap)
 		 * Does not more than log(heapSize) calls of comparator()
 		 */

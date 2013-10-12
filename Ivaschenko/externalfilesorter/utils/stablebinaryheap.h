@@ -15,7 +15,7 @@ template <typename DataType> class StableBinaryHeap
 		std::pair<DataType, int> *data;
 		std::size_t size;
 
-		/*
+		/**
 		 * Constructs heap from array (heap) of size (tempFiles)
 		 * Has linear complexity (at most 4 * tempFiles calls of comparator())
 		 */
@@ -26,7 +26,7 @@ template <typename DataType> class StableBinaryHeap
 				push(comparator);
 		}
 
-		/*
+		/**
 		 * Pops min element from heap
 		 * Does not more than 4 * log(heapSize) calls of comparator()
 		 */
@@ -46,7 +46,7 @@ template <typename DataType> class StableBinaryHeap
 			}
 		}
 
-		/*
+		/**
 		 * Inserts element to heap assuming that it is in position (heapSize) from begining of (heap)
 		 * Does not more than 2 * log(heapSize) calls of comparator()
 		 */
@@ -62,7 +62,7 @@ template <typename DataType> class StableBinaryHeap
 		}
 
 	private:
-		/*
+		/**
 		 * Lexicographic operator <
 		 */
 		template<typename Comparator>
