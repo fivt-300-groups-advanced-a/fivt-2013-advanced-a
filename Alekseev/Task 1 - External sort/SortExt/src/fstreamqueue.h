@@ -28,6 +28,7 @@ public:
 
     void push(const DataT& data)
     {
+        assert(state == Pushing);
         writer(data);
     }
     bool pop(DataT& data)
@@ -48,7 +49,7 @@ protected:
     {
         if (newState == Pushing)
         {
-            stream.open(fileName, std::ios_base::app | std::ios_base::out | std::ios_base::binary);
+            stream.open(fileName, std::ios_base::out | std::ios_base::binary);
         }
         else if (newState == Popping)
         {

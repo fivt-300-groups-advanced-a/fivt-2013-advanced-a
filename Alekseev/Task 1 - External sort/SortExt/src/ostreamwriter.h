@@ -4,6 +4,9 @@
 #include <ios>
 #include <string>
 
+// TODO: unit-tests
+// TODO: configurable suffix
+
 template <typename DataT>
 class OStreamWriter
 {
