@@ -10,5 +10,8 @@ HEADERS += \
     io/abstractwriter.h \
     io/outputstreamwriter.h \
     io/binaryfilewriter.h \
-    externalfilesorter.h \
-    sorters/standartsorter.h
+    sorters/standartsorter.h \
+    sorters/standartstablesorter.h \
+    utils/binaryheap.h \
+    utils/stablebinaryheap.h \
+    externalsorter.h

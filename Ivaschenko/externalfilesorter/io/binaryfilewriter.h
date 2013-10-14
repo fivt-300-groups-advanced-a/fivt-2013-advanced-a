@@ -37,6 +37,16 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 			ownStream = true;
 		}
 
+		/**
+		 * Initialise writer with stream ID. BinaryWriter is compatible with TemporaryWriter interface
+		 */
+		explicit BinaryFileWriter(unsigned int streamID)
+		{
+			this->stream = new std::ofstream(getFileName(streamID), std::ios_base::binary);
+			ownStream = true;
+		}
+
+
 
 		/**
 		 * Unbinds currently binded stream, deletes it if needed
@@ -70,6 +80,13 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 
 	private:
 		bool ownStream;
+
+		std::string getFileName(unsigned int streamID) const
+		{
+			char buffer[20];
+			sprintf(buffer, ".sorter.part.%u", streamID);
+			return std::string(buffer);
+		}
 };
 
 #endif // BINARYFILEWRITER_H
