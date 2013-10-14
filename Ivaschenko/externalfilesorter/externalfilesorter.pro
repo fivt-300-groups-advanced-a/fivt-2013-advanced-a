@@ -10,6 +10,4 @@ HEADERS += \
     io/binaryfilewriter.h \
     sorters/standartsorter.h \
     sorters/standartstablesorter.h \
-    utils/binaryheap.h \
-    utils/stablebinaryheap.h \
     externalsorter.h

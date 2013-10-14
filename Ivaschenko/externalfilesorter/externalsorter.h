@@ -11,9 +11,6 @@
 #include "io/binaryfilewriter.h"
 #include "io/binaryfilereader.h"
 
-#include "utils/binaryheap.h"
-#include "utils/stablebinaryheap.h"
-
 namespace implementation
 {
 	template<typename T, typename Comparator> class StableHeapElementComparator
