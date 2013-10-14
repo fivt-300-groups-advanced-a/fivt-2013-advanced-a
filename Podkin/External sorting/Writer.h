@@ -9,22 +9,20 @@ template<typename Type> class Writer{
         ~Writer(){
             Close();
         }
-        explicit Writer(std::ofstream &YourStream){
-            SetStream(YourStream);
-        }
         explicit Writer(const std::string &FileName){
+            Stream = NULL;
             SetStream(FileName);
         }
         explicit Writer(const char *FileName){
+            Stream = NULL;
             SetStream(FileName);
         }
-        void SetStream(std::ofstream &YourStream){
-            Stream = &YourStream;
-        }
         void SetStream(const std::string &FileName){
+            Close();
             Stream = new std::ofstream(FileName.c_str());
         }
         void SetStream(const char *FileName){
+            Close();
             Stream = new std::ofstream(FileName);
         }
         bool operator() (Type &NextElement,const std::string &YourPrefix = "", const std::string &YourSuffix = " "){
