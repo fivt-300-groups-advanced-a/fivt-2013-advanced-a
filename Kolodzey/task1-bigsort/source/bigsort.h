@@ -35,6 +35,12 @@
 ///Нужно помнить, что потоки ввода-вывода нельзя копировать
 ///Поэтому reader-ы и writer-ы нужно передавать по ссылке
 ///
+///понято, как скомпилировать шаблонную функцию
+///--------------------------------------------
+///Шаблонная ф-ия должна быть в header-е, иначе проект не соберётся
+///Иначе откуда компилятору знать о том, при каких конкретных параметрах
+///ты её вызовешь?
+///
 ///понято doxygen, сделана документация
 ///------------------------------------
 /// <a href="http://www.stack.nl/~dimitri/doxygen/manual/index.html">
@@ -53,6 +59,7 @@
 ///--------------------------
 /// <a href="http://podelise.ru/tw_files2/urls_202/1/d-719/7z-docs/1_html_m2fe3dd4a.jpg">
 ///Картинка про файлы .o</a>
+///Зы. Читайте конспект за 07.10.2013 в папке ../lesson-notes 
 ///
 ///понято git
 ///----------
@@ -98,17 +105,24 @@ namespace bigsort
 ///Или хитрым образом запилить значения по умолчанию
 ///И автопределение типа считываемого
 	template <class T, class Reader,    class Writer, 
-	                   class TmpReader, class TmpWriter,
+	                   class TmpStream,
 	                   class Sorter, class SortCmp, class MergeCmp>
-	void bigsort(T* pValue,
+	void bigsort(T &tmpVal,
 						  Reader &reader, Writer &writer,
-		         		  size_t memory,
+		         		  int k,
 		         		  MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter,
-		         		  TmpReader &tmpReader, TmpWriter &tmpWriter)
+		         		  TmpStream tmpStream)
 	{
-		std::cout << "Ha-ha-ha, I'm a sorting function!!\n";
-		int a[3] = {1, 3, 2};
-		sorter(a, a + 3);
-		std:: cout << a[1] << std::endl;
+		writer << "Ha-ha-ha, I'm a sorting function!!\n";
+		
+		int pfile = 0;
+		
+		while (!reader.eof())
+		{
+			reader >> tmpVal;
+			std::cout << tmpVal << "will be written to" << pfile << std::endl;
+			tmpStream[pfile] << tmpVal << " ";
+			pfile = (pfile + 1) % k;
+		}
 	}
 };

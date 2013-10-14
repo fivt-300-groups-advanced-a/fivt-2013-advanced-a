@@ -34,11 +34,20 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		}
 
 		/**
-		 * Initialise reader with file name (const char *). New file input stream will be created
+		 * Initialise reader with file name (const char*). New file input stream will be created
 		 */
 		explicit BinaryFileReader(const char *fileName)
 		{
 			this->stream = new std::ifstream(fileName, std::ios_base::binary);
+			ownStream = true;
+		}
+
+		/**
+		 * Initialise reader with stream ID. BinaryReader is compatible with TemporaryReader interface
+		 */
+		explicit BinaryFileReader(unsigned int streamID)
+		{
+			this->stream = new std::ifstream(getFileName(streamID), std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -81,6 +90,13 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 
 	private:
 		bool ownStream;
+
+		std::string getFileName(unsigned int streamID) const
+		{
+			char buffer[20];
+			sprintf(buffer, ".sorter.part.%u", streamID);
+			return std::string(buffer);
+		}
 };
 
 #endif // BINARYFILEREADER_H

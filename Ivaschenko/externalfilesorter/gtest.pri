@@ -1,5 +1,6 @@
 SOURCES += \
-    test.cpp \
-    testintegralstreamreader.cpp
+    gtest/test.cpp \
+    gtest/teststringstreamreader.cpp \
+    gtest/testintegerstreamreader.cpp
 
 HEADERS +=
