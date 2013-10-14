@@ -3,6 +3,11 @@
 #include <fstream>
 #include "bigsort.h"
 
+bool mycmp (std::pair <int, int> a, std::pair <int, int> b)
+{
+    return a.first > b.first;
+}
+
 int main()
 {
     std::ifstream fin("input.txt");
@@ -20,20 +25,11 @@ int main()
 
     fs.close();
 
-    const int k = 2;
+    const int k = 3;
     std::fstream b[k];
     for (int i = 0; i < k; ++i)
     {
-        char s[9];
-        s[0] = 't';
-        s[1] = 'm';
-        s[2] = 'p';
-        s[3] = '0' + i;
-        s[4] = '.';
-        s[5] = 't';
-        s[6] = 'x';
-        s[7] = 't';
-        s[8] = 0;
+        char s[9] = {'t', 'm', 'p', '0' + i, '.', 't', 'x', 't'};
         std::cout << s << std::endl;
         std::remove(s);
         b[i].open(s,
@@ -41,12 +37,13 @@ int main()
      }
     std::cout << "still not fail" << std::endl;
     void (*fun) (int*, int*) = &std::sort;
-    bigsort::bigsort (a, fin, fout, 2, 
-                      std::less<int>(), std::less<int>(), fun,
+    bigsort::bigsort (a, fin, fout, 3, 
+                      mycmp, std::less<int>(), fun,
                       b);
 
     b[0].close();
     b[1].close();
+    b[2].close();
 
 
     return 0;
