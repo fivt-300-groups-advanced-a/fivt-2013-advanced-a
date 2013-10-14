@@ -1,13 +1,13 @@
 #ifndef BINARYFILEWRITER_H
 #define BINARYFILEWRITER_H
 
-#include "abstractwriter.h"
+#include <fstream>
 
 /**
  * Class implementing AbstractWriter interface
  * Used to write fixed-type data in binary format to the file output stream
  */
-template <typename DataType> class BinaryFileWriter : public AbstractWriter<DataType>
+template <typename DataType> class BinaryFileWriter
 {
 	public:
 		/**
@@ -15,7 +15,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(std::ofstream &out)
 		{
-			this->stream = &out;
+			stream = &out;
 			ownStream = false;
 		}
 
@@ -24,7 +24,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const std::string &fileName)
 		{
-			this->stream = new std::ofstream(fileName, std::ios_base::binary);
+			stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -33,29 +33,18 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const char *fileName)
 		{
-			this->stream = new std::ofstream(fileName, std::ios_base::binary);
+			stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
-
-		/**
-		 * Initialise writer with stream ID. BinaryWriter is compatible with TemporaryWriter interface
-		 */
-		explicit BinaryFileWriter(unsigned int streamID)
-		{
-			this->stream = new std::ofstream(getFileName(streamID), std::ios_base::binary);
-			ownStream = true;
-		}
-
-
 
 		/**
 		 * Unbinds currently binded stream, deletes it if needed
 		 */
 		void unbindStream()
 		{
-			if (this->stream) this->stream->flush();
-			if (ownStream) delete this->stream;
-			this->stream = 0;
+			if (stream) stream->flush();
+			if (ownStream) delete stream;
+			stream = 0;
 		}
 
 		/**
@@ -64,8 +53,25 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		void bindStream(std::ofstream &out)
 		{
 			unbindStream();
-			this->stream = &out;
+			stream = &out;
 			ownStream = false;
+		}
+
+		/**
+		 * Returns true is stream is binded, not corrupted and ready to read
+		 */
+		bool ready() const
+		{
+			return stream && *stream;
+		}
+
+		/**
+		 * Returns a pointer to the binded stream
+		 * It can be used for adjusting precision or other options for example
+		 */
+		std::ifstream* getStream() const
+		{
+			return stream;
 		}
 
 		/**
@@ -74,19 +80,13 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		bool operator () (const DataType &element)
 		{
-			if (!this->ready()) return false;
-			return this->stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
+			if (!ready()) return false;
+			return stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
 		}
 
 	private:
 		bool ownStream;
-
-		std::string getFileName(unsigned int streamID) const
-		{
-			char buffer[20];
-			sprintf(buffer, ".sorter.part.%u", streamID);
-			return std::string(buffer);
-		}
+		std::ofstream *stream;
 };
 
 #endif // BINARYFILEWRITER_H

@@ -1,24 +1,55 @@
 #ifndef OUTPUTSTREAMWRITER_H
 #define OUTPUTSTREAMWRITER_H
 
-#include "abstractwriter.h"
-
 #include <vector>
 
 /**
  * Class implementing AbstractWriter interface
  * Used for writing fixed-type data (and sequences of data) to output stream
  */
-template<typename DataType> class OutputStreamWriter : public AbstractWriter<DataType>
+template<typename DataType> class OutputStreamWriter
 {
 	public:
+		/**
+		 * Default destructor unbinds stream if it's binded
+		 */
+		~OutputStreamWriter()
+		{
+			unbindStream();
+		}
+
+		/**
+		 * Binds stream to the reader
+		 */
+		void bindStream(std::ostream &in)
+		{
+			stream = &in;
+		}
+
+		/**
+		 * Checks if writer is ready to write data
+		 */
+		bool ready()
+		{
+			return stream && *stream;
+		}
+
+		/**
+		 * Returns a pointer to the binded stream
+		 * It can be used for adjusting precision or other options for example
+		 */
+		std::ostream* getStream() const
+		{
+			return stream;
+		}
+
 		/**
 		 * Initialising from any output stream (stdout by default)
 		 */
 		explicit OutputStreamWriter(std::ostream &out = std::cout)
 		{
 			delimeter = ", ";
-			this->stream = &out;
+			stream = &out;
 			startLine = true;
 		}
 
@@ -27,9 +58,9 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 		 */
 		void unbindStream()
 		{
-			if (this->stream) this->stream->flush();
+			if (stream) stream->flush();
 			if (!startLine) newLine();
-			this->stream = 0;
+			stream = 0;
 		}
 
 		/**
@@ -53,7 +84,7 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 		 */
 		bool newLine()
 		{
-			if (!this->ready() || !(*this->stream << std::endl)) return false;
+			if (!ready() || !(*stream << std::endl)) return false;
 			startLine = true;
 			return true;
 		}
@@ -64,9 +95,9 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 		 */
 		bool operator () (const DataType &element)
 		{
-			if (!this->ready()) return false;
-			if (!startLine && !(*this->stream << delimeter)) return false;
-			if (!(*this->stream << element)) return false;
+			if (!ready()) return false;
+			if (!startLine && !(*stream << delimeter)) return false;
+			if (!(*stream << element)) return false;
 			startLine = false;
 			return true;
 		}
@@ -80,17 +111,18 @@ template<typename DataType> class OutputStreamWriter : public AbstractWriter<Dat
 				std::string prefix = "{", std::string suffix = "}"
 			)
 		{
-			if (!this->ready() || !(*this->stream << prefix)) return false;
+			if (!ready() || !(*stream << prefix)) return false;
 			for (; begin != end;)
 			{
-				if (!(*this->stream << *begin)) return false;
-				if (++begin != end && !(*this->stream << delimeter)) return false;
+				if (!(*stream << *begin)) return false;
+				if (++begin != end && !(*stream << delimeter)) return false;
 			}
-			if (!(*this->stream << suffix)) return false;
+			if (!(*stream << suffix)) return false;
 			return newLine();
 		}
 
 	private:
+		std::ostream *stream;
 		std::string delimeter;
 		bool startLine;
 };

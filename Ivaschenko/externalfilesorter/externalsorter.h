@@ -46,8 +46,7 @@ template<typename DataType> class ExternalSorter
 		 */
 		template<typename Reader, typename Writer,
 				 typename Sorter, typename Comparator,
-				 typename TemporaryReader = BinaryFileReader<DataType>,
-				 typename TemporaryWriter = BinaryFileWriter<DataType> >
+				 typename TemporaryReader, typename TemporaryWriter>
 		bool sort(  std::size_t availableMemory,
 					Reader &reader, Writer &writer,
 					Sorter sorter, Comparator comparator)
@@ -68,8 +67,7 @@ template<typename DataType> class ExternalSorter
 		 */
 		template<typename Reader, typename Writer,
 				 typename Sorter, typename Comparator,
-				 typename TemporaryReader = BinaryFileReader<DataType>,
-				 typename TemporaryWriter = BinaryFileWriter<DataType> >
+				 typename TemporaryReader, typename TemporaryWriter>
 		bool stableSort(std::size_t availableMemory,
 				  Reader &reader, Writer &writer,
 				  Sorter sorter, Comparator comparator)
@@ -91,9 +89,9 @@ template<typename DataType> class ExternalSorter
 		 * Returns true if succeeded
 		 */
 		template<typename TemporaryWriter>
-		bool writeFile(unsigned int id, DataType *start, int items)
+		bool writeFile(unsigned int id, DataType *start, std::size_t items)
 		{
-			TemporaryWriter *writer = new TemporaryWriter(id);
+			TemporaryWriter *writer = new TemporaryWriter(getFileName(id));
 			for (; items; --items, ++start)
 				if (!writer->operator()(*start)) return false;
 			delete writer;
@@ -135,10 +133,18 @@ template<typename DataType> class ExternalSorter
 			return tempFiles;
 		}
 
+		std::string getFileName(std::size_t id)
+		{
+			char buffer[30]; // FIXME: fixed size
+			sprintf(buffer, ".part.%u", id);
+			return std::string(buffer);
+		}
+
 		/**
 		 * Merges temporary sorted files created after reading data into one and outputs to (writer)
 		 * Uses mergesort algorithm with binary heap (HeapClass)
 		 * Returns true if no error occured
+		 * TODO: std::unique_ptr & std::priority_queue
 		 */
 		template<typename Writer, typename TemporaryReader, typename Comparator, typename HeapClass>
 		bool mergeFiles(Writer &writer, Comparator &comparator)
@@ -151,7 +157,7 @@ template<typename DataType> class ExternalSorter
 
 			for (std::size_t i = 0; i < tempFiles; i++)
 			{
-				streams[i] = new TemporaryReader(i);
+				streams[i] = new TemporaryReader(getFileName(i)); // TODO: factory to construct readers
 				streams[i]->operator() (heap.data[i].first);
 				heap.data[i].second = i;
 			}
