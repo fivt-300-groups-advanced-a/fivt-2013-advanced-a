@@ -1,0 +1,3 @@
+#define abcdefghijklmnopqrst "../Kolodzey/somesort.h"
+#define abcdefghijklmnopqrstabcdefghijklmnopqrst abcdefghijklmnopqrst
+#include abcdefghijklmnopqrstabcdefghijklmnopqrst

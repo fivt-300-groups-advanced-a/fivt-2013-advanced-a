@@ -7,24 +7,35 @@
 
 template<typename Type> class BinaryReader{
     public:
-        explicit BinaryReader(std::ifstream &Input){
-            Stream = &Input;
+        ~BinaryReader(){
+            Close();
+        }
+        void Close(){
+            if (Stream)
+                Stream->close();
+            Stream = NULL;
         }
         explicit BinaryReader(const std::string &FileName){
-            Stream = new std::ifstream(FileName.c_str());
+            Stream = NULL;
+            SetStream(FileName);
+        }
+        void SetStream(const std::string &FileName){
+            Close();
+            Stream = new std::ifstream(FileName.c_str(), std::ifstream::binary | std::ifstream::in);
         }
         explicit BinaryReader(const char *FileName){
-            Stream = new std::ifstream(FileName);
+            Stream = NULL;
+            SetStream(FileName);
+        }
+        void SetStream(const char *FileName){
+            Close();
+            Stream = new std::ifstream(FileName, std::ifstream::binary | std::ifstream::in);
         }
         bool operator() (Type &NextElement){
-            return Next() &&
-                (Stream->read((char*) &NextElement, sizeof(Type)));
-        }
-        bool Next() const{
-            return Stream && *Stream;
+            return Stream->read((char*) &NextElement, sizeof(Type));
         }
     private:
-        std::istream *Stream;
+        std::ifstream *Stream;
 };
 
 #endif

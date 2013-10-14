@@ -6,13 +6,59 @@
 
 #include <cassert>
 
-#include "abstractreader.h"
+namespace implementation
+{
+	class BinaryFileReaderHelper
+	{
+		public:
+			/**
+			 * Unbinds currently binded stream, deletes it if needed
+			 */
+			void unbindStream()
+			{
+				if (ownStream) delete stream;
+				stream = 0;
+			}
+
+			/**
+			 * Binds stream to the reader, unbinds an old one if needed
+			 */
+			void bindStream(std::ifstream &in)
+			{
+				unbindStream();
+				stream = &in;
+				ownStream = false;
+			}
+
+			/**
+			 * Returns true is stream is binded, not corrupted and ready to read
+			 */
+			bool ready() const
+			{
+				return stream && *stream;
+			}
+
+			/**
+			 * Returns a pointer to the binded stream
+			 * It can be used for adjusting precision or other options for example
+			 */
+			std::ifstream* getStream() const
+			{
+				return stream;
+			}
+
+		protected:
+			std::ifstream *stream;
+			bool ownStream;
+	};
+}
 
 /**
  * Class implementing AbstractReader interface
  * Used to read fixed-type data in binary format from file input stream
+ * FIXME: std::string, std::vector works incorrectly
  */
-template<typename DataType> class BinaryFileReader : public AbstractReader<DataType>
+template<typename DataType> class BinaryFileReader : implementation::BinaryFileReaderHelper
 {
 	public:
 		/**
@@ -20,7 +66,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		explicit BinaryFileReader(std::ifstream &in)
 		{
-			this->stream = &in;
+			stream = &in;
 			ownStream = false;
 		}
 
@@ -29,36 +75,17 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		explicit BinaryFileReader(const std::string &fileName)
 		{
-			this->stream = new std::ifstream(fileName.c_str());
+			stream = new std::ifstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
 		/**
-		 * Initialise reader with file name (const char *). New file input stream will be created
+		 * Initialise reader with file name (const char*). New file input stream will be created
 		 */
 		explicit BinaryFileReader(const char *fileName)
 		{
-			this->stream = new std::ifstream(fileName);
+			stream = new std::ifstream(fileName, std::ios_base::binary);
 			ownStream = true;
-		}
-
-		/**
-		 * Unbinds currently binded stream, deletes it if needed
-		 */
-		void unbindStream()
-		{
-			if (ownStream) delete this->stream;
-			this->stream = 0;
-		}
-
-		/**
-		 * Binds stream to the reader, unbinds an old one if needed
-		 */
-		void bindStream(std::ifstream &in)
-		{
-			unbindStream();
-			this->stream = &in;
-			ownStream = false;
 		}
 
 		/**
@@ -67,7 +94,7 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		bool operator () (DataType &element)
 		{
-			return this->ready() && this->stream->read(reinterpret_cast<char*>(&element), sizeof(DataType));
+			return ready() && stream->read(reinterpret_cast<char*>(&element), sizeof(DataType));
 		}
 
 		/**
@@ -76,11 +103,8 @@ template<typename DataType> class BinaryFileReader : public AbstractReader<DataT
 		 */
 		virtual bool skip(int elements)
 		{
-			return this->stream->seekg(elements * sizeof(DataType), std::ios_base::cur);
+			return stream->seekg(elements * sizeof(DataType), std::ios_base::cur);
 		}
-
-	private:
-		bool ownStream;
 };
 
 #endif // BINARYFILEREADER_H
