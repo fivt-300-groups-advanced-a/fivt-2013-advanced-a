@@ -9,22 +9,20 @@ template<typename Type> class BinaryWriter{
         ~BinaryWriter(){
             Close();
         }
-        explicit BinaryWriter(std::ofstream &YourStream){
-            SetStream(YourStream);
-        }
         explicit BinaryWriter(const std::string &FileName){
+            Stream = NULL;
             SetStream(FileName);
         }
         explicit BinaryWriter(const char *FileName){
+            Stream = NULL;
             SetStream(FileName);
         }
-        void SetStream(std::ofstream &YourStream){
-            Stream = &YourStream;
-        }
         void SetStream(const std::string &FileName){
+            Close();
             Stream = new std::ofstream(FileName.c_str(), std::ofstream::binary | std::ofstream::out);
         }
         void SetStream(const char *FileName){
+            Close();
             Stream = new std::ofstream(FileName, std::ofstream::binary | std::ofstream::out);
         }
         bool operator() (Type &NextElement){

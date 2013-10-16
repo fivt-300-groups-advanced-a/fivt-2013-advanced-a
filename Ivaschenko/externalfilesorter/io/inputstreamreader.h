@@ -2,17 +2,68 @@
 #define INPUTSTREAMREADER_H
 
 #include <set>
+#include <istream>
 #include <type_traits>
 
-#include "abstractreader.h"
+namespace implementation
+{
+	/**
+	 * common part of all InputStreamReader
+	 */
+	class InputStreamReaderHelper
+	{
+		public:
+			/**
+			 * Unbind stream and destruct reader
+			 */
+			~InputStreamReaderHelper()
+			{
+				unbindStream();
+			}
+
+			/**
+			 * Binds stream to the reader, unbinds an old one if needed
+			 */
+			void bindStream(std::istream &in)
+			{
+				stream = &in;
+			}
+
+			/**
+			 * Unbinds currently binded stream
+			 */
+			void unbindStream()
+			{
+				stream = 0;
+			}
+
+			/**
+			 * Returns true is stream is binded, not corrupted and ready to read
+			 */
+			bool ready() const
+			{
+				return stream && *stream;
+			}
+
+			/**
+			 * Returns a pointer to the binded stream
+			 * It can be used for adjusting precision or other options for example
+			 */
+			std::istream* getStream() const
+			{
+				return stream;
+			}
+
+		protected:
+			std::istream *stream;
+	};
+}
 
 /**
  * Class implementing AbstractReader interface
  * Used for reading fixed-type data from input stream
- *
- * TODO: specialising for floating point data types and std::strings
- */
-template<typename DataType, typename = void> class InputStreamReader : public AbstractReader<DataType>
+*/
+template<typename DataType, typename = void> class InputStreamReader : public implementation::InputStreamReaderHelper
 {
 	public:
 		/**
@@ -20,8 +71,9 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
-			this->bindStream(in);
+			bindStream(in);
 		}
+
 
 		/**
 		 * Reads an element
@@ -29,7 +81,7 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
 		 */
 		bool operator() (DataType &element)
 		{
-			return this->ready() && (*this->stream >> element);
+			return ready() && (*stream >> element);
 		}
 };
 
@@ -42,7 +94,7 @@ template<typename DataType, typename = void> class InputStreamReader : public Ab
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
-			: public AbstractReader<IntegerType>
+		: public implementation::InputStreamReaderHelper
 {
 	public:
 		/**
@@ -51,13 +103,12 @@ template<typename IntegerType> class InputStreamReader
 		 */
 		explicit InputStreamReader(std::istream &in = std::cin)
 		{
-			this->bindStream(in);
+			bindStream(in);
 			radix = 10u;
 			resetDelimeters();
 			addDelimeter(' ');
 			addDelimeter('\n');
 		}
-
 
 		/**
 		 * Read an element. Reads input char by char searching of group of consecutive digits
@@ -65,22 +116,22 @@ template<typename IntegerType> class InputStreamReader
 		 */
 		bool operator() (IntegerType &number)
 		{
-			if (!this->ready()) return false;
+			if (!ready()) return false;
 			char c = 0;
 			while (true)
 			{
 				while (c == 0 || isDelimeter(c))
-					if (!this->stream->read(&c, 1)) return false;
+					if (!stream->read(&c, 1)) return false;
 
 				bool minus = c == '-' && std::is_signed<IntegerType>::value;
-				if (minus && !this->stream->read(&c, 1)) return false;
+				if (minus && !stream->read(&c, 1)) return false;
 				if (digitValue(c) >= 0)
 				{
 					number = 0;
 					while (digitValue(c) >= 0)
 					{
 						number = number * (IntegerType) radix + (IntegerType) digitValue(c);
-						if (!this->stream->read(&c, 1)) return true; // Last element before EOF
+						if (!stream->read(&c, 1)) return true; // Last element before EOF
 					}
 					if (isDelimeter(c))
 					{
@@ -91,7 +142,7 @@ template<typename IntegerType> class InputStreamReader
 				}
 
 				while (!isDelimeter(c))
-					if (!this->stream->read(&c, 1)) return false;
+					if (!stream->read(&c, 1)) return false;
 			}
 		}
 
@@ -102,7 +153,7 @@ template<typename IntegerType> class InputStreamReader
 		template<class OutputIterator> bool operator () (OutputIterator begin, OutputIterator end)
 		{
 			for (; begin != end; ++begin)
-				if (!this->operator() (*begin)) return false;
+				if (!operator() (*begin)) return false;
 			return true;
 		}
 
@@ -210,25 +261,12 @@ template<typename IntegerType> class InputStreamReader
  * TODO: Multi-radix
  * TODO: Adjustable floating point character
  */
-template<typename FloatType> class InputStreamReader
-		<FloatType, typename std::enable_if< std::is_floating_point<FloatType>::value >::type>
-			: public AbstractReader<FloatType>
-{
-	public:
-		bool operator() (FloatType &number)
-		{
-			return this->ready();
-		}
-};
-
 
 /**
  * Specification of InputStreamReader for std::strings
  * TODO: Reading tokens with adjustable set of delimeters, including line by line and word by word
  */
-template<> class InputStreamReader
-		<std::string, void>
-			: public AbstractReader<std::string>
+template<> class InputStreamReader<std::string, void> : public implementation::InputStreamReaderHelper
 {
 	public:
 		/**
@@ -237,7 +275,7 @@ template<> class InputStreamReader
 		 */
 		InputStreamReader(std::istream &in = std::cin)
 		{
-			this->bindStream(in);
+			bindStream(in);
 			resetDelimeters();
 			addDelimeter(' ');
 			addDelimeter('\n');
@@ -248,17 +286,17 @@ template<> class InputStreamReader
 		 */
 		bool operator() (std::string &element)
 		{
-			if (!this->ready()) return false;
+			if (!ready()) return false;
 			element.clear();
 			char c;
 
-			do if (!this->stream->read(&c, 1)) return false;
+			do if (!stream->read(&c, 1)) return false;
 			while (isDelimeter(c));
 
 			do
 			{
 				element += c;
-				if (!this->stream->read(&c, 1)) return true;
+				if (!stream->read(&c, 1)) return true;
 			}
 			while (!isDelimeter(c));
 			return true;

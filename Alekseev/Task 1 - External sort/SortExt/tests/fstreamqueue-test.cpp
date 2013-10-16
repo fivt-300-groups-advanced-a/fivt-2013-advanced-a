@@ -22,7 +22,7 @@ TEST(FStreamQueue, Integers)
 
     for (size_t i = 0; i < v1.size(); ++i)
     {
-        EXPECT_TRUE(q1.pop(x));
+        ASSERT_TRUE(q1.pop(x));
         EXPECT_EQ(v1[i], x);
 
         q2.push(v2[i]);
@@ -31,7 +31,7 @@ TEST(FStreamQueue, Integers)
 
     for (int v : v2)
     {
-        EXPECT_TRUE(q2.pop(x));
+        ASSERT_TRUE(q2.pop(x));
         EXPECT_EQ(v, x);
     }
     EXPECT_FALSE(q2.pop(x));
@@ -51,7 +51,7 @@ TEST(FStreamQueue, Strings)
 
     for (size_t i = 0; i < v1.size(); ++i)
     {
-        EXPECT_TRUE(q1.pop(x));
+        ASSERT_TRUE(q1.pop(x));
         EXPECT_EQ(v1[i], x);
 
         q2.push(v2[i]);
@@ -60,7 +60,7 @@ TEST(FStreamQueue, Strings)
 
     for (std::string v : v2)
     {
-        EXPECT_TRUE(q2.pop(x));
+        ASSERT_TRUE(q2.pop(x));
         EXPECT_EQ(v, x);
     }
     EXPECT_FALSE(q2.pop(x));
@@ -93,7 +93,7 @@ TEST(FStreamQueue, ComplexData)
 
     for (size_t i = 0; i < v1.size(); ++i)
     {
-        EXPECT_TRUE(q1.pop(x));
+        ASSERT_TRUE(q1.pop(x));
         EXPECT_EQ(v1[i], x);
 
         q2.push(v2[i]);
@@ -102,7 +102,7 @@ TEST(FStreamQueue, ComplexData)
 
     for (ComplexData v : v2)
     {
-        EXPECT_TRUE(q2.pop(x));
+        ASSERT_TRUE(q2.pop(x));
         EXPECT_EQ(v, x);
     }
     EXPECT_FALSE(q2.pop(x));

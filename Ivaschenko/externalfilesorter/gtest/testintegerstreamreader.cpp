@@ -145,6 +145,9 @@ TEST(InputStreamReader, NonDecimalIntegers)
 	delete in;
 }
 
+/*
+ * Reading file with lot of integers
+ */
 TEST(InputStreamReader, LotOfIntegers)
 {
 	const int numbers = 1000000, seed = 19482;
