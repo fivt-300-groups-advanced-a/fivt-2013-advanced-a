@@ -6,12 +6,14 @@ QMAKE_CXXFLAGS += -std=gnu++0x
 
 SOURCES +=
 
+INCLUDE_PATH += $$PWD
+
 HEADERS += \
-    src/externalsort.h \
-    src/istreamreader.h \
-    src/ostreamwriter.h \
-    src/optimalstreamio.h \
-    src/fstreamqueue.h \
-    src/stdsorter.h \
-    src/rawistreamreader.h \
-    src/rawostreamwriter.h
+    $$PWD/io/istreamreader.h \
+    $$PWD/io/ostreamwriter.h \
+    $$PWD/io/optimalstreamio.h \
+    $$PWD/io/fstreamqueue.h \
+    $$PWD/io/rawistreamreader.h \
+    $$PWD/io/rawostreamwriter.h \
+    $$PWD/externalsort.h \
+    $$PWD/stdsorter.h
