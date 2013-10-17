@@ -88,6 +88,11 @@ template<typename DataType> class BinaryFileReader : implementation::BinaryFileR
 			ownStream = true;
 		}
 
+		~BinaryFileReader()
+		{
+			unbindStream();
+		}
+
 		/**
 		 * Reads one element from binary file input stream
 		 * Returns true in case of success, false otherwise

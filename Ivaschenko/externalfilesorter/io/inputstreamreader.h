@@ -90,7 +90,6 @@ template<typename DataType, typename = void> class InputStreamReader : public im
  * Features:
  *		- Reading sequences separated by adjustable delimeters
  *		- Reading non-decimal integers
- * TODO: reading hex in 0x%d format and oct in 0%d format
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
@@ -264,7 +263,6 @@ template<typename IntegerType> class InputStreamReader
 
 /**
  * Specification of InputStreamReader for std::strings
- * TODO: Reading tokens with adjustable set of delimeters, including line by line and word by word
  */
 template<> class InputStreamReader<std::string, void> : public implementation::InputStreamReaderHelper
 {

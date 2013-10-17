@@ -18,9 +18,7 @@ namespace
 }
 
 /*
- * Testing basic functions of InputStreamReader
- *   - for ints
- * TODO: for float, strings and some structure
+ * Testing basic functions of InputStreamReader<int>
  */
 TEST(InputStreamReader, BaseIntegerFunctions)
 {
@@ -150,10 +148,11 @@ TEST(InputStreamReader, NonDecimalIntegers)
  */
 TEST(InputStreamReader, LotOfIntegers)
 {
+	const char *fileName = "testFile.txt";
 	const int numbers = 1000000, seed = 19482;
 
 	srand(seed);
-	std::ofstream out("testFile.txt");
+	std::ofstream out(fileName);
 	std::vector<int> answer, result(numbers);
 	for (int i = 0; i < numbers; i++)
 	{
@@ -169,5 +168,6 @@ TEST(InputStreamReader, LotOfIntegers)
 	ASSERT_TRUE(reader(result.begin(), result.end()));
 	EXPECT_EQ(result, answer);
 	in.close();
+	unlink(fileName);
 	std::cout << "Reading finished in " << (clock() - start) / (CLOCKS_PER_SEC / 1000) << "ms" << std::endl;
 }

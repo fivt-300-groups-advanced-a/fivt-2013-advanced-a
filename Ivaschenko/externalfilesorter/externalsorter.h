@@ -70,7 +70,7 @@ template<typename DataType> class ExternalSorter
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readData<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
 				return false;
 
 			bool success = mergeFiles<Writer, TemporaryReader,
@@ -85,14 +85,15 @@ template<typename DataType> class ExternalSorter
 		 */
 		template<typename Reader, typename Writer,
 				 typename Sorter, typename Comparator,
-				 typename TemporaryReader, typename TemporaryWriter>
+				 typename TemporaryReader = BinaryFileReader<DataType>,
+				 typename TemporaryWriter = BinaryFileWriter<DataType> >
 		bool stableSort(std::size_t availableMemory,
 				  Reader &reader, Writer &writer,
 				  Sorter sorter, Comparator comparator)
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readData<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
 				return false;
 
 			bool success = mergeFiles<Writer, TemporaryReader,
@@ -122,7 +123,7 @@ template<typename DataType> class ExternalSorter
 		 * Returns number of created files (less or equal 0 if error)
 		 */
 		template<typename Reader, typename TemporaryWriter, typename Sorter, typename Comparator>
-		int readData(std::size_t bufferSize, Reader &reader, Sorter &sorter, Comparator &comparator) // TODO: bad name!
+		int readAndSortChunks(std::size_t bufferSize, Reader &reader, Sorter &sorter, Comparator &comparator)
 		{
 			std::vector<DataType> buffer(bufferSize);
 			tempFiles = 0;
@@ -161,7 +162,6 @@ template<typename DataType> class ExternalSorter
 		 * Merges temporary sorted files created after reading data into one and outputs to (writer)
 		 * Uses mergesort algorithm with binary heap (HeapClass)
 		 * Returns true if no error occured
-		 * TODO: std::unique_ptr & std::priority_queue
 		 */
 		template<typename Writer, typename TemporaryReader, typename PairComparator>
 		bool mergeFiles(Writer &writer)

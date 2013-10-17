@@ -37,12 +37,17 @@ template <typename DataType> class BinaryFileWriter
 			ownStream = true;
 		}
 
+		~BinaryFileWriter()
+		{
+			unbindStream();
+		}
+
 		/**
 		 * Unbinds currently binded stream, deletes it if needed
 		 */
 		void unbindStream()
 		{
-			if (stream) stream->flush();
+			if (stream) stream->close();
 			if (ownStream) delete stream;
 			stream = 0;
 		}
