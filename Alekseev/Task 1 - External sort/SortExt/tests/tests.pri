@@ -1,10 +1,10 @@
 SOURCES += \
-    tests/istreamreader-test.cpp \
-    tests/fstreamqueue-test.cpp \
-    tests/ostreamwriter-test.cpp \
-    tests/complexdata.cpp \
-    tests/rawistreamreader-test.cpp \
-    tests/rawostreamwriter-test.cpp
+    $$PWD/io/istreamreader-test.cpp \
+    $$PWD/io/fstreamqueue-test.cpp \
+    $$PWD/io/ostreamwriter-test.cpp \
+    $$PWD/io/rawistreamreader-test.cpp \
+    $$PWD/io/rawostreamwriter-test.cpp \
+    $$PWD/complexdata.cpp
 
 HEADERS += \
-    tests/complexdata.h
+    $$PWD/complexdata.h
