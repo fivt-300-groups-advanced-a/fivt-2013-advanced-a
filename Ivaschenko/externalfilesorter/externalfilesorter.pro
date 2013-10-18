@@ -10,4 +10,5 @@ HEADERS += \
     io/binaryfilewriter.h \
     sorters/standartsorter.h \
     sorters/standartstablesorter.h \
-    externalsorter.h
+    externalsorter.h \
+    utils/tempfileiofactory.h

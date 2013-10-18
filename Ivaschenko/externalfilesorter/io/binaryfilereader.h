@@ -6,7 +6,7 @@
 
 #include <cassert>
 
-namespace implementation
+namespace impl
 {
 	class BinaryFileReaderHelper
 	{
@@ -58,7 +58,7 @@ namespace implementation
  * Used to read fixed-type data in binary format from file input stream
  * FIXME: std::string, std::vector works incorrectly
  */
-template<typename DataType> class BinaryFileReader : implementation::BinaryFileReaderHelper
+template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelper
 {
 	public:
 		/**

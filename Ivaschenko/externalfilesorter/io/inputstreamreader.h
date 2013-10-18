@@ -5,7 +5,7 @@
 #include <istream>
 #include <type_traits>
 
-namespace implementation
+namespace impl
 {
 	/**
 	 * common part of all InputStreamReader
@@ -63,7 +63,7 @@ namespace implementation
  * Class implementing AbstractReader interface
  * Used for reading fixed-type data from input stream
 */
-template<typename DataType, typename = void> class InputStreamReader : public implementation::InputStreamReaderHelper
+template<typename DataType, typename = void> class InputStreamReader : public impl::InputStreamReaderHelper
 {
 	public:
 		/**
@@ -93,7 +93,7 @@ template<typename DataType, typename = void> class InputStreamReader : public im
  */
 template<typename IntegerType> class InputStreamReader
 		<IntegerType, typename std::enable_if< std::is_integral<IntegerType>::value >::type>
-		: public implementation::InputStreamReaderHelper
+		: public impl::InputStreamReaderHelper
 {
 	public:
 		/**
@@ -264,7 +264,7 @@ template<typename IntegerType> class InputStreamReader
 /**
  * Specification of InputStreamReader for std::strings
  */
-template<> class InputStreamReader<std::string, void> : public implementation::InputStreamReaderHelper
+template<> class InputStreamReader<std::string, void> : public impl::InputStreamReaderHelper
 {
 	public:
 		/**

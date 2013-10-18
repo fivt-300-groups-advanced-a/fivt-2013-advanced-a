@@ -11,9 +11,11 @@
 #include "io/binaryfilewriter.h"
 #include "io/binaryfilereader.h"
 
-namespace implementation
+#include "utils/tempfileiofactory.h"
+
+namespace impl
 {
-	template<typename T, typename Comparator> class StableHeapElementComparator
+	template<typename T, typename Comparator> class StablePairComparator
 	{
 		Comparator cmp;
 
@@ -23,7 +25,7 @@ namespace implementation
 		}
 	};
 
-	template<typename T, typename Comparator> class HeapElementComparator
+	template<typename T, typename Comparator> class PairComparator
 	{
 		public:
 			Comparator cmp;
@@ -63,18 +65,21 @@ template<typename DataType> class ExternalSorter
 		template<typename Reader, typename Writer,
 				 typename Sorter, typename Comparator,
 				 typename TemporaryReader = BinaryFileReader<DataType>,
-				 typename TemporaryWriter = BinaryFileWriter<DataType> >
-		bool sort(  std::size_t availableMemory,
-					Reader &reader, Writer &writer,
-					Sorter sorter, Comparator comparator)
+				 typename TemporaryWriter = BinaryFileWriter<DataType>,
+				 typename IOFactory = TempFileIOFactory< BinaryFileReader<DataType>, BinaryFileWriter<DataType> > >
+		bool sort(std::size_t availableMemory,
+				  Reader &reader, Writer &writer,
+				  Sorter sorter, Comparator comparator,
+				  IOFactory factory = IOFactory())
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>
+					(bufferSize, reader, sorter, comparator, factory))
 				return false;
 
 			bool success = mergeFiles<Writer, TemporaryReader,
-									  implementation::HeapElementComparator<DataType, Comparator> >(writer);
+									  impl::PairComparator<DataType, Comparator> >(writer, factory);
 			return success;
 		}
 
@@ -86,18 +91,21 @@ template<typename DataType> class ExternalSorter
 		template<typename Reader, typename Writer,
 				 typename Sorter, typename Comparator,
 				 typename TemporaryReader = BinaryFileReader<DataType>,
-				 typename TemporaryWriter = BinaryFileWriter<DataType> >
+				 typename TemporaryWriter = BinaryFileWriter<DataType>,
+				 typename IOFactory = TempFileIOFactory< BinaryFileReader<DataType>, BinaryFileWriter<DataType> > >
 		bool stableSort(std::size_t availableMemory,
-				  Reader &reader, Writer &writer,
-				  Sorter sorter, Comparator comparator)
+						Reader &reader, Writer &writer,
+						Sorter sorter, Comparator comparator,
+						IOFactory factory = IOFactory())
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>(bufferSize, reader, sorter, comparator))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>
+					(bufferSize, reader, sorter, comparator, factory))
 				return false;
 
 			bool success = mergeFiles<Writer, TemporaryReader,
-									  implementation::StableHeapElementComparator<DataType, Comparator> >(writer);
+									  impl::StablePairComparator<DataType, Comparator> >(writer, factory);
 			return success;
 		}
 
@@ -108,13 +116,12 @@ template<typename DataType> class ExternalSorter
 		 * Writes an array of data to file in binary format
 		 * Returns true if succeeded
 		 */
-		template<typename TemporaryWriter, typename ForwardIterator>
-		bool writeFile(unsigned int id, ForwardIterator start, std::size_t items)
+		template<typename TemporaryWriter, typename ForwardIterator, typename IOFactory>
+		bool writeFile(ForwardIterator start, std::size_t items, IOFactory &factory)
 		{
-			TemporaryWriter *writer = new TemporaryWriter(getFileName(id));
+			std::unique_ptr<TemporaryWriter> writer = factory.openWriter();
 			for (; items; --items, ++start)
 				if (!writer->operator()(*start)) return false;
-			delete writer;
 			return true;
 		}
 
@@ -122,8 +129,12 @@ template<typename DataType> class ExternalSorter
 		 * Reads data from reader to buffer, sorts it and outputs to temporary files
 		 * Returns number of created files (less or equal 0 if error)
 		 */
-		template<typename Reader, typename TemporaryWriter, typename Sorter, typename Comparator>
-		int readAndSortChunks(std::size_t bufferSize, Reader &reader, Sorter &sorter, Comparator &comparator)
+		template<typename Reader, typename TemporaryWriter,
+				 typename Sorter, typename Comparator,
+				 typename IOFactory >
+		int readAndSortChunks(std::size_t bufferSize, Reader &reader,
+							  Sorter &sorter, Comparator &comparator,
+							  IOFactory &factory)
 		{
 			std::vector<DataType> buffer(bufferSize);
 			tempFiles = 0;
@@ -135,7 +146,8 @@ template<typename DataType> class ExternalSorter
 				if (currentSize == bufferSize)
 				{
 					sorter(buffer.begin(), buffer.begin() + currentSize, comparator);
-					if (!writeFile<TemporaryWriter>(tempFiles, buffer.begin(), currentSize)) return 0;
+					if (!writeFile<TemporaryWriter, decltype(buffer.begin()), IOFactory>
+							(buffer.begin(), currentSize, factory)) return 0;
 					currentSize = 0;
 					++tempFiles;
 				}
@@ -143,7 +155,8 @@ template<typename DataType> class ExternalSorter
 			if (currentSize != 0)
 			{
 				sorter(buffer.begin(), buffer.begin() + currentSize, comparator);
-				if (!writeFile<TemporaryWriter>(tempFiles, buffer.begin(), currentSize)) return 0;
+				if (!writeFile<TemporaryWriter, decltype(buffer.begin()), IOFactory>
+						(buffer.begin(), currentSize, factory)) return 0;
 				currentSize = 0;
 				++tempFiles;
 			}
@@ -163,8 +176,8 @@ template<typename DataType> class ExternalSorter
 		 * Uses mergesort algorithm with binary heap (HeapClass)
 		 * Returns true if no error occured
 		 */
-		template<typename Writer, typename TemporaryReader, typename PairComparator>
-		bool mergeFiles(Writer &writer)
+		template<typename Writer, typename TemporaryReader, typename PairComparator, typename IOFactory>
+		bool mergeFiles(Writer &writer, IOFactory &factory)
 		{
 			typedef std::pair<DataType, int> HeapElement;
 
@@ -176,7 +189,7 @@ template<typename DataType> class ExternalSorter
 
 			for (std::size_t i = 0; i < tempFiles; i++)
 			{
-				streams.push_back(std::unique_ptr<TemporaryReader>(new TemporaryReader(getFileName(i)))); // TODO: factory to construct readers
+				streams.push_back(factory.openReader());
 				streams[i]->operator() (current.first);
 				current.second = i;
 				heap.push(current);
