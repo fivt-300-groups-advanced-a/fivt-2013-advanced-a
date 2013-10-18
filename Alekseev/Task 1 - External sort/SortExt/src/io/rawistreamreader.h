@@ -3,8 +3,6 @@
 
 #include <ios>
 
-// TODO: tests
-
 template <typename DataT>
 class RawIStreamReader
 {

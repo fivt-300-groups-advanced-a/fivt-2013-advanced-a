@@ -1,28 +1,22 @@
 #ifndef COMPLEXDATA_H
 #define COMPLEXDATA_H
 
-#include <ios>
+#include <iostream>
 #include <string>
 
 struct ComplexData
 {
     double d;
     std::string s;
+    ComplexData(double d = 0., const std::string &s = ""): d(d), s(s) {}
 };
 
-static std::istream& operator >> (std::istream &in, ComplexData &d)
+namespace std
 {
-    return in >> d.d >> d.s;
-}
+std::istream &operator >> (std::istream &in, ComplexData &d);
+std::ostream &operator << (std::ostream &out, const ComplexData &d);
+} // namespace std
 
-static std::ostream& operator << (std::ostream &out, const ComplexData &d)
-{
-    return out << d.d << std::endl << d.s << std::endl;
-}
-
-static inline bool operator == (const ComplexData &a, const ComplexData &b)
-{
-    return a.d - b.d < 1e-8 && a.s == b.s;
-}
+bool operator == (const ComplexData &a, const ComplexData &b);
 
 #endif // COMPLEXDATA_H

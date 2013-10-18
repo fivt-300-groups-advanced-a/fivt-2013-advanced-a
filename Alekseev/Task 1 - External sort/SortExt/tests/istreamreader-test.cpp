@@ -2,7 +2,7 @@
 
 #include "gtest/gtest.h"
 
-#include "src/istreamreader.h"
+#include "src/io/istreamreader.h"
 
 #include "complexdata.h"
 
@@ -12,18 +12,11 @@ TEST(IStreamReader, Integers)
     IStreamReader<int> reader(iss);
 
     int x;
-    EXPECT_TRUE(reader(x));
-    EXPECT_EQ(12354, x);
-
-    EXPECT_TRUE(reader(x));
-    EXPECT_EQ(54, x);
-
-    EXPECT_TRUE(reader(x));
-    EXPECT_EQ(45, x);
-
-    EXPECT_TRUE(reader(x));
-    EXPECT_EQ(344423, x);
-
+    for (int exp : {12354, 54, 45, 344423})
+    {
+        EXPECT_TRUE(reader(x));
+        EXPECT_EQ(exp, x);
+    }
     EXPECT_FALSE(reader(x));
 }
 
@@ -33,27 +26,27 @@ TEST(IStreamReader, Strings)
     IStreamReader<std::string> reader(iss);
 
     std::string s;
-    EXPECT_TRUE(reader(s));
-    EXPECT_EQ("./4t", s);
-
-    EXPECT_TRUE(reader(s));
-    EXPECT_EQ("3rr", s);
-
-    EXPECT_TRUE(reader(s));
-    EXPECT_EQ("rrr3dd", s);
-
+    for (std::string exp : {"./4t", "3rr", "rrr3dd"})
+    {
+        EXPECT_TRUE(reader(s));
+        EXPECT_EQ(exp, s);
+    }
     EXPECT_FALSE(reader(s));
 }
 
 TEST(IStreamReader, ComplexData)
 {
-    std::istringstream iss("54.2 erwe wre");
+    std::istringstream iss("54.2 erwe .1415 wre\tqoe");
     IStreamReader<ComplexData> reader(iss);
 
     ComplexData d;
     EXPECT_TRUE(reader(d));
     EXPECT_FLOAT_EQ(54.2, d.d);
-    EXPECT_EQ(d.s, "erwe");
+    EXPECT_EQ("erwe", d.s);
+
+    EXPECT_TRUE(reader(d));
+    EXPECT_FLOAT_EQ(.1415, d.d);
+    EXPECT_EQ("wre", d.s);
 
     EXPECT_FALSE(reader(d));
 }

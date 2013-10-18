@@ -6,7 +6,7 @@ QMAKE_CXXFLAGS += -std=gnu++0x
 
 SOURCES +=
 
-INCLUDE_PATH += $$PWD
+INCLUDEPATH += $$PWD
 
 HEADERS += \
     $$PWD/io/istreamreader.h \
