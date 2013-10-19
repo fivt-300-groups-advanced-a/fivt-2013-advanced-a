@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 namespace RadixSort
 {
@@ -18,13 +19,16 @@ namespace RadixSort
     *           Extract - method to Extract digit from value
     */
     template<typename RandomAccessIterator, typename Extractor>
-    void sort(RandomAccessIterator begin, RandomAccessIterator end, Extractor extr)
+    inline void sort(RandomAccessIterator begin, RandomAccessIterator end, Extractor extr)
     {
-        std :: vector<int> count(extr.maxValue);
-        std :: vector<int> id(end - begin);
+        int *count = (int*)malloc(extr.maxValue * sizeof(int));
+        int *id = (int*)malloc((end - begin) * sizeof(int));
+        //std :: vector<int> count(extr.maxValue);
+        //std :: vector<int> id(end - begin);
         for (int ibit = 0; ibit < extr.iterationCount; ++ibit)
         {
-            count.assign(extr.maxValue, 0);
+            memset(count, 0, extr.maxValue * sizeof(int));
+            //count.assign(extr.maxValue, 0);
             for (RandomAccessIterator it = begin; it < end; ++it)
             {
                 int bit = extr(*it, ibit);
@@ -51,10 +55,12 @@ namespace RadixSort
             }
 
         }
+        delete[] count;
+        delete[] id;
     }
 
     /**
-    * This class is Simple Int Extractor
+    * This class is Simple int Extractor
     * It split int to bits
     */
     class SimpleIntExtractor
@@ -66,13 +72,29 @@ namespace RadixSort
         inline unsigned int operator()(const int &i, const int id) const
         {
             if (id == 31)
-                return ((i & (1 << id)) ? 0 : 1);
-            return ((i & (1 << id)) ? 1 : 0);
+                return (1 - ((i >> id) & 1));
+            return ((i >> id) & 1);
         }
     };
 
     /**
-    * This class is Fast Int Extractor
+    * This class is Simple int Extractor
+    * It split int to bits
+    */
+    class SimpleUnsignedIntExtractor
+    {
+    public:
+        const unsigned int maxValue = 2;
+        const unsigned int iterationCount = 32;
+
+        inline unsigned int operator()(const int &i, const int id) const
+        {
+            return ((i >> id) & 1);
+        }
+    };
+
+    /**
+    * This class is Fast int Extractor
     * It split to 2 parts for 16 bits
     */
     class FastIntExtractor
@@ -86,6 +108,24 @@ namespace RadixSort
             if (id == 0)
                 return i & ((1 << 16) - 1);
             return (((i >> 16) & ((1 << 16) - 1)) ^ (1 << 15));
+        }
+    };
+
+    /**
+    * This class is Fast unsigned int Extractor
+    * It split to 2 parts for 16 bits
+    */
+    class FastUnsignedIntExtractor
+    {
+    public:
+        const unsigned int maxValue = (1 << 16);
+        const unsigned int iterationCount = 2;
+
+        inline unsigned int operator()(const int &i, const int id) const
+        {
+            if (id == 0)
+                return i & ((1 << 16) - 1);
+            return ((i >> 16) & ((1 << 16) - 1));
         }
     };
 }

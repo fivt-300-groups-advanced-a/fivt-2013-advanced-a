@@ -10,7 +10,6 @@
 #include "sorter.h"
 #include "radixsort.h"
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 
 using namespace std;
@@ -69,6 +68,7 @@ TEST (BinaryRW, INTRW_N_100)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
 
 TEST (BinaryRW, DOUBLERW_N_100)
@@ -91,6 +91,7 @@ TEST (BinaryRW, DOUBLERW_N_100)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
 
 TEST (RW, INTRW_N_100)
@@ -113,6 +114,7 @@ TEST (RW, INTRW_N_100)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
 
 TEST (IntegrateTest, Int_N_10000_MEM_100)
@@ -141,6 +143,8 @@ TEST (IntegrateTest, Int_N_10000_MEM_100)
         cin1 >> x;
         EXPECT_EQ(x, v[i]);
     }
+    remove("12345");
+    remove("12345.out");
 }
 
 TEST (IntegrateTest, Int_N_100000_MEM_1000)
@@ -169,6 +173,8 @@ TEST (IntegrateTest, Int_N_100000_MEM_1000)
         cin1 >> x;
         EXPECT_EQ(x, v[i]);
     }
+    remove("12345");
+    remove("12345.out");
 }
 
 TEST (IntegrateTest, Int_N_100000_MEM_1000_Radix)
@@ -197,6 +203,8 @@ TEST (IntegrateTest, Int_N_100000_MEM_1000_Radix)
         cin1 >> x;
         EXPECT_EQ(x, v[i]);
     }
+    remove("12345");
+    remove("12345.out");
 }
 
 TEST (IntegrateTest, Double_N_100000_MEM_10000)
@@ -225,7 +233,41 @@ TEST (IntegrateTest, Double_N_100000_MEM_10000)
         cin1.read(reinterpret_cast<char*>(&x), sizeof (x));
         EXPECT_EQ(x, v[i]);
     }
+    remove("12345");
+    remove("12345.out");
 }
+#ifdef CHECK_SPEED_RADIX_VS_STD
+int main(int argc, char **argv)
+{
+    const int n = 414;
+    const int tests = 10000;
+    cout << n << endl;
+    int k1 = 0, k2 = 0, k3 = 0, k = 0;
+    vector<int> v1(n);
+    for (int i = 0; i < tests; ++i)
+    {
+        for (int i = 0; i < n; ++i)
+            v1[i] = ((rand() << 16) + rand());
+        vector<int> v2 = v1;
+        vector<int> v3 = v1;
+        auto c1 = clock();
+        sort(v1.begin(), v1.end());
+        auto c2 = clock();
+        RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: FastIntExtractor());
+        auto c3 = clock();
+        RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: SimpleIntExtractor());
+        auto c4 = clock();
+        k1 += c2 - c1;
+        k2 += c3 - c2;
+        k3 += c4 - c3;
+        k += ((c4 - c3) < (c3 - c2) ? 1 : 0);
+        cout << "TEST #" << i << " " << (c2 - c1 > min(c3 - c2, c4 - c3) ? "RADIX" : "STD") << " WIN" << (c3 - c2 > c4 - c3 ? "  Simple\n" : "  Fast\n");
+    }
+
+    cout << "STD: " << (double)k1 / tests / CLOCKS_PER_SEC << " ms -- RADIX: " << (double)k2 / tests / CLOCKS_PER_SEC << "ms -- ratio: " << (double)(k2) / (k1) << endl;
+    cout << "Simple wins in " <<  k << " from " << tests << endl;
+}
+#endif
 
 #ifdef TEST_BUILD
 int main(int argc, char **argv)
