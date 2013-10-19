@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1382191917 source:/home/ryadom/ExternalSort/main.cpp
+1382210944 source:/home/ryadom/ExternalSort/main.cpp
 	<functional>
 	<fstream>
 	<string>
@@ -11,9 +11,8 @@
 	"sorter.h"
 	"radixsort.h"
 	<gtest/gtest.h>
-	<gmock/gmock.h>
 
-1382191960 /home/ryadom/ExternalSort/externalsort.h
+1382195013 /home/ryadom/ExternalSort/externalsort.h
 	<algorithm>
 	<functional>
 	<memory.h>
@@ -26,12 +25,12 @@
 	<stdio.h>
 	"rwstreams.h"
 
-1382191202 /home/ryadom/ExternalSort/rwstreams.h
+1382196637 /home/ryadom/ExternalSort/rwstreams.h
 	<fstream>
 	<string>
 	<memory>
 
-1382185134 /home/ryadom/ExternalSort/sorter.h
+1382197184 /home/ryadom/ExternalSort/sorter.h
 	<algorithm>
 	"radixsort.h"
 
@@ -73,7 +72,8 @@
 	"sorter.h"
 	<gtest/gtest.h>
 
-1382192018 /home/ryadom/ExternalSort/radixsort.h
+1382210880 /home/ryadom/ExternalSort/radixsort.h
 	<vector>
 	<algorithm>
+	<memory>
 
