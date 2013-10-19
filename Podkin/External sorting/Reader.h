@@ -7,13 +7,28 @@
 
 template<typename Type> class Reader{
     public:
-        explicit Reader(std::ifstream &YourStream){
-            Stream = &YourStream;
+        ~Reader(){
+            Close();
+        }
+        void Close(){
+            if (Stream)
+                Stream->close();
+            Stream = NULL;
         }
         explicit Reader(const std::string &FileName){
+            Stream = NULL;
+            SetStream(FileName);
+        }
+        void SetStream(const std::string &FileName){
+            Close();
             Stream = new std::ifstream(FileName.c_str());
         }
         explicit Reader(const char *FileName){
+            Stream = NULL;
+            SetStream(FileName);
+        }
+        void SetStream(const char *FileName){
+            Close();
             Stream = new std::ifstream(FileName);
         }
         bool operator() (Type &NextElement){
@@ -23,7 +38,7 @@ template<typename Type> class Reader{
             return Stream && *Stream;
         }
     private:
-        std::istream *Stream;
+        std::ifstream *Stream;
 };
 
 #endif

@@ -1,16 +1,19 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "gtest/gtest.h"
 
-#include "src/fstreamqueue.h"
+#include "src/io/fstreamqueue.h"
 
-#include "complexdata.h"
+#include "../complexdata.h"
 
 TEST(FStreamQueue, Integers)
 {
-    FStreamQueue<int> q0, q1, q2;
+    FStreamQueue<int,
+            typename OptimalStreamIO<int>::ReaderType,
+            typename OptimalStreamIO<int>::WriterType > q0, q1, q2;
 
     int x;
     EXPECT_FALSE(q0.pop(x));
@@ -39,7 +42,9 @@ TEST(FStreamQueue, Integers)
 
 TEST(FStreamQueue, Strings)
 {
-    FStreamQueue<std::string> q0, q1, q2;
+    FStreamQueue<std::string,
+            IStreamReader<std::string>,
+            OStreamWriter<std::string>> q0, q1, q2;
 
     std::string x;
     EXPECT_FALSE(q0.pop(x));
@@ -68,7 +73,9 @@ TEST(FStreamQueue, Strings)
 
 TEST(FStreamQueue, ComplexData)
 {
-    FStreamQueue<ComplexData> q0, q1, q2;
+    FStreamQueue<ComplexData,
+            IStreamReader<ComplexData>,
+            OStreamWriter<ComplexData>> q0, q1, q2;
 
     ComplexData x;
     EXPECT_FALSE(q0.pop(x));
