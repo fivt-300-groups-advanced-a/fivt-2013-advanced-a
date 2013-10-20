@@ -11,40 +11,42 @@ template <class T> class TextFileReader {
             close();
         }
 
-        explicit TextFileReader(std::ifstream &new_stream){
-            setStream(new_stream);
+        explicit TextFileReader(){
+            in = NULL;
         }
 
         explicit TextFileReader(const std::string &filename){
+            in = NULL;
             setStream(filename);
         }
 
         explicit TextFileReader(char *filename){
+            in = NULL;
             setStream(filename);
         }
 
         void close(){
-            if (in)
+            if (in){
                 in->close();
+                delete in;
+            }
             in = NULL;
         }
 
-        void setStream(std::ifstream &new_stream){
-            in = &new_stream;
-        }
-
         void setStream(const std::string &filename){
+            close();
             in = new std::ifstream(filename.c_str(), 
                     std::ifstream::in);
         }
 
         void setStream(char *filename){
+            close();
             in = new std::ifstream(filename,
                     std::ifstream::in);
         }
 
         bool operator () (T &next){
-            return *in >> next;
+            return in && (*in >> next);
         }
 
     private:

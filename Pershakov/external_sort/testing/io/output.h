@@ -35,31 +35,16 @@ TEST(TestTextFileWriter, constructFromCString){
     EXPECT_EQ(a, new_a);
 }
 
-TEST(TestTextFileWriter, constructFromStream){
-    std::ofstream out("text_file_writer.out");
-    TextFileWriter<int> writer(out);
-    int a = 37;
-    EXPECT_TRUE(writer(a));
-    writer.close();
-
-    std::ifstream in("text_file_writer.out");
-    TextFileReader<int> reader(in);
-    int new_a;
-    EXPECT_TRUE(reader(new_a));
-    EXPECT_EQ(a, new_a);
-}
-
 TEST(TestTextFileWriter, successfulWriting){
-    std::ofstream out("text_file_writer.out");
-    TextFileWriter<int> writer(out);
+    std::string filename = "text_file_writer.out";
+    TextFileWriter<int> writer(filename);
     int a = -1, b = 232, c = -2323;
     EXPECT_TRUE(writer(a));
     EXPECT_TRUE(writer(b));
     EXPECT_TRUE(writer(c));
     writer.close();
 
-    std::ifstream in("text_file_writer.out");
-    TextFileReader<int> reader(in);
+    TextFileReader<int> reader(filename);
     int new_a, new_b, new_c;
     EXPECT_TRUE(reader(new_a));
     EXPECT_TRUE(reader(new_b));
@@ -70,15 +55,14 @@ TEST(TestTextFileWriter, successfulWriting){
 }
 
 TEST(TestTextFileWriter, failedWriting){
-    std::ofstream out("text_file_writer.out");
-    TextFileWriter<int> writer(out);
+    std::string filename = "text_file_writer.out";
+    TextFileWriter<int> writer(filename);
     int a = -4242, b = 44232;;
     EXPECT_TRUE(writer(a));
     EXPECT_TRUE(writer(b));
     writer.close();
 
-    std::ifstream in("text_file_writer.out");
-    TextFileReader<int> reader(in);
+    TextFileReader<int> reader(filename);
     int new_a, new_b, new_c;
     EXPECT_TRUE(reader(new_a));
     EXPECT_TRUE(reader(new_b));
@@ -93,7 +77,7 @@ TEST(TestTextFileWriter, failedWriting){
  */
 
 TEST(TestBinaryFileWriter, constructFromStdString){
-    std::string filename = "binary_file_writeri.out";
+    std::string filename = "binary_file_writer.out";
     BinaryFileWriter<int> writer(filename);
     int a = 21;
     EXPECT_TRUE(writer(a));
@@ -109,21 +93,6 @@ TEST(TestBinaryFileWriter, constructFromCString){
     std::string filename = "binary_file_writer.out";
     BinaryFileWriter<int> writer(filename.c_str());
     int a = 41;
-    EXPECT_TRUE(writer(a));
-    writer.close();
-
-    BinaryFileReader<int> reader(filename);
-    int new_a;
-    EXPECT_TRUE(reader(new_a));
-    EXPECT_EQ(a, new_a);
-}
-
-TEST(TestBinaryFileWriter, constructFromStream){
-    std::string filename = "binary_file_writer.out";
-    std::ofstream out(filename.c_str(), 
-            std::ofstream::out | std::ofstream::binary);
-    BinaryFileWriter<int> writer(out);
-    int a = -312313;
     EXPECT_TRUE(writer(a));
     writer.close();
 

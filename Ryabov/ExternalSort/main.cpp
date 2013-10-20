@@ -3,18 +3,52 @@
 #include <string>
 #include <iomanip>
 #include <memory>
+#include <time.h>
+
 #include "externalsort.h"
 #include "rwstreams.h"
 #include "sorter.h"
+#include "radixsort.h"
 #include <gtest/gtest.h>
-//#define BOOST_TEST_DYN_LINK
-//#define BOOST_TEST_MAIN
-#include <boost/test/unit_test.hpp>
-#include <gmock/gmock.h>
+
 
 using namespace std;
 
-TEST(BinaryRW, INTRW)
+TEST (RadixSort, RadixIntSortN_1000000_FastEx)
+{
+    const int n = 1000000;
+    vector<int> v1(n);
+    for (int i = 0; i < n; ++i)
+        v1[i] = ((rand() << 16) + rand());
+    vector<int> v2 = v1;
+    auto c1 = clock();
+    sort(v1.begin(), v1.end());
+    auto c2 = clock();
+    RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: FastIntExtractor());
+    auto c3 = clock();
+    cout << "STD: " << c2 - c1 << " ms -- RADIX: " << c3 - c2 << "ms -- ratio: " << (double)(c3 - c2) / (c2 - c1) << endl;
+    for (int i = 0; i < n; ++i)
+        EXPECT_EQ(v1[i], v2[i]);
+}
+
+TEST (RadixSort, RadixIntSortN_100000_SimpleEx)
+{
+    const int n = 100000;
+    vector<int> v1(n);
+    for (int i = 0; i < n; ++i)
+        v1[i] = ((rand() << 16) + rand());
+    vector<int> v2 = v1;
+    int c1 = clock();
+    sort(v1.begin(), v1.end());
+    int c2 = clock();
+    RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: SimpleIntExtractor());
+    int c3 = clock();
+    cout << "STD: " << c2 - c1 << " ms -- RADIX: " << c3 - c2 << "ms -- ratio: " << (double)(c3 - c2) / (c2 - c1) << endl;
+    for (int i = 0; i < n; ++i)
+        EXPECT_EQ(v1[i], v2[i]);
+}
+
+TEST (BinaryRW, INTRW_N_100)
 {
     const int n = 100;
     vector<int> v(n);
@@ -34,9 +68,10 @@ TEST(BinaryRW, INTRW)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
 
-TEST(BinaryRW, DOUBLERW)
+TEST (BinaryRW, DOUBLERW_N_100)
 {
     const int n = 100;
     vector<double> v(n);
@@ -56,9 +91,10 @@ TEST(BinaryRW, DOUBLERW)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
 
-TEST(RW, INTRW)
+TEST (RW, INTRW_N_100)
 {
     const int n = 100;
     vector<int> v(n);
@@ -78,16 +114,170 @@ TEST(RW, INTRW)
         EXPECT_EQ(x, v[i]);
     }
     br.close();
+    remove("12345");
 }
+
+TEST (IntegrateTest, Int_N_10000_MEM_100)
+{
+    const int n = 10000;
+    vector<int> v(n);
+    for (int i = 0; i < n; ++i)
+        v[i] = rand() + 100;
+    ofstream cout1("12345");
+    for (int i=  0; i < n; ++i)
+        cout1 << v[i] << " ";
+    cout1.close();
+    ExternalSorter<int> exs;
+    Reader<int> reader(unique_ptr<ifstream>(new ifstream("12345")));
+    Writer<int> writer(unique_ptr<ofstream>(new ofstream("12345.out")));
+    exs.sort(100,
+        reader,
+        writer,
+        StandartSorter<less<int> >(),
+        less<int>());
+    sort(v.begin(), v.end());
+    ifstream cin1("12345.out");
+    for (int i = 0; i < n; ++i)
+    {
+        int x;
+        cin1 >> x;
+        EXPECT_EQ(x, v[i]);
+    }
+    remove("12345");
+    remove("12345.out");
+}
+
+TEST (IntegrateTest, Int_N_100000_MEM_1000)
+{
+    const int n = 100000;
+    vector<int> v(n);
+    for (int i = 0; i < n; ++i)
+        v[i] = ((int)rand() << 16) << rand();
+    ofstream cout1("12345");
+    for (int i=  0; i < n; ++i)
+        cout1 << v[i] << " ";
+    cout1.close();
+    ExternalSorter<int> exs;
+    Reader<int> reader(unique_ptr<ifstream>(new ifstream("12345")));
+    Writer<int> writer(unique_ptr<ofstream>(new ofstream("12345.out")));
+    exs.sort(1000,
+        reader,
+        writer,
+        StandartSorter<less<int> >(),
+        less<int>());
+    sort(v.begin(), v.end());
+    ifstream cin1("12345.out");
+    for (int i = 0; i < n; ++i)
+    {
+        int x;
+        cin1 >> x;
+        EXPECT_EQ(x, v[i]);
+    }
+    remove("12345");
+    remove("12345.out");
+}
+
+TEST (IntegrateTest, Int_N_100000_MEM_1000_Radix)
+{
+    const int n = 100000;
+    vector<int> v(n);
+    for (int i = 0; i < n; ++i)
+        v[i] = ((int)rand() << 16) << rand();
+    ofstream cout1("12345");
+    for (int i=  0; i < n; ++i)
+        cout1 << v[i] << " ";
+    cout1.close();
+    ExternalSorter<int> exs;
+    Reader<int> reader(unique_ptr<ifstream>(new ifstream("12345")));
+    Writer<int> writer(unique_ptr<ofstream>(new ofstream("12345.out")));
+    exs.sort(1000,
+        reader,
+        writer,
+        RadixSorter<RadixSort :: FastIntExtractor>(),
+        less<int>());
+    sort(v.begin(), v.end());
+    ifstream cin1("12345.out");
+    for (int i = 0; i < n; ++i)
+    {
+        int x;
+        cin1 >> x;
+        EXPECT_EQ(x, v[i]);
+    }
+    remove("12345");
+    remove("12345.out");
+}
+
+TEST (IntegrateTest, Double_N_100000_MEM_10000)
+{
+    const int n = 100000;
+    vector<double> v(n);
+    for (int i = 0; i < n; ++i)
+        v[i] = (double)rand() * (double)rand() * (double)rand() / (double)rand();
+    ofstream cout1("12345");
+    for (int i=  0; i < n; ++i)
+        cout1.write(reinterpret_cast<char*>(&v[i]), sizeof v[i]);
+    cout1.close();
+    ExternalSorter<double> exs;
+    BinaryReader<double> reader(unique_ptr<ifstream>(new ifstream("12345")));
+    BinaryWriter<double> writer(unique_ptr<ofstream>(new ofstream("12345.out")));
+    exs.sort(10000,
+        reader,
+        writer,
+        StandartSorter<less<double> >(),
+        less<double>());
+    sort(v.begin(), v.end());
+    ifstream cin1("12345.out");
+    for (int i = 0; i < n; ++i)
+    {
+        double x;
+        cin1.read(reinterpret_cast<char*>(&x), sizeof (x));
+        EXPECT_EQ(x, v[i]);
+    }
+    remove("12345");
+    remove("12345.out");
+}
+#ifdef CHECK_SPEED_RADIX_VS_STD
+int main(int argc, char **argv)
+{
+    const int n = 414;
+    const int tests = 10000;
+    cout << n << endl;
+    int k1 = 0, k2 = 0, k3 = 0, k = 0;
+    vector<int> v1(n);
+    for (int i = 0; i < tests; ++i)
+    {
+        for (int i = 0; i < n; ++i)
+            v1[i] = ((rand() << 16) + rand());
+        vector<int> v2 = v1;
+        vector<int> v3 = v1;
+        auto c1 = clock();
+        sort(v1.begin(), v1.end());
+        auto c2 = clock();
+        RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: FastIntExtractor());
+        auto c3 = clock();
+        RadixSort :: sort(v2.begin(), v2.end(), RadixSort :: SimpleIntExtractor());
+        auto c4 = clock();
+        k1 += c2 - c1;
+        k2 += c3 - c2;
+        k3 += c4 - c3;
+        k += ((c4 - c3) < (c3 - c2) ? 1 : 0);
+        cout << "TEST #" << i << " " << (c2 - c1 > min(c3 - c2, c4 - c3) ? "RADIX" : "STD") << " WIN" << (c3 - c2 > c4 - c3 ? "  Simple\n" : "  Fast\n");
+    }
+
+    cout << "STD: " << (double)k1 / tests / CLOCKS_PER_SEC << " ms -- RADIX: " << (double)k2 / tests / CLOCKS_PER_SEC << "ms -- ratio: " << (double)(k2) / (k1) << endl;
+    cout << "Simple wins in " <<  k << " from " << tests << endl;
+}
+#endif
 
 #ifdef TEST_BUILD
 int main(int argc, char **argv)
 {
+    srand(time(NULL));
     testing :: InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
 #else
-int main()
+int main(int argc, char **argv)
 {
     ExternalSorter<int> exs;
     Reader<int> reader(unique_ptr<ifstream>(new ifstream("123")));
@@ -96,8 +286,9 @@ int main()
     exs.sort(8,
         reader,
         writer,
-        StandartSorter<int>(),
+        StandartSorter<less<int> >(),
         less<int>());
     return 0;
 }
+
 #endif
