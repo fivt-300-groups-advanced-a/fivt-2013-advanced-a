@@ -17,6 +17,10 @@ template <class T> class Reader
 				fin = NULL;
 			}
 		}
+		explicit Reader() 
+		{	
+			flag = true;
+		}
 		explicit Reader(const char* Filename) 
 		{	
 			flag = false;

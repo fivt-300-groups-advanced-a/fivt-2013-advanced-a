@@ -17,6 +17,10 @@ template <class T> class BinReader
 				fin = NULL;
 			}
 		}
+		explicit BinReader()
+		{
+			flag = true;
+		}
 		explicit BinReader(const char* Filename)
 		{
 			flag = false;
