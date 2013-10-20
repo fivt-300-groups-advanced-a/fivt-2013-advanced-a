@@ -9,7 +9,6 @@
 #include "FileWriter.h"
 #include "BinaryWriter.h"
 #include <vector>
-#include <iostream>
 
 template<typename Type, class Comparator>
 class PairComparator{

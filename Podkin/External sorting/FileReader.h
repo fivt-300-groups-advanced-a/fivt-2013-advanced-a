@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <string>
-#include <iostream>
 
 template<typename Type> class FileReader{
     public:
