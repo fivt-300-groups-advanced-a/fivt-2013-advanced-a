@@ -78,4 +78,11 @@ $(TESTS_DIR)/%_unittest:  $(addprefix $(BIN_DIR)/,%.o %_unittest.o \
 	                                              gtest_main.a)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
+#сборка integration теста
+$(BIN_DIR)/integration_test.o: $(TESTS_DIR)/integration_test.cpp \
+	                     $(BIGSORT_DIR)/bigsort.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+$(TESTS_DIR)/integration_test: $(addprefix $(BIN_DIR)/,integration_test.o \
+	                                              gtest_main.a)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@

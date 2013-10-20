@@ -83,39 +83,21 @@
 ///\brief Пространство имён, в котором всё и находится
 namespace bigsort
 {
-
-///\brief Функция сортировки пузырьком в обратную сторону
-///
-///Написана, чтобы потестить, точно так же, как и bubblesort()
-///\todo убрать к чёртовой матери, ибо всё равно не используется
-	void reversedBubblesort(int a[], int len);
-
-
-///\brief Функция сортировки пузырьком.
-///
-///Написана, чтобы потестить систему unit-тестирования
-///Cмысловой нагрузки не несёт, так же как и reversedBubblesort()
-///\todo убрать к чёртовой матери, ибо всё равно не используется
-	void bubblesort(int a[], int len);
-
-
 ///\brief та самая функция, ради которой всё писалось
-///
-///\todo научиться передавать std::sort по-человечески
-///Переписать функцию как класс, чтобы не передавать фальшивые параметры?
-///Или хитрым образом запилить значения по умолчанию
-///И автопределение типа считываемого
-
-
 	template <class T, class Reader,    class Writer, 
 	                   class TmpStream,
-	                   class Sorter, class SortCmp, class MergeCmp>
+	                   class Sorter, class MergeCmp,
+	                   class Separator, class TmpSeparator>
 
-	void bigsort(T &tmpVal,
-						  Reader &reader, Writer &writer,
-		         		  int k,
-		         		  MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter,
-		         		  TmpStream tmpStream)
+	void bigsort(T 	          &tmpVal,
+			     Reader       &reader,
+			     Writer       &writer,
+		         int          k,
+		         MergeCmp     mergecmp,
+		         Sorter       sorter,
+		         TmpStream    tmpStream,
+		         Separator    separator,
+		         TmpSeparator tmpSeparator)
 	{
 		std::cout << "Ha-ha-ha, I'm a sorting function!!\n";
 		
@@ -154,10 +136,10 @@ namespace bigsort
 			oldPos = nowSize;
 
 			std::cout << "I'm sorting piece #" << i << std::endl;
-			sort(v.begin(), v.end(), sortcmp);
+			sorter(v.begin(), v.end());
 			std::cout << "I've sorted piece #" << i << std::endl;
 			for (int j = 0; j < v.size(); ++j)
-				tmpStream[i] << " " << v[j];
+				tmpStream[i] << tmpSeparator << v[j];
 			std::cout << "I've writed piece #" << i << std::endl;
 		}
 
@@ -171,10 +153,10 @@ namespace bigsort
 			++totalNumberOfItems;
 		}
 		std::cout << "I'm sorting piece #" << k << std::endl;
-		sort(v.begin(), v.end(), sortcmp);
+		sorter(v.begin(), v.end());
 		std::cout << "I've sorted piece #" << k << std::endl;
 		for (int j = 0; j < v.size(); ++j)
-			tmpStream[k - 1] << " " << v[j];
+			tmpStream[k - 1] << tmpSeparator << v[j];
 		std::cout << "I've writed piece #" << k << std::endl;
 
 		for (int i = 0; i < k; ++i)
@@ -201,7 +183,7 @@ namespace bigsort
 		std::make_heap(mergeHeap.begin(), mergeHeap.end(), mergecmp);
 		while (totalNumberOfItems > 0)
 		{
-			writer << mergeHeap.front().first << " ";
+			writer << mergeHeap.front().first << separator;
 			if (!tmpStream[mergeHeap.front().second].eof())
 			{
 				std::pair <T, int> tmp;
@@ -247,6 +229,6 @@ namespace bigsort
 		}
 		std::sort_heap(mergeHeap.begin(), mergeHeap.end(), mergecmp);
 		for (int i = 0; i < mergeHeap.size(); ++i)
-			writer << mergeHeap[i].first << " ";
+			writer << mergeHeap[i].first << separator;
 	}
 };
