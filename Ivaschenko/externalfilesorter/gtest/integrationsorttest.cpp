@@ -67,7 +67,7 @@ TEST(ExternalSorter, PermutaionSort)
 	std::vector< std::pair<int, std::size_t> > tests = {{5, 4}, {5, 12}, {5, 100}, {10, 40}, {10, 4}, {10, 12},
 														{100, 40}, {100000, 10000}, {1000000, 100000}};
 
-	ExternalSorter<int> sorter;
+	ExternalSorter<int, std::less<int> > sorter;
 	for (size_t i = 0; i < tests.size(); ++i)
 	{
 		std::cout << "test #" << i << std::endl;
@@ -75,7 +75,7 @@ TEST(ExternalSorter, PermutaionSort)
 		ShuffledPermutationReader reader(tests[i].first, i);
 		SortedPermutationWriter writer;
 		std::clock_t start = std::clock();
-		sorter.sort(tests[i].second, reader, writer, StandartSorter<int>(), std::less<int>());
+		sorter.sort(tests[i].second, reader, writer, StandartSorter<int>());
 		std::cout << "    Sorting time = " << (clock() - start) / 1000 << "ms" << std::endl;
 	}
 }
@@ -123,7 +123,7 @@ TEST(ExternalSorter, RandomIntegerSequenceSorting)
 			int prev;
 	};
 
-	ExternalSorter<int> sorter;
+	ExternalSorter<int, std::less<int> > sorter;
 	std::vector< std::pair<std::size_t, std::size_t> > tests =
 	{
 		{5, 4}, {6, 4}, {7, 8}, {8, 40}, {9, 100}, {10, 8},
@@ -137,7 +137,7 @@ TEST(ExternalSorter, RandomIntegerSequenceSorting)
 		RandomSequenceReader reader(tests[i].first, i);
 		SortedSequenceWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
-		sorter.sort(tests[i].second, reader, writer, StandartSorter<int>(), std::less<int>());
+		sorter.sort(tests[i].second, reader, writer, StandartSorter<int>());
 		EXPECT_TRUE(writer.getReaded() == tests[i].first);
 		std::cout << "    Sorting time = " << (clock() - start) / 1000 << "ms" << std::endl;
 	}
@@ -214,7 +214,7 @@ TEST(ExternalSorter, CustomDataSorting)
 			Animal prev;
 	};
 
-	ExternalSorter<Animal> sorter;
+	ExternalSorter<Animal, std::less<Animal> > sorter;
 	std::vector< std::pair<std::size_t, std::size_t> > tests =
 	{
 		{5, 1 * sizeof(Animal)}, {6, 1 * sizeof(Animal)}, {10, 2 * sizeof(Animal)},
@@ -228,7 +228,7 @@ TEST(ExternalSorter, CustomDataSorting)
 		AnimalReader reader(tests[i].first, i);
 		SortedAnimalsWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
-		sorter.sort(tests[i].second, reader, writer, StandartSorter<Animal>(), std::less<Animal>());
+		sorter.sort(tests[i].second, reader, writer, StandartSorter<Animal>());
 		EXPECT_TRUE(writer.getReaded() == tests[i].first);
 		std::cout << "    Sorting time = " << (clock() - start) / 1000 << "ms" << std::endl;
 	}

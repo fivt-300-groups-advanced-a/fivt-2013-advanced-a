@@ -41,7 +41,7 @@ namespace impl
  * ExternalFileSorter class is used for sorting extenal fixed-type data files using
  * default or custom reader, writer, sorter and comparator functors
  */
-template<typename DataType> class ExternalSorter
+template<typename DataType, typename Comparator> class ExternalSorter
 {
 	public:
 		/**
@@ -61,26 +61,23 @@ template<typename DataType> class ExternalSorter
 		 *		TemporaryReader and Temporary writers are functors for optimised (not for human reading)
 		 *		temporary input-output. Both must have constructor with unsigned int parameter (stream ID).
 		 *		Default values are BinaryFileReader<DataType> and BinaryFileWriter<DataType>
+		 *		IOFactory - a class which will provide opened I/O streams for sorting (TempFileIOFactory by default)
 		 */
-		template<typename Reader, typename Writer,
-				 typename Sorter, typename Comparator,
+		template<typename Reader, typename Writer, typename Sorter,
 				 typename TemporaryReader = BinaryFileReader<DataType>,
 				 typename TemporaryWriter = BinaryFileWriter<DataType>,
 				 typename IOFactory = TempFileIOFactory< BinaryFileReader<DataType>, BinaryFileWriter<DataType> > >
 		bool sort(std::size_t availableMemory,
 				  Reader &reader, Writer &writer,
-				  Sorter sorter, Comparator comparator,
-				  IOFactory factory = IOFactory())
+				  Sorter sorter, IOFactory factory = IOFactory())
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>
-					(bufferSize, reader, sorter, comparator, factory))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter>(bufferSize, reader, sorter, factory))
 				return false;
 
-			bool success = mergeFiles<Writer, TemporaryReader,
-									  impl::PairComparator<DataType, Comparator> >(writer, factory);
-			return success;
+			return mergeFiles<Writer, TemporaryReader, impl::PairComparator<DataType, Comparator>, IOFactory>
+					(writer, factory);
 		}
 
 		/**
@@ -88,25 +85,21 @@ template<typename DataType> class ExternalSorter
 		 * (see ExtenalFileSorter::sort function for details)
 		 * Important: requires stable Sorter
 		 */
-		template<typename Reader, typename Writer,
-				 typename Sorter, typename Comparator,
+		template<typename Reader, typename Writer, typename Sorter,
 				 typename TemporaryReader = BinaryFileReader<DataType>,
 				 typename TemporaryWriter = BinaryFileWriter<DataType>,
 				 typename IOFactory = TempFileIOFactory< BinaryFileReader<DataType>, BinaryFileWriter<DataType> > >
 		bool stableSort(std::size_t availableMemory,
 						Reader &reader, Writer &writer,
-						Sorter sorter, Comparator comparator,
-						IOFactory factory = IOFactory())
+						Sorter sorter, IOFactory factory = IOFactory())
 		{
 			int bufferSize = availableMemory / sizeof(DataType);
 			if (!bufferSize) return false;
-			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter, Comparator>
-					(bufferSize, reader, sorter, comparator, factory))
+			if (!readAndSortChunks<Reader, TemporaryWriter, Sorter>(bufferSize, reader, sorter, factory))
 				return false;
 
-			bool success = mergeFiles<Writer, TemporaryReader,
-									  impl::StablePairComparator<DataType, Comparator> >(writer, factory);
-			return success;
+			return mergeFiles<Writer, TemporaryReader, impl::StablePairComparator<DataType, Comparator>, IOFactory >
+					(writer, factory);
 		}
 
 	private:
@@ -130,11 +123,9 @@ template<typename DataType> class ExternalSorter
 		 * Returns number of created files (less or equal 0 if error)
 		 */
 		template<typename Reader, typename TemporaryWriter,
-				 typename Sorter, typename Comparator,
-				 typename IOFactory >
+				 typename Sorter, typename IOFactory >
 		int readAndSortChunks(std::size_t bufferSize, Reader &reader,
-							  Sorter &sorter, Comparator &comparator,
-							  IOFactory &factory)
+							  Sorter &sorter, IOFactory &factory)
 		{
 			std::vector<DataType> buffer(bufferSize);
 			tempFiles = 0;
@@ -145,7 +136,7 @@ template<typename DataType> class ExternalSorter
 				++currentSize;
 				if (currentSize == bufferSize)
 				{
-					sorter(buffer.begin(), buffer.begin() + currentSize, comparator);
+					sorter(buffer.begin(), buffer.begin() + currentSize);
 					if (!writeFile<TemporaryWriter, decltype(buffer.begin()), IOFactory>
 							(buffer.begin(), currentSize, factory)) return 0;
 					currentSize = 0;
@@ -154,7 +145,7 @@ template<typename DataType> class ExternalSorter
 			}
 			if (currentSize != 0)
 			{
-				sorter(buffer.begin(), buffer.begin() + currentSize, comparator);
+				sorter(buffer.begin(), buffer.begin() + currentSize);
 				if (!writeFile<TemporaryWriter, decltype(buffer.begin()), IOFactory>
 						(buffer.begin(), currentSize, factory)) return 0;
 				currentSize = 0;
@@ -162,13 +153,6 @@ template<typename DataType> class ExternalSorter
 			}
 			assert(currentSize == 0);
 			return tempFiles;
-		}
-
-		std::string getFileName(std::size_t id)
-		{
-			char buffer[30]; // FIXME: fixed size
-			sprintf(buffer, ".part.%lu", id);
-			return std::string(buffer);
 		}
 
 		/**
