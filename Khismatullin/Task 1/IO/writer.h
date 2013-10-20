@@ -34,7 +34,7 @@ template <class T> class Writer
 		}
 		bool operator () (const T& var) 
 		{
-			return (*fout << var);
+			return (*fout << var << std::endl);
 		}
 		
 	private:

@@ -1,7 +1,7 @@
 #ifndef BinREAD
 
 #define BinREAD
-
+#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -25,6 +25,7 @@ template <class T> class BinReader
 		explicit BinReader(const std :: string &Filename)
 		{
 			flag = false;
+			//std::cout << "GGDFGFGFGFGFGF\n";
 			fin = new std :: ifstream(Filename.c_str());
 		}
 		explicit BinReader(const std :: ifstream &Stream)

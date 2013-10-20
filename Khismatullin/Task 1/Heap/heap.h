@@ -7,13 +7,13 @@
 #include <cassert>
 
 template<class T, class comp>
-class heap
+class Heap
 {
 	public:
-		~heap(){
+		~Heap(){
 			delete[] h;
 		}
-		heap(unsigned int n = 0)
+		Heap(unsigned int n = 0)
 		{
 			h = new T[n];
 			size = 0;
@@ -33,7 +33,7 @@ class heap
 		}
 		
 	private:
-		T* h; // заменить на массивы.
+		T* h;
 		unsigned int size; 
 		comp cmp;
 		

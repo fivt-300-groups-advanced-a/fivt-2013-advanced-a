@@ -11,8 +11,7 @@
 template<class T, class comp>
 void head_sort(std :: vector<T> &v)
 {
-	comp cmp;
-	usually_sort(v, cmp);
+	usually_sort<T, comp>(v);
 }
 
 template<>
@@ -28,7 +27,7 @@ void head_sort<int, std::less<int> >(std::vector<int> &v)
 	{
 		if (v[i] < 0) 
 		{
-			usually_sort(v, std::less<int>());
+			usually_sort<int, std::less<int> >(v);
 			return;
 		}
 	}
@@ -42,7 +41,7 @@ void head_sort<long long, std::less<long long> >(std::vector<long long> &v)
 	{
 		if (v[i] < 0) 
 		{
-			usually_sort(v, std::less<long long>());
+			usually_sort<long long, std::less<long long> >(v);
 			return;
 		}
 	}
