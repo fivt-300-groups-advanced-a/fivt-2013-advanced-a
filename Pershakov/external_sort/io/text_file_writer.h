@@ -11,34 +11,36 @@ template <class T> class TextFileWriter {
             close();
         }
 
-        explicit TextFileWriter(std::ofstream &new_stream){
-            setStream(new_stream);
+        explicit TextFileWriter(){
+            out = NULL;
         }
 
         explicit TextFileWriter(const std::string &filename){
+            out = NULL;
             setStream(filename);
         }
 
         explicit TextFileWriter(char *filename){
+            out = NULL;
             setStream(filename);
         }
 
         void close(){
-            if (out)
+            if (out){
                 out->close();
+                delete out;
+            }
             out = NULL;
         }
 
-        void setStream(std::ofstream &new_stream){
-            out = &new_stream;
-        }
-
         void setStream(const std::string &filename){
+            close();
             out = new std::ofstream(filename.c_str(), 
                     std::ofstream::out);
         }
 
         void setStream(char *filename){
+            close();
             out = new std::ofstream(filename, 
                     std::ofstream::out);
         }
