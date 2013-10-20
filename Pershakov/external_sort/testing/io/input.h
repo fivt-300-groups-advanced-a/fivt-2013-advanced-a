@@ -35,28 +35,14 @@ TEST(TestTextFileReader, constructFromCString){
     EXPECT_EQ(a, a_new);
 }
 
-TEST(TestTextFileReader, constructFromStream){
-    std::ofstream out("text_file_reader.in", std::ofstream::out);
-    int a = 6;
-    out << a;
-    out.close();
-
-    std::ifstream in("text_file_reader.in", std::ifstream::in);
-    TextFileReader<int> reader(in);
-
-    int a_new;
-    EXPECT_TRUE(reader(a_new));
-    EXPECT_EQ(a, a_new);
-}
-
 TEST(TestTextFileReader, successfulReading){
     std::ofstream out("text_file_reader.in", std::ofstream::out);
+    std::string filename = "text_file_reader.in";
     int a = 56, b = -533324, c = 3232;
     out << a << " " << b << " " << c << std::endl;
     out.close();
-    std::ifstream in("text_file_reader.in", std::ifstream::in);
 
-    TextFileReader<int> reader(in);
+    TextFileReader<int> reader(filename);
     int a_new, b_new, c_new;
     EXPECT_TRUE(reader(a_new));
     EXPECT_TRUE(reader(b_new));
@@ -68,12 +54,12 @@ TEST(TestTextFileReader, successfulReading){
 
 TEST(TestTextFileReader, failedReading){
     std::ofstream out("text_file_reader.in", std::ifstream::out);
+    std::string filename = "text_file_reader.in";
     int a = 23, b = 0;
     out << a << " " << b << std::endl;
     out.close();
-    std::ifstream in("text_file_reader.in", std::ifstream::in);
     
-    TextFileReader<int> reader(in);
+    TextFileReader<int> reader(filename);
     int a_new, b_new, c_new;
     EXPECT_TRUE(reader(a_new));
     EXPECT_TRUE(reader(b_new));
@@ -117,19 +103,19 @@ TEST(TestBinaryFileReader, constructFromCString){
 TEST(TestBinaryFileReader, constructFromStream){
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
+    std::string filename("binary_file_reader.in");
     int a = -56;
     out.write((char*)&a, sizeof(int));
     out.close();
 
-    std::ifstream in("binary_file_reader.in",
-            std::ifstream::in | std::ifstream::binary);
-    BinaryFileReader<int> reader(in);
+    BinaryFileReader<int> reader(filename);
     int a_new;
     EXPECT_TRUE(reader(a_new));
     EXPECT_EQ(a, a_new);
 }
 
 TEST(TestBinaryFileReader, successfulReading){
+    std::string filename = "binary_file_reader.in";
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
     int a = -5643, b = 1212;
@@ -137,9 +123,7 @@ TEST(TestBinaryFileReader, successfulReading){
     out.write((char*)&b, sizeof(int));
     out.close();
 
-    std::ifstream in("binary_file_reader.in",
-            std::ifstream::in | std::ifstream::binary);
-    BinaryFileReader<int> reader(in);
+    BinaryFileReader<int> reader(filename);
     int a_new, b_new;
     EXPECT_TRUE(reader(a_new));
     EXPECT_TRUE(reader(b_new));
@@ -148,6 +132,7 @@ TEST(TestBinaryFileReader, successfulReading){
 }
 
 TEST(TestBinaryFileReader, failedReading){
+    std::string filename("binary_file_reader.in");
     std::ofstream out("binary_file_reader.in", 
             std::ofstream::out | std::ofstream::binary);
     int a = -323, b = 14;
@@ -155,9 +140,7 @@ TEST(TestBinaryFileReader, failedReading){
     out.write((char*)&b, sizeof(int));
     out.close();
 
-    std::ifstream in("binary_file_reader.in",
-            std::ifstream::in | std::ifstream::binary);
-    BinaryFileReader<int> reader(in);
+    BinaryFileReader<int> reader(filename);
     int a_new, b_new, c_new;
     EXPECT_TRUE(reader(a_new));
     EXPECT_TRUE(reader(b_new));

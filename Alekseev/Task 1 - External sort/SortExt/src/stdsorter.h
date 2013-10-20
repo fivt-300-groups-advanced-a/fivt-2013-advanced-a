@@ -6,10 +6,10 @@
 class StdSorter
 {
 public:
-    template<class It, class Comparator = std::less<typename std::iterator_traits<It>::reference> >
-    void operator() (It begin, It end)
+    template<class It, class Comparator>
+    void operator() (It begin, It end, Comparator pred)
     {
-        std::sort(begin, end, Comparator());
+        std::sort(begin, end, pred);
     }
 };
 

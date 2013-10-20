@@ -1,76 +1,83 @@
 #ifndef SORT_H
 #define SORT_H
 #include "abstract_io.h"
+#include "comparator.h"
 #include "istream_io.h"
 #include "binary_file_io.h"
-#include "comparator.h"
 #include <algorithm>
 #include <vector>
 #include <queue>
 #include <cstdio>
+#include <sstream>
 
-template<class T>
-int readBlock(Reader<T> * ccin, T * & buffer, int MAX_BUF) {
-    for (int i = 0; i < (MAX_BUF / sizeof(T)); i++) {
-        if (ccin->eos()) return i;
-        *ccin >> buffer[i];
+namespace sort_utils {
+    template<class T>
+    int readBlock(Reader<T> * ccin, T * buffer, int BUF_SIZE) {
+        for (int i = 0; i < (BUF_SIZE / sizeof(T)); i++) {
+            if (ccin->eos()) return i;
+            (*ccin) >> buffer[i];
+        }
+        return BUF_SIZE/sizeof(T);
+    }
+
+    template<class T>
+    void writeBlock(Writer<T> * ccout, T * buffer, int sz) {
+        for (int i = 0; i < sz; i++) {
+            (*ccout) << buffer[i];
+        }
+    }
+
+    template<class T, class cmp=CLess<T> >
+    void stsort(T * buffer, int n, cmp * cc) {
+        std::sort(buffer, buffer + n, *cc);
+    }
+
+    std::string tempFileName(int x) {
+        std::stringstream ss;
+        ss << x;
+        //char * ss = new char[8];
+        //sprintf(ss, ".p%.5d", x);
+        return ss.str();
     }
 }
 
-template<class T>
-void writeBlock(Writer<T> * ccout, T * buffer, int sz) {
-    for (int i = 0; i < sz; i++) {
-        *ccout << buffer[i];
-    }
+template<class T, class cmp=CLess<T> >
+void bigSort(Reader<T> * ccin, Writer<T> * ccout, int MAX_BUF, void qsort(T*, int , cmp *)=sort_utils::stsort) {
+    bigSort(ccin, ccout, new cmp(), MAX_BUF, qsort);
 }
+
+#define DEFAULT_CACHE 30000000
 
 template<class T, class cmp=CLess<T> >
-void stsort(T * buffer, int n, cmp * cc) {
-    std::sort(buffer, buffer + n, *cc);
-}
-
-char * tempFileName(int x) {
-    char * ss = new char[8];
-    sprintf(ss, ".p%.5d", x);
-    return ss;
-}
-
-
-template<class T, class cmp=CLess<T> >
-void bigSort(Reader<T> * ccin, Writer<T> * ccout, int MAX_BUF, cmp * CC = new cmp(), void qsort(T*, int sz, cmp *)=stsort) {
-    bigSort(ccin, ccout, CC, MAX_BUF, qsort);
-}
-
-template<class T, class cmp=CLess<T> >
-void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_BUF=30000000, void qsort(T*, int sz, cmp *)=stsort) {
+void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_BUF=DEFAULT_CACHE, void qsort(T*, int , cmp *)=sort_utils::stsort) {
     T * buffer = (T*)malloc(MAX_BUF);
     if (buffer == 0) throw "not enough memory";
-    int n = readBlock(ccin, buffer, MAX_BUF);
+    int n = sort_utils::readBlock(ccin, buffer, MAX_BUF);
+    int cfiles = 0;
     if (ccin->eos()) {
         qsort(buffer, n, CC);
-        writeBlock(ccout, buffer, n);
+        sort_utils::writeBlock(ccout, buffer, n);
         return;
     }
-    int cfiles = 0;
     while (!(ccin->eos() && n == 0)) {
-        char * fn = tempFileName(cfiles++);
+        std::string fn = sort_utils::tempFileName(cfiles++);
         BFWriter<T> cm(fn);
         qsort(buffer, n, CC);
-        writeBlock(&cm, buffer, n);
-        n = readBlock(ccin, buffer, MAX_BUF);
+        sort_utils::writeBlock(&cm, buffer, n);
+        n = sort_utils::readBlock(ccin, buffer, MAX_BUF);
     }
-    std::vector<BFReader<T> > files;
+    std::vector<BFReader<T> * > files;
     for (int i = 0; i < cfiles; i++)
-         files.push_back(BFReader<T>(tempFileName(i)));
+         files.push_back(new BFReader<T>(sort_utils::tempFileName(i)));
     //fix types
-    typedef std::pair<T, BFReader<T> > TPair;
+    typedef std::pair<T, BFReader<T> * > TPair;
     std::priority_queue< TPair, 
                          std::vector<TPair>, 
-                         CPair<T, BFReader<T>, CInvOp<T, cmp>, CEqual<BFReader<T> > > > 
-                               q(CPair<T, BFReader<T>, CInvOp<T, cmp>, CEqual<BFReader<T> > >(*(new CInvOp<T, cmp>(*CC))));
+                         CPair<T, BFReader<T>*, CInvOp<T, cmp>, CEqual<BFReader<T>* > > > 
+                               q(CPair<T, BFReader<T>*, CInvOp<T, cmp>, CEqual<BFReader<T>* > >(*(new CInvOp<T, cmp>(*CC))));
     for (int i = 0; i < files.size(); i++) {
         T * x = (T*)malloc(sizeof(T));
-        files[i] >> *x;
+        (*files[i]) >> *x;
         q.push(std::make_pair(*x, files[i]));
         delete x;
     }
@@ -78,9 +85,12 @@ void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_
         TPair ss = q.top();
         q.pop();
         *ccout << ss.first;
-        ss.second >> ss.first;
-        if (!ss.second.eos())
+        (*ss.second) >> ss.first;
+        if (!ss.second->eos())
             q.push(ss);
+    }
+    for (int i = 0; i < files.size(); i++) {
+        remove(sort_utils::tempFileName(i).c_str());
     }
 }
 

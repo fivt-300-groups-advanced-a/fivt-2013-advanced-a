@@ -2,7 +2,10 @@
 #define ISTREAM_IO
 #include "abstract_io.h"
 #include <memory.h>
-template<class T, class IS>
+#include <string>
+#include <iostream>
+
+template<class T, class IS=std::istream>
 class ISReader: public Reader<T> {
 private:
     void read(T & x) {
@@ -10,7 +13,7 @@ private:
     }
     IS & _is;
 public:
-    ISReader(IS & is): _is(is) {}
+    ISReader(IS * is): _is(*is) {}
     virtual Reader<T> & operator >>(T & x) {
         read(x);
         return *this;
@@ -20,14 +23,15 @@ public:
     }
 };
 
-template<class T, class OS>
-class ISWriter: public Writer<T> {
+template<class T, class OS=std::ostream>
+class OSWriter: public Writer<T> {
 private:
-    OS & _os;
+    OS * _os;
+    std::string dl;
 public:
-    ISWriter(OS & os): _os(os) {}
+    OSWriter(OS * os, const std::string & del): _os(os), dl(del) {}
     virtual Writer<T> & operator <<(const T & x) {
-        _os << x;
+        (*_os) << x << dl;
         return *this;
     }
 };

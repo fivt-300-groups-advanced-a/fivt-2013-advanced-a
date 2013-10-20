@@ -5,6 +5,7 @@
 #include "TestBinaryReader.h"
 #include "TestWriter.h"
 #include "TestBinaryWriter.h"
+#include "TestExternalSorter.h"
 
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);

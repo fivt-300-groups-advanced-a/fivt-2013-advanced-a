@@ -43,12 +43,12 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Linker>
-			<Add library="/usr/lib/libboost_unit_test_framework.so" />
 			<Add library="/usr/lib/libgtest.so" />
 		</Linker>
 		<Unit filename="abstractio.h" />
 		<Unit filename="externalsort.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="radixsort.h" />
 		<Unit filename="rwstreams.h" />
 		<Unit filename="sorter.h" />
 		<Extensions>

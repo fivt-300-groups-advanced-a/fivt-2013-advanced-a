@@ -3,8 +3,6 @@
 
 #include <ios>
 
-// TODO: unit-tests
-
 template <typename DataT>
 class RawOStreamWriter
 {

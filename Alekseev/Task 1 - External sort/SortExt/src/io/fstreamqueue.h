@@ -9,9 +9,7 @@
 
 #include "optimalstreamio.h"
 
-template <typename DataT,
-          class ReaderT = typename OptimalStreamIO<DataT>::ReaderType,
-          class WriterT = typename OptimalStreamIO<DataT>::WriterType >
+template <typename DataT, class ReaderT, class WriterT>
 class FStreamQueue
 {
 public:
