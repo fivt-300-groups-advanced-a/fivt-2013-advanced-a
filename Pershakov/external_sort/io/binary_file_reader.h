@@ -4,12 +4,11 @@
 
 #include <string>
 #include <fstream>
+#include <memory>
 
 template <class T> class BinaryFileReader {
     public:
-        ~BinaryFileReader(){
-            close();
-        }
+        explicit BinaryFileReader(){}
 
         explicit BinaryFileReader(std::ifstream &new_stream){
             setStream(new_stream);
@@ -24,31 +23,28 @@ template <class T> class BinaryFileReader {
         }
 
         void close(){
-            if (in)
+            if (in){
                 in->close();
+            }
             in = NULL;
         }
 
-        void setStream(std::ifstream &new_stream){
-            in = &new_stream;
-        }
-
         void setStream(const std::string &filename){
-            in = new std::ifstream(filename.c_str(), 
-                    std::ifstream::in | std::ifstream::binary);
+            in.reset(new std::ifstream(filename.c_str(), 
+                    std::ifstream::in | std::ifstream::binary));
         }
 
         void setStream(char *filename){
-            in = new std::ifstream(filename, 
-                    std::ifstream::in | std::ifstream::binary);
+            in.reset(new std::ifstream(filename, 
+                    std::ifstream::in | std::ifstream::binary));
         }
 
         bool operator () (T &next){
-            return in->read((char*)&next, sizeof(T));
+            return in && in->read((char*)&next, sizeof(T));
         }
 
     private:
-        std::ifstream *in;
+        std::unique_ptr<std::ifstream> in;
 };
 
 #endif

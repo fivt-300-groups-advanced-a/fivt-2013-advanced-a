@@ -1,0 +1,79 @@
+# depslib dependency file v1.0
+1382210944 source:/home/ryadom/ExternalSort/main.cpp
+	<functional>
+	<fstream>
+	<string>
+	<iomanip>
+	<memory>
+	<time.h>
+	"externalsort.h"
+	"rwstreams.h"
+	"sorter.h"
+	"radixsort.h"
+	<gtest/gtest.h>
+
+1382195013 /home/ryadom/ExternalSort/externalsort.h
+	<algorithm>
+	<functional>
+	<memory.h>
+	<fstream>
+	<algorithm>
+	<string>
+	<vector>
+	<memory>
+	<assert.h>
+	<stdio.h>
+	"rwstreams.h"
+
+1382196637 /home/ryadom/ExternalSort/rwstreams.h
+	<fstream>
+	<string>
+	<memory>
+
+1382197184 /home/ryadom/ExternalSort/sorter.h
+	<algorithm>
+	"radixsort.h"
+
+1381737818 /home/ryadom/ExternalSort/test.cpp
+	<functional>
+	<fstream>
+	<string>
+	"externalsort.h"
+	"rwstreams.h"
+	"sorter.h"
+	<gtest/gtest.h>
+	<boost/test/unit_test.hpp>
+
+1381737818 source:/home/ryadom/ExternalSort/test.cpp
+	<functional>
+	<fstream>
+	<string>
+	"externalsort.h"
+	"rwstreams.h"
+	"sorter.h"
+	<gtest/gtest.h>
+	<boost/test/unit_test.hpp>
+
+1381737896 /home/ryadom/ExternalSort/test.h
+	<functional>
+	<fstream>
+	<string>
+	"externalsort.h"
+	"rwstreams.h"
+	"sorter.h"
+	<gtest/gtest.h>
+
+1381737896 source:/home/ryadom/ExternalSort/test.h
+	<functional>
+	<fstream>
+	<string>
+	"externalsort.h"
+	"rwstreams.h"
+	"sorter.h"
+	<gtest/gtest.h>
+
+1382210880 /home/ryadom/ExternalSort/radixsort.h
+	<vector>
+	<algorithm>
+	<memory>
+

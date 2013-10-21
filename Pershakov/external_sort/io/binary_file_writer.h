@@ -4,16 +4,11 @@
 
 #include <fstream>
 #include <string>
+#include <memory>
 
 template <class T> class BinaryFileWriter {
     public:
-        ~BinaryFileWriter(){
-            close();
-        }
-
-        explicit BinaryFileWriter(std::ofstream &new_stream){
-            setStream(new_stream);
-        }
+        explicit BinaryFileWriter(){}
 
         explicit BinaryFileWriter(const std::string &filename){
             setStream(filename);
@@ -24,26 +19,23 @@ template <class T> class BinaryFileWriter {
         }
 
         void close(){
-            if (out)
+            if (out){
                 out->close();
+            }
             out = NULL;
         }
 
-        void setStream(std::ofstream &new_stream){
-            out = &new_stream;
-        }
-
         void setStream(const std::string &filename){
-            out = new std::ofstream(filename.c_str(), 
-                    std::ofstream::binary | std::ofstream::out);
+            out.reset(new std::ofstream(filename.c_str(), 
+                    std::ofstream::binary | std::ofstream::out));
         }
 
         void setStream(char *filename){
-            out = new std::ofstream(filename, 
-                    std::ofstream::binary | std::ofstream::out);
+            out.reset(new std::ofstream(filename, 
+                    std::ofstream::binary | std::ofstream::out));
         }
 
-        bool operator () (const T &next){
+        bool operator () (const T &next, const std::string &separator = ""){
             if (!out)
                 return false;
             out->write((char*)&next, sizeof(T));
@@ -51,7 +43,7 @@ template <class T> class BinaryFileWriter {
         }
 
     private:
-        std::ofstream *out;
+        std::unique_ptr<std::ofstream> out;
 };
 
 #endif

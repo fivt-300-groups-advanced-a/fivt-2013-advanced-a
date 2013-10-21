@@ -1,13 +1,61 @@
 #ifndef BINARYFILEWRITER_H
 #define BINARYFILEWRITER_H
 
-#include "abstractwriter.h"
+#include <fstream>
+
+namespace impl
+{
+	class BinaryFileWriterHelper
+	{
+		public:
+			/**
+			 * Unbinds currently binded stream, deletes it if needed
+			 */
+			void unbindStream()
+			{
+				if (stream) stream->close();
+				if (ownStream) delete stream;
+				stream = 0;
+			}
+
+			/**
+			 * Binds stream to the reader, unbinds an old one if needed
+			 */
+			void bindStream(std::ofstream &out)
+			{
+				unbindStream();
+				stream = &out;
+				ownStream = false;
+			}
+
+			/**
+			 * Returns true is stream is binded, not corrupted and ready to read
+			 */
+			bool ready() const
+			{
+				return stream && *stream;
+			}
+
+			/**
+			 * Returns a pointer to the binded stream
+			 * It can be used for adjusting precision or other options for example
+			 */
+			std::ofstream* getStream() const
+			{
+				return stream;
+			}
+
+		protected:
+			bool ownStream;
+			std::ofstream *stream;
+	};
+}
 
 /**
  * Class implementing AbstractWriter interface
  * Used to write fixed-type data in binary format to the file output stream
  */
-template <typename DataType> class BinaryFileWriter : public AbstractWriter<DataType>
+template <typename DataType> class BinaryFileWriter : public impl::BinaryFileWriterHelper
 {
 	public:
 		/**
@@ -15,7 +63,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(std::ofstream &out)
 		{
-			this->stream = &out;
+			stream = &out;
 			ownStream = false;
 		}
 
@@ -24,7 +72,7 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const std::string &fileName)
 		{
-			this->stream = new std::ofstream(fileName, std::ios_base::binary);
+			stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
@@ -33,39 +81,16 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		explicit BinaryFileWriter(const char *fileName)
 		{
-			this->stream = new std::ofstream(fileName, std::ios_base::binary);
+			stream = new std::ofstream(fileName, std::ios_base::binary);
 			ownStream = true;
 		}
 
 		/**
-		 * Initialise writer with stream ID. BinaryWriter is compatible with TemporaryWriter interface
+		 * Unbind stream and delete writer
 		 */
-		explicit BinaryFileWriter(unsigned int streamID)
-		{
-			this->stream = new std::ofstream(getFileName(streamID), std::ios_base::binary);
-			ownStream = true;
-		}
-
-
-
-		/**
-		 * Unbinds currently binded stream, deletes it if needed
-		 */
-		void unbindStream()
-		{
-			if (this->stream) this->stream->flush();
-			if (ownStream) delete this->stream;
-			this->stream = 0;
-		}
-
-		/**
-		 * Binds stream to the reader, unbinds an old one if needed
-		 */
-		void bindStream(std::ofstream &out)
+		~BinaryFileWriter()
 		{
 			unbindStream();
-			this->stream = &out;
-			ownStream = false;
 		}
 
 		/**
@@ -74,19 +99,63 @@ template <typename DataType> class BinaryFileWriter : public AbstractWriter<Data
 		 */
 		bool operator () (const DataType &element)
 		{
-			if (!this->ready()) return false;
-			return this->stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
+			if (!ready()) return false;
+			return stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
 		}
 
 	private:
-		bool ownStream;
+		BinaryFileWriter(const BinaryFileWriter &writer) {}
+};
 
-		std::string getFileName(unsigned int streamID) const
+template<> class BinaryFileWriter<std::string> : public impl::BinaryFileWriterHelper
+{
+	public:
+		/**
+		 * Initilise reader with file output stream
+		 */
+		explicit BinaryFileWriter(std::ofstream &out)
 		{
-			char buffer[20];
-			sprintf(buffer, ".sorter.part.%u", streamID);
-			return std::string(buffer);
+			stream = &out;
+			ownStream = false;
 		}
+
+		/**
+		 * Initialise writer with file name (std::string). New file output stream will be created
+		 */
+		explicit BinaryFileWriter(const std::string &fileName)
+		{
+			stream = new std::ofstream(fileName, std::ios_base::binary);
+			ownStream = true;
+		}
+
+		/**
+		 * Initialise writer with file name (const char *). New file output stream will be created
+		 */
+		explicit BinaryFileWriter(const char *fileName)
+		{
+			stream = new std::ofstream(fileName, std::ios_base::binary);
+			ownStream = true;
+		}
+
+		/**
+		 * Unbind stream and delete writer
+		 */
+		~BinaryFileWriter()
+		{
+			unbindStream();
+		}
+
+		bool operator () (std::string &element)
+		{
+			if (!ready()) return false;
+			std::string::size_type size = element.size();
+			if (!stream->write(reinterpret_cast<char *>(&size), sizeof(size))) return false;
+			if (!stream->write(element.c_str(), element.size())) return false;
+			return true;
+		}
+
+	private:
+		BinaryFileWriter(const BinaryFileWriter &writer) {}
 };
 
 #endif // BINARYFILEWRITER_H

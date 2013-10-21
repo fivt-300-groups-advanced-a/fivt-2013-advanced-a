@@ -6,8 +6,14 @@
 template<typename DataType> class StandartStableSorter
 {
 	public:
+		template<typename RandomAccessIterator>
+		void operator () (RandomAccessIterator begin, RandomAccessIterator end)
+		{
+			std::stable_sort(begin, end);
+		}
+
 		template<typename RandomAccessIterator, typename Comparator>
-		inline void operator () (RandomAccessIterator begin, RandomAccessIterator end, Comparator comparator)
+		void operator () (RandomAccessIterator begin, RandomAccessIterator end, Comparator comparator)
 		{
 			std::stable_sort(begin, end, comparator);
 		}
