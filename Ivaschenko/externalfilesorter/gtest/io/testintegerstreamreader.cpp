@@ -43,7 +43,6 @@ TEST(InputStreamReader, BaseIntegerFunctions)
 
 /*
  * Testing delimeters options of InputStreamReader (for integral types)
- * TODO: test small functions like getters, setters, etc.
  */
 TEST(InputStreamReader, IntegerDelimeterTricks)
 {
