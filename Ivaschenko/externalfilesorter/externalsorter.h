@@ -17,23 +17,26 @@ namespace impl
 {
 	template<typename T, typename Comparator> class StablePairComparator
 	{
-		Comparator cmp;
+		public:
+			bool operator () (const std::pair<T, int> &a, const std::pair<T, int> &b)
+			{
+				return (cmp(b.first, a.first) || (!cmp(a.first, b.first) && a.second > b.second));
+			}
 
-		bool operator () (const std::pair<T, int> &a, const std::pair<T, int> &b)
-		{
-			return (cmp(b.first, a.first) || (!cmp(a.first, b.first) && a.second > b.second));
-		}
+		private:
+			Comparator cmp;
 	};
 
 	template<typename T, typename Comparator> class PairComparator
 	{
 		public:
-			Comparator cmp;
-
 			bool operator () (const std::pair<T, int> &a, const std::pair<T, int> &b)
 			{
 				return cmp(b.first, a.first);
 			}
+
+		private:
+			Comparator cmp;
 	};
 }
 

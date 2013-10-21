@@ -58,7 +58,7 @@ namespace impl
  * Used to read fixed-type data in binary format from file input stream
  * FIXME: std::string, std::vector works incorrectly
  */
-template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelper
+template<typename DataType> class BinaryFileReader : public impl::BinaryFileReaderHelper
 {
 	public:
 		/**
@@ -119,7 +119,7 @@ template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelpe
  * Specification of BinaryFileReader for std::string
  * Reads size of string then it's contents
  */
-template<> class BinaryFileReader<std::string> : impl::BinaryFileReaderHelper
+template<> class BinaryFileReader<std::string> : public impl::BinaryFileReaderHelper
 {
 	public:
 		/**
@@ -163,9 +163,10 @@ template<> class BinaryFileReader<std::string> : impl::BinaryFileReaderHelper
 		bool operator() (std::string &element)
 		{
 			if (!ready()) return false;
-			int size;
-			if (!stream->read(reinterpret_cast<char *>(&size), sizeof(int))) return false;
-			char *buffer = new char[size];
+			std::string::size_type size;
+			if (!stream->read(reinterpret_cast<char *>(&size), sizeof(size))) return false;
+			char *buffer = new char[size + 1];
+			buffer[size] = 0;
 			if (!stream->read(buffer, size * sizeof(char)))
 			{
 				delete buffer;
