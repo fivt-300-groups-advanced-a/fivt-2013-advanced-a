@@ -4,7 +4,6 @@
 #include <fstream>
 #include "bigsort.h"
  
-
 bool mycmp (std::pair <int, int> a, std::pair <int, int> b)
 {
     return a.first > b.first;
@@ -15,17 +14,6 @@ void mysort(std::vector<int>::iterator beg,
 {
     sort(beg, end);
 }
-
-
-struct Sorter
-{
-    void operator () (std::vector<int>::iterator beg,
-                      std::vector<int>::iterator end)
-    {
-        std::sort(beg, end);
-    }
-
-};
 
 int main()
 {
@@ -45,11 +33,7 @@ int main()
     std::cout << "still not fail" << std::endl;
     int a = 0;
     
-    bigsort::bigsort (a, fin, fout, 3, 
-                      mycmp, mysort,
-                      b, "\n", " ");
-
-    
+    bigsort::bigsort (a, fin, fout, " ", 3, b, " ", mysort, mycmp, std::cout);
 
     b[0].close();
     b[1].close();
