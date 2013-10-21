@@ -12,4 +12,5 @@ HEADERS += \
     sorters/standartstablesorter.h \
     externalsorter.h \
     utils/tempfileiofactory.h \
-    sorters/digitalsorter.h
+    sorters/digitalsorter.h \
+    utils/integerbitblockextractor.h

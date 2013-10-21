@@ -55,7 +55,7 @@ namespace impl
  * Class implementing AbstractWriter interface
  * Used to write fixed-type data in binary format to the file output stream
  */
-template <typename DataType> class BinaryFileWriter : impl::BinaryFileWriterHelper
+template <typename DataType> class BinaryFileWriter : public impl::BinaryFileWriterHelper
 {
 	public:
 		/**
@@ -104,7 +104,7 @@ template <typename DataType> class BinaryFileWriter : impl::BinaryFileWriterHelp
 		}
 };
 
-template<> class BinaryFileWriter<std::string> : impl::BinaryFileWriterHelper
+template<> class BinaryFileWriter<std::string> : public impl::BinaryFileWriterHelper
 {
 	public:
 		/**

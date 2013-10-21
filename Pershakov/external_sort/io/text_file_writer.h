@@ -4,45 +4,35 @@
 
 #include <fstream>
 #include <string>
+#include <memory>
 
 template <class T> class TextFileWriter {
     public:
-        ~TextFileWriter(){
-            close();
-        }
-
-        explicit TextFileWriter(){
-            out = NULL;
-        }
+        explicit TextFileWriter(){}
 
         explicit TextFileWriter(const std::string &filename){
-            out = NULL;
             setStream(filename);
         }
 
         explicit TextFileWriter(char *filename){
-            out = NULL;
             setStream(filename);
         }
 
         void close(){
             if (out){
                 out->close();
-                delete out;
             }
             out = NULL;
         }
 
         void setStream(const std::string &filename){
-            close();
-            out = new std::ofstream(filename.c_str(), 
-                    std::ofstream::out);
+            out.reset(new std::ofstream(filename.c_str(), 
+                    std::ofstream::out));
         }
 
         void setStream(char *filename){
-            close();
-            out = new std::ofstream(filename, 
-                    std::ofstream::out);
+            out.reset(new std::ofstream(filename, 
+                    std::ofstream::out));
         }
 
         bool operator () (const T &next, 
@@ -54,7 +44,7 @@ template <class T> class TextFileWriter {
         }
 
     private:
-        std::ofstream *out;
+        std::unique_ptr<std::ofstream> out;
 };
 
 #endif
