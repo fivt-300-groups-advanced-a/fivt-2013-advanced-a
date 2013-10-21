@@ -56,7 +56,7 @@ namespace impl
 /**
  * Class implementing AbstractReader interface
  * Used to read fixed-type data in binary format from file input stream
- * FIXME: std::string, std::vector works incorrectly
+ * FIXME: std::vector works incorrectly
  */
 template<typename DataType> class BinaryFileReader : public impl::BinaryFileReaderHelper
 {
@@ -113,6 +113,9 @@ template<typename DataType> class BinaryFileReader : public impl::BinaryFileRead
 		{
 			return stream->seekg(elements * sizeof(DataType), std::ios_base::cur);
 		}
+
+	private:
+		explicit BinaryFileReader(const BinaryFileReader &reader) {}
 };
 
 /**
@@ -176,6 +179,9 @@ template<> class BinaryFileReader<std::string> : public impl::BinaryFileReaderHe
 			delete buffer;
 			return true;
 		}
+
+	private:
+		explicit BinaryFileReader(const BinaryFileReader &reader) {}
 };
 
 #endif // BINARYFILEREADER_H

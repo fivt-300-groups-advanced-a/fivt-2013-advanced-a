@@ -48,14 +48,12 @@ template<typename SignedInteger> class IntegerBitBlockExtractor
 	public:
 		std::size_t getBlocksNumber() const
 		{
-			return (sizeof(SignedInteger) >> 1) + 1;
+			return sizeof(SignedInteger) >> 1;
 		}
 
 		std::size_t getBlockRange(std::size_t block) const
 		{
-			if (block == (sizeof(SignedInteger) >> 1)) return 2;
-			else if (block == (sizeof(SignedInteger) >> 1) - 1) return 1 << 15;
-			else return 1 << 16;
+			return 1 << 16;
 		}
 
 		template<typename ForwardIterator>
@@ -63,9 +61,8 @@ template<typename SignedInteger> class IntegerBitBlockExtractor
 
 		std::size_t operator() (SignedInteger value, std::size_t block)
 		{
-			if (block == (sizeof(SignedInteger) >> 1)) return value < 0 ? 1 : 0;
-			else if (block == (sizeof(SignedInteger) >> 1) - 1) return (value >> (block << 4)) & 0x7FFF;
-			else return (value >> (block << 4)) & 0xFFFF;
+			value ^= ((SignedInteger) 1LL << (sizeof(SignedInteger) * 8 - 1));
+			return (value >> (block << 4)) & ((SignedInteger) 0xFFFF);
 		}
 };
 

@@ -5,7 +5,7 @@
 
 #include <cstdio>
 
-/*
+/**
  * Factory class that controlls creating Writers to write data on the disk and Readers to read it again
  * All readers and writers will be closed properly (destructors will be called)
  */

@@ -138,7 +138,7 @@ TEST(ExternalSorter, RandomIntegerSequenceSorting)
 	for (size_t i = 0; i < tests.size(); ++i)
 	{
 		std::cout << "test #" << i << std::endl;
-		std::cout << "    size = " << tests[i].first << " mem =  " << tests[i].second << " seed = " << i << std::endl;
+		std::cout << "    size = " << tests[i].first << " mem = " << tests[i].second << " seed = " << i << std::endl;
 		RandomSequenceReader reader(tests[i].first, i);
 		SortedSequenceWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
@@ -276,7 +276,7 @@ TEST(ExternalSorter, RandomUnsignedIntegerSequenceSorting)
 	for (size_t i = 0; i < tests.size(); ++i)
 	{
 		std::cout << "test #" << i << std::endl;
-		std::cout << "    size = " << tests[i].first << " mem =  " << tests[i].second << " seed = " << i << std::endl;
+		std::cout << "    size = " << tests[i].first << " mem = " << tests[i].second << " seed = " << i << std::endl;
 		RandomSequenceReader reader(tests[i].first, i);
 		SortedSequenceWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
@@ -367,7 +367,7 @@ TEST(ExternalSorter, CustomDataSorting)
 	for (size_t i = 0; i < tests.size(); ++i)
 	{
 		std::cout << "test #" << i << std::endl;
-		std::cout << "    size = " << tests[i].first << " mem =  " << tests[i].second << " seed = " << i << std::endl;
+		std::cout << "    size = " << tests[i].first << " mem = " << tests[i].second << " seed = " << i << std::endl;
 		AnimalReader reader(tests[i].first, i);
 		SortedAnimalsWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
@@ -451,7 +451,7 @@ TEST(ExternalSorter, StableSorting)
 	for (size_t i = 0; i < tests.size(); ++i)
 	{
 		std::cout << "test #" << i << std::endl;
-		std::cout << "    size = " << tests[i].first << " mem =  " << tests[i].second << " seed = " << i << std::endl;
+		std::cout << "    size = " << tests[i].first << " mem = " << tests[i].second << " seed = " << i << std::endl;
 		TableReader reader(tests[i].first, i);
 		SortedTablesWriter writer(tests[i].first);
 		std::clock_t start = std::clock();
