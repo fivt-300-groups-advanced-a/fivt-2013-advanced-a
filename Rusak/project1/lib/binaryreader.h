@@ -1,15 +1,15 @@
-template<typename Type> class BinaryReader : public GeneralReader<Type> 
+template<typename T> class BinaryReader : public GeneralReader<T> 
 {
   public:
-    explicit BinaryReader(std::istream &stream) : GeneralReader<Type>(stream) {}
+    explicit BinaryReader(std::istream &stream) : GeneralReader<T>(stream) {}
 
-    explicit BinaryReader(const char * filename) : GeneralReader<Type>(filename) {}
+    explicit BinaryReader(const char * filename) : GeneralReader<T>(filename) {}
 
-    explicit BinaryReader(std::string &filename) : GeneralReader<Type>(filename) {}
+    explicit BinaryReader(std::string &filename) : GeneralReader<T>(filename) {}
 
  
-    void operator() (Type & element) 
+    bool operator() (T & element) 
     {
-      this->is->read((char*) &element, sizeof(element));
+      return (this->is->read((char*) &element, sizeof(element)));
     }
 };
