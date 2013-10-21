@@ -21,7 +21,9 @@ public:
         return q.empty();
     }
     virtual Reader<T> & operator >>(T & x) {
-        if (eos()) return *this;
+        if (eos()) { 
+            return *this;
+        }
         x = q.front();
         q.pop_front();
         return *this;
@@ -39,15 +41,14 @@ template<class T, class Cmp>
 bool sortedstream(Reader<T> & ccin, Cmp * cmp, std::vector<T> & elements) {
     bool fs = true;
     T x; int id = 0;
-    int expsize = elements.size();
     while (!ccin.eos()) {
-        T y; ccin >> y; expsize--;
-        if (!fs) {
-            if (!(*cmp)(x, y)) return false;
-            if (!elements.empty() && elements[id++] != y) return false;
-        }
+        T y; ccin >> y; 
+        if (id >= elements.size()) return false;
+        if (!elements.empty() && elements[id++] != y) return false;
+        fs = false;
+        x = y;
     }
-    return expsize == 0;
+    return id == elements.size();
 }
 
 TEST(Comparator, Pair) {
@@ -91,7 +92,7 @@ TEST(Binary_File_io, Int) {
     BFReader<int> inp("tempfile");
     int zz[3];
     sort_utils::readBlock(&inp, zz, 3 * sizeof(int));
-    EXPECT_FALSE(inp.eos());
+    EXPECT_TRUE(inp.eos());
     EXPECT_EQ(zz[0], 1);
     EXPECT_EQ(zz[1], 2);
     EXPECT_EQ(zz[2], 3);
@@ -122,6 +123,8 @@ TEST(Sorting, one_block) {
         v.push_back(temp);
         ii << temp;
    }
+   std::sort(v.begin(), v.end());
+   std::reverse(v.begin(), v.end());
    ASSERT_NO_THROW(bigSort(&ii, &io, new CInvOp<int, CLess<int> >()));
    EXPECT_TRUE((sortedstream<int, CInvOp<int, CLess<int> > >(io, new CInvOp<int, CLess<int> >(), v)));
 }
@@ -135,8 +138,33 @@ TEST(Sorting, many_blocks) {
         v.push_back(temp);
         ii << temp;
    }
-   ASSERT_NO_THROW(bigSort(&ii, &io, new CInvOp<int, CLess<int> >(), 4));
+   std::sort(v.begin(), v.end());
+   std::reverse(v.begin(), v.end());
+   ASSERT_NO_THROW(bigSort(&ii, &io, new CInvOp<int, CLess<int> >(), 2*sizeof(int)));
    EXPECT_TRUE((sortedstream<int, CInvOp<int, CLess<int> > >(io, new CInvOp<int, CLess<int> >(), v)));
+}
+
+TEST(Sorting, small_int_test) {
+    int NINT = 1000;
+    BFWriter<int> outp("tempfile");
+    std::vector<int> v;
+    for (int i = 0; i < NINT; i++) {
+        int temp = rand();
+        v.push_back(temp);
+        outp << temp;
+    }
+    outp.close();
+    outp.open("new-outp");
+    BFReader<int> inp("tempfile");
+    ASSERT_NO_THROW(bigSort(&inp, &outp, new CInvOp<int, CLess<int> >(), 800));
+    outp.close();
+    inp.close();
+    inp.open("new-outp");
+    std::sort(v.begin(), v.end());
+    std::reverse(v.begin(), v.end());
+    EXPECT_TRUE(sortedstream(inp, new CInvOp<int, CLess<int> >(), v));
+    remove("tempfile");
+    remove("new-outp");
 }
 
 //slow performance test

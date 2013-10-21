@@ -58,13 +58,13 @@ void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_
         sort_utils::writeBlock(ccout, buffer, n);
         return;
     }
-    while (!(ccin->eos() && n == 0)) {
+    do {
         std::string fn = sort_utils::tempFileName(cfiles++);
         BFWriter<T> cm(fn);
         qsort(buffer, n, CC);
         sort_utils::writeBlock(&cm, buffer, n);
         n = sort_utils::readBlock(ccin, buffer, MAX_BUF);
-    }
+    } while (n != 0);
     std::vector<BFReader<T> * > files;
     for (int i = 0; i < cfiles; i++)
          files.push_back(new BFReader<T>(sort_utils::tempFileName(i)));
@@ -84,9 +84,10 @@ void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_
         TPair ss = q.top();
         q.pop();
         *ccout << ss.first;
-        (*ss.second) >> ss.first;
-        if (!ss.second->eos())
+        if (!ss.second->eos()) {
+            (*ss.second) >> ss.first;
             q.push(ss);
+        }
     }
     for (int i = 0; i < files.size(); i++) {
         remove(sort_utils::tempFileName(i).c_str());

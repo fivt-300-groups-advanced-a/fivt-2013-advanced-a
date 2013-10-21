@@ -12,3 +12,4 @@ main.o:
 	$(CXX) $(CXXFLAGS) -c ./main.cpp
 test: clean
 	$(CXX) $(CXXFLAGS) ./test.cpp -lgtest -o ./test
+	./test

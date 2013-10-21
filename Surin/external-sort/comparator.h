@@ -45,7 +45,6 @@ class Condition{};
 template<>
 class Condition<false>{private: virtual void INVALID_TYPE() = 0;};
 
-// better than Ivaschenko
 template<class T, class cmp=CLess<T> >
 class CInvOp: Condition<std::is_base_of<Comp<T>, cmp>::value>, Comp<T> {
     cmp & C;
@@ -53,8 +52,9 @@ public:
     CInvOp(): C(*(new cmp())) {}
     CInvOp(cmp & _p): C(_p) {}
     virtual bool operator()(const T & a, const T & b) {
-        if (!C(a, b) && !C(b, a)) return false;
-        return !C(a, b);
+        bool temp = C(a, b);
+        if (!temp && !C(b, a)) return false;
+        return !temp;
     }
 };
 
