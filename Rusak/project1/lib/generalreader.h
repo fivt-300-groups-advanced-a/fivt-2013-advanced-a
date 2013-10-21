@@ -30,7 +30,7 @@ template <typename Type> class GeneralReader
     }
 
     bool eof() {
-      return is->eof();
+      return is->peek()==EOF;
     }
 
   protected:

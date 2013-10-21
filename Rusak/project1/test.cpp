@@ -16,5 +16,5 @@ int main() {
   RegularReader<int> is("input1.txt");
   RegularWriter<int> os("output1.txt");
   ExternalSorter<int> ex;
-  ex(24, is, os, std::less<int>());
+  ex(8, is, os, std::less<int>());
 }
