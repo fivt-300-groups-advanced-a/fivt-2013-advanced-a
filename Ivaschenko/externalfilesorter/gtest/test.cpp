@@ -7,12 +7,11 @@
 #include "io/outputstreamwriter.h"
 
 #include "sorters/standartsorter.h"
-
+#include "sorters/digitalsorter.h"
+#include "utils/integerbitblockextractor.h"
 #include "externalsorter.h"
 
 #include <gtest/gtest.h>
-
-// FIXME: integration test
 
 int main(int argc, char **argv)
 {

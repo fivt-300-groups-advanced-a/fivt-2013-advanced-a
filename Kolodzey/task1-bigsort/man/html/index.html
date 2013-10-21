@@ -111,6 +111,10 @@ $(document).ready(function(){initNavTree('index.html','');});
 <p>Если вы мои одногруппники, читайте то, что написано под заголовком «Сделано», чтобы разобраться, как ЭТО вообще получилось</p>
 <h1>Сделано: </h1>
 <p>сделанное выписано в обратном хронологическом порядке</p>
+<h2>исправлен баг k &lt; totalNumverOfItems </h2>
+<p>Кусок проблемы был даже не в этом, а в том, что sort_heap сортировал кучу неправильно. Вообще не сортировал :) sort_heap заменён на std::sort</p>
+<h2>сделана работающая функция bigsort </h2>
+<p>Любой тип, любой сортер, sortcmp включён в sorter</p>
 <h2>понято, как передать ifstream аргументом </h2>
 <p>Нужно помнить, что потоки ввода-вывода нельзя копировать Поэтому reader-ы и writer-ы нужно передавать по ссылке</p>
 <h2>понято, как скомпилировать шаблонную функцию </h2>
@@ -120,7 +124,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <h2>понято make, собрано googletest </h2>
 <p>Читайте мои makefile, причём сначала тот, который в sample: там просто сборка проекта. В task1-bigsort лежит makefile, собирающий unit-testы использующие googletest <a href="http://linux.yaroslavl.ru/docs/prog/gnu_make_3-79_russian_manual.html">годная документация на русском</a></p>
 <h2>понято, как устроен проект </h2>
-<p><a href="http://podelise.ru/tw_files2/urls_202/1/d-719/7z-docs/1_html_m2fe3dd4a.jpg">Картинка про файлы .o</a></p>
+<p><a href="http://podelise.ru/tw_files2/urls_202/1/d-719/7z-docs/1_html_m2fe3dd4a.jpg">Картинка про файлы .o</a> Зы. Читайте конспект за 07.10.2013 в папке ../lesson-notes</p>
 <h2>понято git </h2>
 <p>полезная вещь &mdash; <a href="http://git-scm.com/documentation">документация</a></p>
 <h1>Установлено: </h1>
@@ -130,7 +134,7 @@ $(document).ready(function(){initNavTree('index.html','');});
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 21 Окт 2013 11:44:10. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

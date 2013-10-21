@@ -112,6 +112,7 @@ $(document).ready(function(){initNavTree('bigsort_8h.html','');});
 <code>#include &lt;algorithm&gt;</code><br/>
 <code>#include &lt;functional&gt;</code><br/>
 <code>#include &lt;iostream&gt;</code><br/>
+<code>#include &lt;vector&gt;</code><br/>
 </div>
 <p><a href="bigsort_8h_source.html">См. исходные тексты.</a></p>
 <table class="memberdecls">
@@ -123,16 +124,10 @@ $(document).ready(function(){initNavTree('bigsort_8h.html','');});
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:aafceedf48ed2c8dfc743408232c7ef07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">bigsort::reversedBubblesort</a> (int a[], int len)</td></tr>
-<tr class="memdesc:aafceedf48ed2c8dfc743408232c7ef07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Функция сортировки пузырьком в обратную сторону  <a href="#aafceedf48ed2c8dfc743408232c7ef07">Подробнее...</a><br/></td></tr>
-<tr class="separator:aafceedf48ed2c8dfc743408232c7ef07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c19c68fe6b3ef82e837b00210738c7e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bigsort::bubblesort</a> (int a[], int len)</td></tr>
-<tr class="memdesc:a2c19c68fe6b3ef82e837b00210738c7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Функция сортировки пузырьком.  <a href="#a2c19c68fe6b3ef82e837b00210738c7e">Подробнее...</a><br/></td></tr>
-<tr class="separator:a2c19c68fe6b3ef82e837b00210738c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memTemplParams" colspan="2">template&lt;class T , class Reader , class Writer , class TmpReader , class TmpWriter , class Sorter , class SortCmp , class MergeCmp &gt; </td></tr>
-<tr class="memitem:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9">bigsort::bigsort</a> (T *pValue, Reader &amp;reader, Writer &amp;writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader &amp;tmpReader, TmpWriter &amp;tmpWriter)</td></tr>
-<tr class="memdesc:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">та самая функция, ради которой всё писалось  <a href="#a6d560cc95939b2b9cabfea8ed092d4c9">Подробнее...</a><br/></td></tr>
-<tr class="separator:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad69137b3c2dd15604df05fea1809ed17"><td class="memTemplParams" colspan="2">template&lt;class T , class Reader , class Writer , class Separator , class TmpStream , class TmpSeparator , class Sorter , class MergeCmp , class DebugStream &gt; </td></tr>
+<tr class="memitem:ad69137b3c2dd15604df05fea1809ed17"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#ad69137b3c2dd15604df05fea1809ed17">bigsort::bigsort</a> (T &amp;tmpVal, Reader &amp;reader, Writer &amp;writer, Separator separator, int k, TmpStream tmpStream, TmpSeparator tmpSeparator, Sorter sorter, MergeCmp mergecmp, DebugStream &amp;debugStream)</td></tr>
+<tr class="memdesc:ad69137b3c2dd15604df05fea1809ed17"><td class="mdescLeft">&#160;</td><td class="mdescRight">та самая функция, ради которой всё писалось  <a href="#ad69137b3c2dd15604df05fea1809ed17">Подробнее...</a><br/></td></tr>
+<tr class="separator:ad69137b3c2dd15604df05fea1809ed17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -140,7 +135,7 @@ $(document).ready(function(){initNavTree('bigsort_8h.html','');});
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b.html">source</a></li><li class="navelem"><a class="el" href="bigsort_8h.html">bigsort.h</a></li>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 21 Окт 2013 11:44:10. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>
