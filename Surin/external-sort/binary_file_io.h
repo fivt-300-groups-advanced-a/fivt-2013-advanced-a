@@ -4,8 +4,6 @@
 #include <cstdio>
 #include <memory.h>
 
-#define DEFAULT_CACHE 300000000
-
 template<class T>
 class BFReader : public Reader<T> {
 private:
@@ -15,12 +13,12 @@ private:
     }
     void read(T & x) {
         if (bl == bf && feof(fd)) {
-            EOS = true;
             return;
         }
         if (bl == bf) readbuffer();
         memcpy(&x, buffer + bf, sizeof(T));
         bf++;
+        if (bl == bf) readbuffer();
     }
     bool EOS;
     FILE * fd = NULL;
@@ -28,9 +26,9 @@ private:
     T * buffer = NULL;
     int bf, bl;
 public:
+    static const int DEFAULT_CACHE = 300000000;
     void open(std::string filename) {
         bf = bl = 0;
-        EOS = false;
         close();
         fd = fopen(filename.c_str(), "rb");
     }
@@ -58,8 +56,7 @@ public:
         fd = NULL;
     }
     virtual bool eos() {
-        return EOS;
-        //feof(fd) && bf == bl;
+        return feof(fd) && bf == bl;
     }
 };
 
@@ -83,6 +80,7 @@ private:
         }
     }
 public:
+    static const int DEFAULT_CACHE = 300000000;
     BFWriter(int BUF_SIZE=DEFAULT_CACHE){
         this->BUF_SIZE = BUF_SIZE;
         if ((buffer = (T*)malloc(BUF_SIZE)) == NULL)

@@ -10,7 +10,7 @@ template<typename T> class RegularWriter : public GeneralWriter<T>
  
     bool operator() (const T & element) 
     {
-      (*this->os) << element;
-//      return ( (*this->os) << element << "\n" );
+//      (*this->os) << element << ";
+      return ( (*this->os) << element << "\n" );
     }
 };
