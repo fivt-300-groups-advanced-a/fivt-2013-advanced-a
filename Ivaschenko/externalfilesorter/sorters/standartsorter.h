@@ -6,6 +6,12 @@
 template<typename DataType> class StandartSorter
 {
 	public:
+		template<typename RandomAccessIterator>
+		void operator () (RandomAccessIterator begin, RandomAccessIterator end)
+		{
+			std::sort(begin, end);
+		}
+
 		template<typename RandomAccessIterator, typename Comparator>
 		void operator () (RandomAccessIterator begin, RandomAccessIterator end, Comparator comparator)
 		{

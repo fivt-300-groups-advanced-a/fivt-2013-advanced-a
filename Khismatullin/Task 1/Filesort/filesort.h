@@ -28,6 +28,7 @@ std::string inttostr(int x)
 		res.push_back('0' + x % 10);
 		x /= 10;
 	}
+	reverse(res.begin(), res.end());
 	return res;
 }
 
@@ -55,7 +56,6 @@ void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит пот
 	std::vector<T> v;
 	T x;
 	std::size_t cnt = 0, all = 0;
-	std::vector<BinReader<T> > bin;
 	while (!flag) 
 	{
 		while (v.size() < mem / sizeof(T)) 
@@ -74,33 +74,33 @@ void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит пот
 		std::string file = "##__";
 		file.append(inttostr(cnt));
 		file.append("__##.bft");
-		{ //заменить на деструктор
-			BinWriter<T> bout(file);
-			for(std::size_t i = 0; i < v.size(); i++) {
-				bout(v[i]);
-			}
+		BinWriter<T> bout(file);
+		for(std::size_t i = 0; i < v.size(); i++) {
+			bout(v[i]);
 		} 
-		err(file);
-		err(inttostr(bin.size()));
-		bin.push_back(BinReader<T>(file));
-		err("OK");
 		cnt++;
 		v.clear();
 	}
+	BinReader<T> bin[cnt];
 	
 	Heap<std::pair<T, std::size_t>, mycmp<T, comp> > heap(cnt);
 	for(std::size_t i = 0; i < cnt; i++) {
+		std::string file = "##__";
+		file.append(inttostr(i));
+		file.append("__##.bft");
+		BinReader<T> tmp(file);
 		T x;
-		bin[i](x);
+		tmp(x);
+		bin[i] = tmp;
 		heap.add(std::make_pair(x, i));
 	}
 	
 	for(std::size_t i = 0; i < all; i++) {
 		std::pair<T, size_t> x = heap.Extract_min();
 		out(x.first);
-		T next;
-		if (bin[x.second](next)) {
-			heap.add(make_pair(next, x.second));
+		err(inttostr(x.second));
+		if (bin[x.second](x.first)) {
+			heap.add(x);
 		}
 	}
 	
@@ -111,7 +111,7 @@ void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит пот
 		file.append("__##.bft");
 		remove(file.c_str()); //грустно
 	}
-	bin.clear();
+	delete[] bin;
 }
 
 template<class T, class comp>
@@ -139,8 +139,5 @@ void filesort(std::ifstream& in, std::ofstream& out, std::size_t mem)
 	Writer<T> fout(out);
 	_filesort<T, comp>(fin, fout, mem);	
 }
-
-
-
 
 #endif

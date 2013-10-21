@@ -1,15 +1,15 @@
-template<typename Type> class RegularReader : public GeneralReader<Type> 
+template<typename T> class RegularReader : public GeneralReader<T> 
 {
   public:
     explicit RegularReader(std::istream &stream = std::cin) {
       this->is = &stream; 
     }
-    explicit RegularReader(const char * filename) : GeneralReader<Type>(filename) {}
+    explicit RegularReader(const char * filename) : GeneralReader<T>(filename) {}
 
-    explicit RegularReader(std::string &filename) : GeneralReader<Type>(filename) {}
+    explicit RegularReader(std::string &filename) : GeneralReader<T>(filename) {}
 
-    void operator() (Type & element)
+    bool operator() (T & element)
     {
-      (*this->is) >> element;
+      return ( (*this->is) >> element );
     }
 };

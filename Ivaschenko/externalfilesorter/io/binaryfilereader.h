@@ -58,7 +58,7 @@ namespace impl
  * Used to read fixed-type data in binary format from file input stream
  * FIXME: std::string, std::vector works incorrectly
  */
-template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelper
+template<typename DataType> class BinaryFileReader : public impl::BinaryFileReaderHelper
 {
 	public:
 		/**
@@ -88,6 +88,9 @@ template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelpe
 			ownStream = true;
 		}
 
+		/**
+		 * Undind stream and delete reader
+		 */
 		~BinaryFileReader()
 		{
 			unbindStream();
@@ -109,6 +112,69 @@ template<typename DataType> class BinaryFileReader : impl::BinaryFileReaderHelpe
 		virtual bool skip(int elements)
 		{
 			return stream->seekg(elements * sizeof(DataType), std::ios_base::cur);
+		}
+};
+
+/**
+ * Specification of BinaryFileReader for std::string
+ * Reads size of string then it's contents
+ */
+template<> class BinaryFileReader<std::string> : public impl::BinaryFileReaderHelper
+{
+	public:
+		/**
+		 * Initilise reader with file input stream
+		 */
+		explicit BinaryFileReader(std::ifstream &in)
+		{
+			stream = &in;
+			ownStream = false;
+		}
+
+		/**
+		 * Initialise reader with file name (std::string). New file input stream will be created
+		 */
+		explicit BinaryFileReader(const std::string &fileName)
+		{
+			stream = new std::ifstream(fileName, std::ios_base::binary);
+			ownStream = true;
+		}
+
+		/**
+		 * Initialise reader with file name (const char*). New file input stream will be created
+		 */
+		explicit BinaryFileReader(const char *fileName)
+		{
+			stream = new std::ifstream(fileName, std::ios_base::binary);
+			ownStream = true;
+		}
+
+		/**
+		 * Undind stream and delete reader
+		 */
+		~BinaryFileReader()
+		{
+			unbindStream();
+		}
+
+		/**
+		 * Read one string
+		 */
+		bool operator() (std::string &element)
+		{
+			if (!ready()) return false;
+			std::string::size_type size;
+			if (!stream->read(reinterpret_cast<char *>(&size), sizeof(size))) return false;
+			char *buffer = new char[size + 1];
+			buffer[size] = 0;
+			if (!stream->read(buffer, size * sizeof(char)))
+			{
+				delete buffer;
+				return false;
+			}
+			element = std::string(buffer, buffer + size);
+			delete buffer;
+			return true;
 		}
 };
 

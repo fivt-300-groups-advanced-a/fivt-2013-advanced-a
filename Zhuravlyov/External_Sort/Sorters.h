@@ -8,7 +8,7 @@
 class StandartSorter {
 public:
 	template <class type,class Comparator>
-	void operator()(std::vector<type>& data,Comparator cmp=std::less<type>)
+	void operator()(std::vector<type>& data,Comparator cmp)
 	{
 		std::sort(data.begin(),data.end(),cmp);
 	}
