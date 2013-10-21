@@ -39,17 +39,16 @@ namespace sort_utils {
         //sprintf(ss, ".p%.5d", x);
         return ss.str();
     }
+    const int MAX_BUF =  30000000;
 }
 
 template<class T, class cmp=CLess<T> >
 void bigSort(Reader<T> * ccin, Writer<T> * ccout, int MAX_BUF, void qsort(T*, int , cmp *)=sort_utils::stsort) {
-    bigSort(ccin, ccout, new cmp(), MAX_BUF, qsort);
+    bigSort(ccin, ccout, new cmp(), sort_utils::MAX_BUF, qsort);
 }
 
-#define DEFAULT_CACHE 30000000
-
 template<class T, class cmp=CLess<T> >
-void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_BUF=DEFAULT_CACHE, void qsort(T*, int , cmp *)=sort_utils::stsort) {
+void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_BUF=sort_utils::MAX_BUF, void qsort(T*, int , cmp *)=sort_utils::stsort) {
     T * buffer = (T*)malloc(MAX_BUF);
     if (buffer == 0) throw "not enough memory";
     int n = sort_utils::readBlock(ccin, buffer, MAX_BUF);
