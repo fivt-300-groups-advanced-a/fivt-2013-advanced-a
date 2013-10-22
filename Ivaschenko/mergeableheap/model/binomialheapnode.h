@@ -38,6 +38,16 @@ template<typename DataType> class BinomialHeapNode
 			return key;
 		}
 
+		const std::size_t getRank() const
+		{
+			return children;
+		}
+
+	private:
+		DataType key;
+		BinomialHeapNode *parent, *listLink, *leftChild;
+		std::size_t children;
+
 		/**
 		 * We cannot split key and pointer to the node
 		 * So let us swap all other parameters
@@ -49,11 +59,6 @@ template<typename DataType> class BinomialHeapNode
 			swap(leftChild, node.leftChild);
 			swap(children, node.children);
 		}
-
-	private:
-		DataType key;
-		BinomialHeapNode *parent, *listLink, *leftChild;
-		std::size_t children;
 };
 
 #endif // HEAPNODE_H

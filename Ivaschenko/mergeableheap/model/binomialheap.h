@@ -16,6 +16,17 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			delete root;
 		}
 
+		bool empty() const
+		{
+			return !root;
+		}
+
+		void clear()
+		{
+			delete root;
+			root = 0;
+		}
+
 		NodeType* top() const
 		{
 			if (!root) return nullptr;
@@ -26,7 +37,7 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			return answer;
 		}
 
-		NodeType* push()
+		NodeType* push(const DataType &value)
 		{
 			// TODO: push
 		}
@@ -46,9 +57,45 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			// TODO: erase
 		}
 
-		void merge(BinomialHeap<DataType> *heap)
+		/**
+		 * @brief merge merges one binomial heap to another in O(log n + log m) time.
+		 * Pointers of the second heap are still valid in another, but the second heap becomes empty
+		 * @param heap a heap to merge with
+		 */
+		void merge(BinomialHeap<DataType, Comparator> &heap)
 		{
-			// TODO: merge
+			if (!heap.root) return;
+			if (!root)
+			{
+				root = heap.root;
+				return;
+			}
+			NodeType *cur = 0, *start = 0;
+			for (NodeType *first = root, *second = heap.root; first && second;)
+				if (first->getRank() < second->getRank())
+				{
+					if (cur) cur->listLink = first;
+					else start = first;
+					cur = first;
+					first = first->listLink;
+				}
+				else
+				{
+					if (cur) cur->listLink = second;
+					else start = second;
+					cur = second;
+					second = second->listLink;
+				}
+
+			for (cur = start; cur->listLink;)
+				if (cur->getRank() == cur->listLink->getRank())
+				{
+					NodeType *nextNode = cur->listLink;
+					mergeTrees(cur->listLink, cur);
+					cur = nextNode;
+				}
+				else cur = cur->listLink;
+			heap.root = 0;
 		}
 
 	private:
@@ -58,12 +105,15 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		void mergeTrees(BinomialHeapNode<DataType> *first, BinomialHeapNode<DataType> *second)
 		{
 			if (cmp(second->key, first->key)) swap(first, second);
+
 			assert(first->children == second->children);
 			assert(first->parent == 0);
 			assert(second->parent == 0);
+
 			second->parent = first;
+			second->listLink = first->leftChild;
 			first->leftChild = second;
-			second->listLink
+			++first->children;
 		}
 };
 
