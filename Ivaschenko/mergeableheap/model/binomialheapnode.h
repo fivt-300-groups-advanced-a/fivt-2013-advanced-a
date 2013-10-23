@@ -9,12 +9,12 @@ template<typename DataType> class BinomialHeapNode
 
 	public:
 		explicit BinomialHeapNode(const DataType &nKey): key(nKey), parent(0),
-														 listNext(0), leftChild(0), children(0) {}
+														 listLink(0), leftChild(0), children(0) {}
 
 		~BinomialHeapNode()
 		{
 			if (leftChild) delete leftChild;
-			if (listNext) delete listNext;
+			if (listLink) delete listLink;
 		}
 
 		const BinomialHeapNode* getListLink() const
@@ -37,7 +37,7 @@ template<typename DataType> class BinomialHeapNode
 			return key;
 		}
 
-		const std::size_t getRank() const
+		std::size_t getRank() const
 		{
 			return children;
 		}
@@ -67,8 +67,8 @@ template<typename DataType> class BinomialHeapNode
 
 			node->parent = this;
 			node->listLink = leftChild;
-			leftChild = second;
-			++first->children;
+			leftChild = node;
+			++children;
 		}
 };
 

@@ -4,31 +4,34 @@
 #include "binomialheapnode.h"
 
 /**
- *
+ * Class representating const reference to a heap node
+ * Identifier is always associated with data pushed into heap from creation to deletion
  */
 template<typename DataType> class BinomialHeapNodeIdentifier
 {
 	friend class BinomialHeap;
+	private:
+		typedef BinomialHeapNode<DataType> NodeType;
 
 	public:
 		/**
-		 * @brief BinomialHeapNodeIdentifier
-		 * @param nNode
+		 * @brief BinomialHeapNodeIdentifier creates new identifier from pointer to node
+		 * @param nNode pointer to node
 		 */
 		explicit BinomialHeapNodeIdentifier(NodeType *nNode): node(nNode) {}
 
 		/**
-		 * @brief exist
-		 * @return
+		 * @brief valid checks if Identifier points to nothing
+		 * @return true if identifier seems to be valid
 		 */
-		bool exist() const
+		bool valid() const
 		{
 			return node != nullptr;
 		}
 
 		/**
-		 * @brief operator *
-		 * @return
+		 * @brief operator * provides access to data in heap
+		 * @return const reference to stored data
 		 */
 		const DataType& operator * () const
 		{
@@ -36,8 +39,6 @@ template<typename DataType> class BinomialHeapNodeIdentifier
 		}
 
 	private:
-		typedef BinomialHeapNode<DataType> NodeType;
-
 		NodeType *node;
 };
 
@@ -53,6 +54,9 @@ template<typename DataType> class BinomialHeapNodeIdentifier
  */
 template<typename DataType, typename Comparator> class BinomialHeap
 {
+	private:
+		typedef BinomialHeapNode<DataType> NodeType;
+
 	public:
 		typedef BinomialHeapNodeIdentifier<DataType> NodeIdType;
 
@@ -144,13 +148,13 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		void decreaseKey(const NodeIdType &nodeId, const DataType &newKey)
 		{
-			assert(node.exist());
+			assert(nodeId.exist());
 			NodeType *node = nodeId.node;
 			node->key = newKey;
 			while (node->parent)
 			{
 				if (!cmp(node->key, node->parent->key)) break;
-				node->swap(parent);
+				node->swap(node->parent);
 			}
 		}
 
@@ -161,10 +165,10 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		void erase(const NodeIdType &nodeId)
 		{
-			assert(nodeId.exist());
+			assert(nodeId.valid());
 			NodeType *node = nodeId.node, prev = 0;
 			while (node->parent)
-				node->swap(parent);
+				node->swap(node->parent);
 			for (NodeType *current = root; current->listLink; current = current->listLink)
 				if (current->listLink == node)
 				{
@@ -186,11 +190,13 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		}
 
 	private:
-		typedef BinomialHeapNode<DataType> NodeType;
-
 		NodeType *root;
 		Comparator cmp;
 
+		/**
+		 * @brief mergeHeaps merges given heap to own
+		 * @param node pointer to heap.root of second heap
+		 */
 		void mergeHeaps(NodeType* &node)
 		{
 			if (!node) return;
@@ -237,6 +243,11 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			node = 0; // second heap is now empty
 		}
 
+		/**
+		 * @brief eraseNode erases node from heap and merges it's children to entire heap
+		 * @param prev previous element
+		 * @param node element to delete
+		 */
 		void eraseNode(NodeType *prev, NodeType *node)
 		{
 			for (NodeType *child = node->leftChild; child; child = child->listLink)
