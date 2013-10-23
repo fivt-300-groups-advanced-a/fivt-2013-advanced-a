@@ -3,9 +3,11 @@
 
 #include <utility>
 
-template<typename DataType> class BinomialHeapNode
+template<typename DataType, typename Comparator> class BinomialHeap;
+
+template<typename DataType, typename Comparator> class BinomialHeapNode
 {
-	friend class BinomialHeap;
+	friend class BinomialHeap<DataType, Comparator>;
 
 	public:
 		explicit BinomialHeapNode(const DataType &nKey): key(nKey), parent(0),
@@ -51,7 +53,7 @@ template<typename DataType> class BinomialHeapNode
 		 * @brief swap We cannot split key and pointer to the node so let us swap all other parameters
 		 * @param node node to swap with
 		 */
-		void swap(BinomialHeapNode<DataType> &node)
+		void swap(BinomialHeapNode<DataType, Comparator> &node)
 		{
 			swap(parent, node.parent);
 			swap(listLink, node.listLink);
@@ -59,7 +61,7 @@ template<typename DataType> class BinomialHeapNode
 			swap(children, node.children);
 		}
 
-		void merge(BinomialHeapNode<DataType> *node)
+		void merge(BinomialHeapNode<DataType, Comparator> *node)
 		{
 			assert(children == node->children);
 			assert(parent == 0);

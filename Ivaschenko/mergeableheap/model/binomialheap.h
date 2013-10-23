@@ -3,15 +3,18 @@
 
 #include "binomialheapnode.h"
 
+template<typename DataType, typename Comparator> class BinomialHeap;
+
 /**
  * Class representating const reference to a heap node
  * Identifier is always associated with data pushed into heap from creation to deletion
  */
-template<typename DataType> class BinomialHeapNodeIdentifier
+template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifier
 {
-	friend class BinomialHeap;
+	friend class BinomialHeap<DataType, Comparator>;
+
 	private:
-		typedef BinomialHeapNode<DataType> NodeType;
+		typedef BinomialHeapNode<DataType, Comparator> NodeType;
 
 	public:
 		/**
@@ -35,7 +38,7 @@ template<typename DataType> class BinomialHeapNodeIdentifier
 		 */
 		const DataType& operator * () const
 		{
-			return *node;
+			return node->getKey();
 		}
 
 	private:
@@ -55,10 +58,10 @@ template<typename DataType> class BinomialHeapNodeIdentifier
 template<typename DataType, typename Comparator> class BinomialHeap
 {
 	private:
-		typedef BinomialHeapNode<DataType> NodeType;
+		typedef BinomialHeapNode<DataType, Comparator> NodeType;
 
 	public:
-		typedef BinomialHeapNodeIdentifier<DataType> NodeIdType;
+		typedef BinomialHeapNodeIdentifier<DataType, Comparator> NodeIdType;
 
 		/**
 		 * @brief BinomialHeap creates new empty heap with default Comparator
@@ -91,7 +94,7 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		void clear()
 		{
-			delete root;
+			if (root) delete root;
 			root = 0;
 		}
 
@@ -102,7 +105,7 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		NodeIdType top() const
 		{
-			if (!root) return nullptr;
+			if (!root) return NodeIdType(nullptr);
 			NodeType *answer = root;
 			for (NodeType *current = root; current; current = current->listLink)
 				if (!answer || cmp(current->key, answer->key))
@@ -118,7 +121,7 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		NodeIdType push(const DataType &value)
 		{
-			NodeType *newNode = new NodeType(value), reference = newNode;
+			NodeType *newNode = new NodeType(value), *reference = newNode;
 			mergeHeaps(newNode);
 			return NodeIdType(reference);
 		}
@@ -205,8 +208,8 @@ template<typename DataType, typename Comparator> class BinomialHeap
 				root = node;
 				return;
 			}
-			for (NodeType *cur = 0, *first = root, *second = node; first && second;) // merge two lists
-				if (first->getRank() > second->getRank()) // from high rank to low
+			for (NodeType *cur = 0, *first = root, *second = node; first || second;) // merge two lists
+				if (first && (!second || first->getRank() < second->getRank())) // from high rank to low
 				{
 					if (cur) cur->listLink = first;
 					else root = first;
@@ -228,19 +231,39 @@ template<typename DataType, typename Comparator> class BinomialHeap
 					if (cmp(cur->listLink->key, cur->key))
 					{
 						if (prev) prev->listLink = cur->listLink;
+						else root = cur->listLink;
 						nextNode = cur->listLink;
 						cur->listLink->merge(cur);
 					}
 					else
 					{
+						NodeType *toMerge = cur->listLink;
 						cur->listLink = cur->listLink->listLink;
 						nextNode = cur;
-						cur->merge(cur->listLink);
+						cur->merge(toMerge);
 					}
 					cur = nextNode;
 				}
-				else cur = cur->listLink; // proceed
+				else
+				{
+					prev = cur;
+					cur = cur->listLink; // proceed
+				}
 			node = 0; // second heap is now empty
+		}
+
+		NodeType* reverseList(NodeType *node)
+		{
+			if (!node) return nullptr;
+			NodeType *prev = 0;
+			for (NodeType *current = node;;)
+			{
+				NodeType *nextNode = current->listLink;
+				current->listLink = prev;
+				prev = current;
+				if (!nextNode) return current;
+				current = nextNode;
+			}
 		}
 
 		/**
@@ -256,9 +279,11 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			if (prev) prev->listLink = node->listLink; // cut off from list
 			else root = node->listLink;
 
+			node->leftChild = reverseList(node->leftChild);
 			mergeHeaps(node->leftChild); // merge children to root list
+			node->listLink = 0;  // has no next element more
 			node->leftChild = 0; // has no children more
-			delete node; // free memory
+			delete node; // kill him! free memory!
 		}
 };
 
