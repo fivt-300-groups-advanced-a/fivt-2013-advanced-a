@@ -8,9 +8,8 @@ template<typename DataType> class BinomialHeapNode
 	friend class BinomialHeap;
 
 	public:
-		explicit BinomialHeapNode(const DataType &nKey): key(nKey), parent(0), listNext(0), leftChild(0), children(0)
-		{
-		}
+		explicit BinomialHeapNode(const DataType &nKey): key(nKey), parent(0),
+														 listNext(0), leftChild(0), children(0) {}
 
 		~BinomialHeapNode()
 		{
@@ -18,17 +17,17 @@ template<typename DataType> class BinomialHeapNode
 			if (listNext) delete listNext;
 		}
 
-		BinomialHeapNode* getListLink() const
+		const BinomialHeapNode* getListLink() const
 		{
 			return listLink;
 		}
 
-		BinomialHeapNode* getParent() const
+		const BinomialHeapNode* getParent() const
 		{
 			return parent;
 		}
 
-		BinomialHeapNode* getLeftChild() const
+		const BinomialHeapNode* getLeftChild() const
 		{
 			return leftChild;
 		}
@@ -49,15 +48,27 @@ template<typename DataType> class BinomialHeapNode
 		std::size_t children;
 
 		/**
-		 * We cannot split key and pointer to the node
-		 * So let us swap all other parameters
+		 * @brief swap We cannot split key and pointer to the node so let us swap all other parameters
+		 * @param node node to swap with
 		 */
-		void swap(BinomialHeapNode &node)
+		void swap(BinomialHeapNode<DataType> &node)
 		{
 			swap(parent, node.parent);
 			swap(listLink, node.listLink);
 			swap(leftChild, node.leftChild);
 			swap(children, node.children);
+		}
+
+		void merge(BinomialHeapNode<DataType> *node)
+		{
+			assert(children == node->children);
+			assert(parent == 0);
+			assert(node->parent == 0);
+
+			node->parent = this;
+			node->listLink = leftChild;
+			leftChild = second;
+			++first->children;
 		}
 };
 
