@@ -9,11 +9,12 @@
 #include "lib/regularwriter.h"
 #include "lib/binarywriter.h"
 
+#include "lib/sorters.h"
 #include "lib/externalsorter.h"
 
 int main() {
   RegularReader<int> is("input1.txt");
   RegularWriter<int> os("output1.txt");
   ExternalSorter<int> ex;
-  ex(8, is, os, std::less<int>());
+  ex(8, is, os);
 }

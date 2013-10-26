@@ -1,6 +1,8 @@
 template<typename T> class BinaryReader : public GeneralReader<T> 
 {
   public:
+    explicit BinaryReader() {}
+
     explicit BinaryReader(std::istream &stream) : GeneralReader<T>(stream) {}
 
     explicit BinaryReader(const char * filename) : GeneralReader<T>(filename) {}
