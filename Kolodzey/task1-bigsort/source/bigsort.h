@@ -232,7 +232,7 @@ namespace bigsort
 		
 		while (totalNumberOfItems > 0)
 		{
-			debugStream << "OLOLO!" << std::endl;
+			/*debugStream << "OLOLO!" << std::endl;*/
 		
 			writer << mergeHeap.front().first << separator;
 			if (!tmpStream[mergeHeap.front().second].eof())
