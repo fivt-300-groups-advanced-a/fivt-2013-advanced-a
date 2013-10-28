@@ -23,11 +23,18 @@ template <typename Type> class GeneralWriter
     explicit GeneralWriter(std::string &filename) : GeneralWriter(filename.c_str()) {};
 
     ~GeneralWriter() {
+      close();
+    }
+
+    void close() {
       if (is_own_stream) {
         delete os;
+        fb->close();
         delete fb;
+        is_own_stream = false;
       }
     }
+
 
   protected:
     std::filebuf *fb;

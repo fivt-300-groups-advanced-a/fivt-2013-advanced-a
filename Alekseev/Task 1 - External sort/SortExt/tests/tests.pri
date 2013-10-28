@@ -4,7 +4,8 @@ SOURCES += \
     $$PWD/io/ostreamwriter-test.cpp \
     $$PWD/io/rawistreamreader-test.cpp \
     $$PWD/io/rawostreamwriter-test.cpp \
-    $$PWD/complexdata.cpp
+    $$PWD/complexdata.cpp \
+    tests/externalsort-test.cpp
 
 HEADERS += \
     $$PWD/complexdata.h

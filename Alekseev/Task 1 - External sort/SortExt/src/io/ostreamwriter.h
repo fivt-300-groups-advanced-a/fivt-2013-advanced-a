@@ -13,7 +13,7 @@ public:
     typedef DataT DataType;
     typedef std::ostream Stream;
 
-    OStreamWriter(std::ostream &stream):
+    /*implicit*/OStreamWriter(std::ostream &stream):
         stream(&stream)
     {}
 

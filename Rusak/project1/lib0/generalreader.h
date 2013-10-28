@@ -20,10 +20,7 @@ template <typename Type> class GeneralReader
     explicit GeneralReader(std::string &filename) : GeneralReader(filename.c_str()) {};
 
     ~GeneralReader() {
-      if (is_own_stream) {
-        delete is;
-        delete fb;
-      }
+      close();
     }
 
     void assign(const char *filename) {
@@ -31,6 +28,15 @@ template <typename Type> class GeneralReader
       fb->open (filename, std::ios::in);
       is = new std::istream(fb);
       is_own_stream = true;
+    }
+
+    void close() {
+      if (is_own_stream) {
+        delete is;
+        fb->close();
+        delete fb;
+        is_own_stream = false;
+      }
     }
 
   protected:
