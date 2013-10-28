@@ -10,7 +10,7 @@ public:
     typedef DataT DataType;
     typedef std::istream Stream;
 
-    IStreamReader(std::istream &stream):
+    /*implicit*/ IStreamReader(std::istream &stream):
         stream(&stream)
     {}
 
