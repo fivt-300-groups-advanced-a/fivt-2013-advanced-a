@@ -36,7 +36,7 @@ TEST(IStreamReader, Strings)
 
 TEST(IStreamReader, ComplexData)
 {
-    std::istringstream iss("54.2 erwe .1415 wre\tqoe");
+    std::istringstream iss("54.2\nerwe\n.1415\nwre\tqoe\newr");
     IStreamReader<ComplexData> reader(iss);
 
     ComplexData d;
@@ -46,7 +46,7 @@ TEST(IStreamReader, ComplexData)
 
     EXPECT_TRUE(reader(d));
     EXPECT_FLOAT_EQ(.1415, d.d);
-    EXPECT_EQ("wre", d.s);
+    EXPECT_EQ("wre\tqoe", d.s);
 
     EXPECT_FALSE(reader(d));
 }

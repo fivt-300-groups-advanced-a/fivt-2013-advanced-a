@@ -3,14 +3,17 @@
 
 #include <algorithm>
 
+template<class Comparator>
 class StdSorter
 {
 public:
-    template<class It, class Comparator>
-    void operator() (It begin, It end, Comparator pred)
+    template<class It>
+    void operator() (It begin, It end)
     {
         std::sort(begin, end, pred);
     }
+private:
+    Comparator pred;
 };
 
 #endif // STDSORTER_H

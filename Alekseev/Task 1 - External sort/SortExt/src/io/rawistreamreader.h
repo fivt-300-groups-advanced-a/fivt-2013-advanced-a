@@ -12,7 +12,7 @@ public:
 
     static const std::size_t DataSize = sizeof(DataType);
 
-    RawIStreamReader(Stream &stream):
+    explicit RawIStreamReader(Stream &stream):
         stream(&stream)
     {
     }

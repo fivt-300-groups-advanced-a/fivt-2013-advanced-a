@@ -12,7 +12,7 @@ public:
 
     static const std::size_t DataSize = sizeof(DataType);
 
-    RawOStreamWriter(std::ostream &stream):
+    explicit RawOStreamWriter(std::ostream &stream):
         stream(&stream)
     {}
 
