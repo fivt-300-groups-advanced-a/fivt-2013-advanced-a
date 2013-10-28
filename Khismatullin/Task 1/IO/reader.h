@@ -17,7 +17,7 @@ template <class T> class Reader
 				fin = NULL;
 			}
 		}
-		explicit Reader() 
+		Reader() 
 		{	
 			flag = true;
 		}
@@ -31,7 +31,7 @@ template <class T> class Reader
 			flag = false;
 			fin = new std :: ifstream(Filename.c_str());
 		}
-		explicit Reader(const std :: ifstream &Stream) 
+		explicit Reader(std :: ifstream &Stream) 
 		{
 			flag = true;
 			fin = &Stream;

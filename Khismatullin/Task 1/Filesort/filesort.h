@@ -114,7 +114,7 @@ void _filesort(Reader<T> &in, Writer<T> &out, std::size_t mem, void (*sort)(std:
 }
 
 template<class T, class comp>
-void filesort(std::string in, std::string out, std::size_t mem, void (*sort)(std::vector<T>&) = head_sort<T, comp>) 
+void filesort(const std::string in, const std::string out, std::size_t mem, void (*sort)(std::vector<T>&) = head_sort<T, comp>) 
 {
 	assert(in != out);
 	Reader<T> fin(in);
@@ -123,7 +123,18 @@ void filesort(std::string in, std::string out, std::size_t mem, void (*sort)(std
 }
 
 template<class T, class comp>
-void filesort(char* in, char* out, std::size_t mem, void (*sort)(std::vector<T>&) = head_sort<T, comp>) 
+void filesort(const char* in, const char* out, std::size_t mem) 
+{
+	filesort<T, comp> (in, out, mem, head_sort<T, comp>);
+	//assert(in != out);
+	//Reader<T> fin(in);
+	//Writer<T> fout(out);
+	//_filesort<T, comp>(fin, fout, mem, sort);	
+}
+
+
+template<class T, class comp, class sorter>
+void filesort(const char* in, const char* out, std::size_t mem, sorter sort) 
 {
 	assert(in != out);
 	Reader<T> fin(in);

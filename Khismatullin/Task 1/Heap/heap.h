@@ -37,7 +37,7 @@ class Heap
 		unsigned int size; 
 		comp cmp;
 		
-		void SiftDown(unsigned int pos) // заменить на перестановку?
+		void SiftDown(unsigned int pos)
 		{
 			unsigned int maxCH = pos;
 			if (pos * 2 + 1 < size && cmp(h[pos * 2 + 1], h[pos])) {
@@ -52,7 +52,7 @@ class Heap
 			}
 		}
 		
-		void SiftUp(unsigned int pos) // заменить на перестановку?
+		void SiftUp(unsigned int pos) 
 		{
 			if (!pos) 
 				return;
