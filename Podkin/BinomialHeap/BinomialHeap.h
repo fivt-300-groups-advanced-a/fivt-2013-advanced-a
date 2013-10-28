@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 
-template<typename Type>
+template<typename Type, class Comparator>
 class Tree{
     public:
         Tree(Type val){
@@ -11,11 +11,9 @@ class Tree{
             right = parent = son = NULL;
             degree = 0;
         }
-        Tree(Type val, Tree *p){
-            value = val;
-            parent = p;
-            right = son = NULL;
-            degree = 0;
+        bool operator < (Tree *tr){
+            Comparator comp;
+            return comp(value, tr->value);
         }
     private:
         Type value;
@@ -23,12 +21,11 @@ class Tree{
         int degree;
 };
 
-template<typename Type>
+template<typename Type, class Comparator>
 class BinomialHeap{
     public:
-        template<class Comparator>
-        BinomialHeap(Comparator comp, Type value){
-            heap = new Tree<Type>(value);
+        BinomialHeap(Type value){
+            heap = new Tree<Type, Comparator>(value);
         }
         void insert(){
             //TODO
@@ -55,7 +52,7 @@ class BinomialHeap{
         void MergeTrees(){
             //TODO
         }
-        Tree<Type> *heap = NULL;
+        Tree<Type, Comparator> *heap = NULL;
 };
 
 #endif // BINOMIALHEAP_H
