@@ -48,11 +48,13 @@ protected:
         if (newState == Pushing)
         {
             stream.open(fileName, std::ios_base::out | std::ios_base::binary);
+            stream.precision(10);
         }
         else if (newState == Popping)
         {
             stream.close();
             stream.open(fileName, std::ios_base::in | std::ios_base::binary);
+            stream.precision(10);
         }
         state = newState;
     }

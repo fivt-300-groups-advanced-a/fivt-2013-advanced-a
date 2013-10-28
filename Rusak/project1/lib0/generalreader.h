@@ -14,23 +14,29 @@ template <typename Type> class GeneralReader
     }
 
     explicit GeneralReader(const char * filename) {
+      assign(filename);
+    }
+
+    explicit GeneralReader(std::string &filename) : GeneralReader(filename.c_str()) {};
+
+    ~GeneralReader() {
+      close();
+    }
+
+    void assign(const char *filename) {
       fb = new std::filebuf();
       fb->open (filename, std::ios::in);
       is = new std::istream(fb);
       is_own_stream = true;
     }
 
-    explicit GeneralReader(std::string &filename) : GeneralReader(filename.c_str()) {};
-
-    ~GeneralReader() {
+    void close() {
       if (is_own_stream) {
         delete is;
+        fb->close();
         delete fb;
+        is_own_stream = false;
       }
-    }
-
-    bool eof() {
-      return (is->eof());
     }
 
   protected:

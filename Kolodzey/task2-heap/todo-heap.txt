@@ -1,0 +1,81 @@
+Операции, которые поддерживает куча:
+
+//возвращает элемент с наименьшим ключом
+//Если их несколько? — возвращает первый, который найдёт.
++reference& top()
+
+-const_reference& top() const;
+
+//удаляет первый минимальный элемент, который найдёт.
+Зы — первый — лежащий в куче самого маленького размера.
+Возвращает успех операции
+void pop_top()
+
+
+bool decrease_key(iterator position, newKeyValue) //ненадёжная ф-ия какая-то…
+Ну ок, возвращает успех операции (во-первых, что iterator в нужное место указывает, во-вторых — что новое значение ключа действительно меньше старого, в-третьих — что просто ничего не упало)
+
+bool delete(iterator position) (возвращает успех операции, ну то есть, что iterator указывает куда надо)
+
+void insert(value)
+
+void insert(binom_heap b) присоединяет кучу b к исходной, а кучу b делает пустой
+
+void insert_copy(binom_heap b) присоединяет копию кучи b (работает долго. за o(b.size()))
+
+конструктор от двух куч(binom_heap a, binom_heap b)
+size()
+empty()
+clear()
+iterator beg()
+iterator end()
+
+Constructor
+Destructor
+operator = (копирование или перемещение?)
+
+
+Конструкторы
+------------
+
+BinomialHeap <T> () = пустая куча для элементов типа T со сравнением std::less<T>
+
+BinomialHeap <T, Compare> (Compare mycmp) = пустая куча для элементов типа T со сравнением mycmp
+
+BinomialHeap (BinomialHeap h1, BinomialHeap h2) = куча, полученная слиянием двух куч: h1 и h2. Важно: h1 и h2 имеют одинаковый тип и компаратор! При таком слиянии кучи h1 и h2 уничтожаются.
+
+??? Конструктор перемещения.
+??? Запрет конструктора копирования.
+
+Оператор присваивания???
+
+
+
+Деструктор
+----------
+???
+
+
+Итераторы
+---------
+begin
+end
+Для типа предусмотрен random access iterator
+
+
+Размер
+------
+empty
+size
+
+
+Изменения
+---------
+bool insert(T value)
+bool absorb(&BinomialHeap child_heap)
+*: bool absorb_copy(&BinomialHeap child_heap)
+bool pop_top()
+bool erase(BinomialHeap::iterator)
+&T top()
+*: const &T top() const 
+void clear()

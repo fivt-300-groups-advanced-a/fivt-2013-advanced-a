@@ -1,4 +1,5 @@
 #include <fstream>
+#include <sstream> 
 #include "bigsort.h"
 #include "gtest/gtest.h"
 
@@ -15,7 +16,7 @@ void mysort(std::vector<int>::iterator beg,
 
 TEST (IntegrationTest, SmallInteger)
 {
-	std::ifstream fin("input.txt");
+	std::stringstream s_in("9 4 3 2 5");
     std::fstream fout;
     std::remove("output.txt");
     fout.open("output.txt",
@@ -33,13 +34,13 @@ TEST (IntegrationTest, SmallInteger)
      }
     int a = 0;
     
-    bigsort::bigsort (a, fin, fout, " ", 3, b, " ", mysort, mycmp, std::cout);
+    bigsort::bigsort (a, s_in, fout, " ", 3, b, " ", mysort, mycmp, std::cout);
 
     b[0].close();
     b[1].close();
     b[2].close();
 
-    std::ifstream rightAnswer ("output.a");
+    std::stringstream rightAnswer ("2 3 4 5 9");
     fout.seekg(0, fout.beg);
     while (!rightAnswer.eof())
     {
