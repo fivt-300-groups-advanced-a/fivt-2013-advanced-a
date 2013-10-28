@@ -2,16 +2,22 @@
 #define HEAPNODE_H
 
 #include <utility>
+#include <list>
 
 template<typename DataType, typename Comparator> class BinomialHeap;
+template<typename DataType, typename Comparator> class BinomialHeapIndex;
 
 template<typename DataType, typename Comparator> class BinomialHeapNode
 {
 	friend class BinomialHeap<DataType, Comparator>;
 
+	private:
+		typedef typename std::list<BinomialHeapNode*>::iterator IndexType;
+
 	public:
-		explicit BinomialHeapNode(const DataType &nKey): key(nKey), parent(0),
-														 listLink(0), leftChild(0), children(0) {}
+		explicit BinomialHeapNode(const DataType &nKey, IndexType nIndex): key(nKey), parent(0),
+																			listLink(0), leftChild(0), index(nIndex),
+																			children(0) {}
 
 		~BinomialHeapNode()
 		{
@@ -47,6 +53,7 @@ template<typename DataType, typename Comparator> class BinomialHeapNode
 	private:
 		DataType key;
 		BinomialHeapNode *parent, *listLink, *leftChild;
+		IndexType index;
 		std::size_t children;
 
 		/**
@@ -55,10 +62,7 @@ template<typename DataType, typename Comparator> class BinomialHeapNode
 		 */
 		void swap(BinomialHeapNode<DataType, Comparator> &node)
 		{
-			swap(parent, node.parent);
-			swap(listLink, node.listLink);
-			swap(leftChild, node.leftChild);
-			swap(children, node.children);
+			std::swap(key, node.key);
 		}
 
 		void merge(BinomialHeapNode<DataType, Comparator> *node)
