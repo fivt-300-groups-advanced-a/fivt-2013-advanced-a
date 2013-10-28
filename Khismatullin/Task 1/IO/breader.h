@@ -24,13 +24,13 @@ template <class T> class BinReader
 		explicit BinReader(const char* Filename)
 		{
 			flag = false;
-			fin = new std :: ifstream(Filename);
+			fin = new std :: ifstream(Filename, std::ifstream::binary);
 		}
 		explicit BinReader(const std :: string &Filename)
 		{
 			flag = false;
 			//std::cout << "GGDFGFGFGFGFGF\n";
-			fin = new std :: ifstream(Filename.c_str());
+			fin = new std :: ifstream(Filename.c_str(), std::ifstream::binary);
 		}
 		explicit BinReader(const std :: ifstream &Stream)
 		{
