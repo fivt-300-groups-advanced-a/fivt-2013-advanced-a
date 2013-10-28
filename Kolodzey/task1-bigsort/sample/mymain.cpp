@@ -2,9 +2,10 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream> 
 #include "bigsort.h"
  
-bool mycmp (std::pair <int, int> a, std::pair <int, int> b)
+bool mycmp(std::pair <int, int> a, std::pair <int, int> b)
 {
     return a.first > b.first;
 }
@@ -19,7 +20,6 @@ int main()
 {
     std::ifstream fin("input.txt");
     std::ofstream fout("output.txt");
-    
     const int k = 3;
     std::fstream b[k];
     for (int i = 0; i < k; ++i)

@@ -1,6 +1,8 @@
 template<typename T> class RegularReader : public GeneralReader<T> 
 {
   public:
+    explicit RegularReader() {}
+
     explicit RegularReader(std::istream &stream = std::cin) {
       this->is = &stream; 
     }

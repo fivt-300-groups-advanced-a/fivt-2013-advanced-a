@@ -6,37 +6,32 @@
 #include <queue>
 
 const char *temp_file_name(int num) {
-    std::stringstream str;
-    str << num;
-    std::string result;
-    str >> result;
-    result = "temp"+result+".txt";
+    std::string result = "temp"+std::to_string(num);
     return result.c_str();
 }
 
-template <typename T, typename Reader, typename Cmp> class HeapPair {
+template <typename T, typename Cmp> class HeapPair {
   public:
     bool operator<(const HeapPair &ot) const {
       return !cmp(*(element), *(ot.element));
     }
-    HeapPair(T *elem, Reader *re, Cmp cmp):reader(re), element(elem), cmp(cmp) {}
-    //~HeapPair() {
-    //  delete element;
-    //}
+    HeapPair(T *elem, int reader, Cmp cmp):reader(reader), element(elem), cmp(cmp) {}
+    void clear() {
+      delete element;
+    }
     Cmp cmp;
     T *element;
-    Reader *reader;
+    int reader;
 };
 
 template<typename T> class ExternalSorter {  
   public :
-  template<typename Reader, typename Writer, typename Cmp> void operator()(int RAM, Reader &reader, Writer &writer, Cmp cmp) {
+  template<typename Reader, typename Writer, typename Sorter = StdSort<T>, typename Cmp = std::less<T>> void operator()(int RAM, Reader &reader, Writer &writer,  Cmp cmp = Cmp(), Sorter sorter = Sorter()) {
     int count_of_elem = RAM/sizeof(T);
-    T element;
     int count_of_files = 0;
     bool good = true;
     while (good) {
-      good = redirect_elements(reader, count_of_files++, count_of_elem, cmp);
+      good = redirect_elements(reader, count_of_files++, count_of_elem, sorter, cmp);
     }
     count_of_files--;
     merge(writer, count_of_files, cmp);
@@ -47,7 +42,7 @@ template<typename T> class ExternalSorter {
       for (int i=0;i<count;i++) remove(temp_file_name(i));
     }
 
-  template<typename Reader, typename Cmp> bool redirect_elements(Reader &reader, int num, int count, Cmp cmp) {
+  template<typename Reader, typename Cmp, typename Sorter> bool redirect_elements(Reader &reader, int num, int count, Sorter sorter, Cmp cmp) {
     std::vector<T> temp;
     T element;
     bool empty = 1;
@@ -56,33 +51,31 @@ template<typename T> class ExternalSorter {
       temp.push_back(element);
     }
     if (empty) return false;
-    std::sort(temp.begin(), temp.end(), cmp);
+    sorter(temp, cmp);
     BinaryWriter<T> temp_writer(temp_file_name(num));
     for (size_t i = 0; i<temp.size(); i++) temp_writer(temp[i]);
     return true;
   }
 
   template<typename Writer, typename Cmp> void merge(Writer &writer, int count_of_files, Cmp cmp) {
-    std::priority_queue< HeapPair<T, BinaryReader<T>, Cmp > > heap;
+    std::priority_queue< HeapPair<T, Cmp > > heap;
+    std::vector<BinaryReader<T>> readers(count_of_files);
     for (int i=0;i<count_of_files;i++) {
-      BinaryReader<T> *nr = new BinaryReader<T>(temp_file_name(i));
+      readers[i].assign(temp_file_name(i));
       T *elem = new T();
-      (*nr)(*elem);
-      HeapPair<T, BinaryReader<T>, Cmp> z(elem, nr, cmp);
-      heap.push(z);
+      readers[i](*elem);
+      HeapPair<T, Cmp> pair(elem, i, cmp);
+      heap.push(pair);
     }
     while (!heap.empty()) {
-      HeapPair<T, BinaryReader<T>, Cmp> top = heap.top();
-      heap.pop();
+      HeapPair<T, Cmp> top = heap.top();
       writer(*top.element);
-      //std::cout << (*top.element) << "\n";
+      heap.pop();
+      top.clear();
       T *elem = new T(); 
-      if ((*top.reader)(*elem)) {
-        HeapPair<T, BinaryReader<T>, Cmp> z(elem, top.reader, cmp);
+      if (readers[top.reader](*elem)) {
+        HeapPair<T, Cmp> z(elem, top.reader, cmp);
         heap.push(z);
-      }
-      else {
-        delete top.reader;
       }
     }
   }
