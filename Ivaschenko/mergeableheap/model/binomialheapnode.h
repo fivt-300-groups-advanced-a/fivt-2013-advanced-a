@@ -63,6 +63,7 @@ template<typename DataType, typename Comparator> class BinomialHeapNode
 		void swap(BinomialHeapNode<DataType, Comparator> &node)
 		{
 			std::swap(key, node.key);
+			std::swap(index, node.index);
 		}
 
 		void merge(BinomialHeapNode<DataType, Comparator> *node)
