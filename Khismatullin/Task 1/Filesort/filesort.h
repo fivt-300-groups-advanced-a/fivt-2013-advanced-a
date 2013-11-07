@@ -15,6 +15,8 @@
 #include <vector>
 #include <stdio.h>
 
+//#define BinReader Reader
+//#define BinWriter Writer
 
 std::string inttostr(int x) 
 {
@@ -43,9 +45,9 @@ class mycmp
 };
 
 template<class T, class comp>
-void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит поток?
+void _filesort(Reader<T> &in, Writer<T> &out, std::size_t mem, void (*sort)(std::vector<T>&)) 
 {
-	Writer<std::string> err("log.txt");
+	//Writer<std::string> err("log.txt");
 	
 	std::size_t mem0 = mem;
 	mem /= 2;
@@ -69,7 +71,7 @@ void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит пот
 		if (v.size() == 0) {
 			break;
 		}
-		head_sort<T, comp>(v);
+		sort(v);
 		all += v.size();
 		std::string file = "##__";
 		file.append(inttostr(cnt));
@@ -81,63 +83,71 @@ void _filesort(Reader<T> in, Writer<T> out, std::size_t mem) //сколько весит пот
 		cnt++;
 		v.clear();
 	}
-	BinReader<T> bin[cnt];
+	std::vector< BinReader<T>* > bin;
 	
 	Heap<std::pair<T, std::size_t>, mycmp<T, comp> > heap(cnt);
 	for(std::size_t i = 0; i < cnt; i++) {
 		std::string file = "##__";
 		file.append(inttostr(i));
 		file.append("__##.bft");
-		BinReader<T> tmp(file);
-		T x;
-		tmp(x);
-		bin[i] = tmp;
+		BinReader<T> *tmp = new BinReader<T>(file);
+		(*tmp)(x);
+		bin.push_back(tmp);
 		heap.add(std::make_pair(x, i));
 	}
-	
 	for(std::size_t i = 0; i < all; i++) {
 		std::pair<T, size_t> x = heap.Extract_min();
 		out(x.first);
-		err(inttostr(x.second));
-		if (bin[x.second](x.first)) {
+		if ((*bin[x.second])(x.first)) {
 			heap.add(x);
 		}
 	}
 	
 	for(std::size_t i = 0; i < cnt; i++) 
 	{
+		delete bin[i];
 		std::string file = "##__";
-		file.append(inttostr(cnt));
+		file.append(inttostr(i));
 		file.append("__##.bft");
-		remove(file.c_str()); //грустно
+		remove(file.c_str()); 
 	}
-	delete[] bin;
 }
 
 template<class T, class comp>
-void filesort(std::string in, std::string out, std::size_t mem) 
+void filesort(const std::string in, const std::string out, std::size_t mem, void (*sort)(std::vector<T>&) = head_sort<T, comp>) 
 {
 	assert(in != out);
 	Reader<T> fin(in);
 	Writer<T> fout(out);
-	_filesort<T, comp>(fin, fout, mem);	
+	_filesort<T, comp>(fin, fout, mem, sort);	
 }
 
 template<class T, class comp>
-void filesort(char* in, char* out, std::size_t mem) 
+void filesort(const char* in, const char* out, std::size_t mem) 
+{
+	filesort<T, comp> (in, out, mem, head_sort<T, comp>);
+	//assert(in != out);
+	//Reader<T> fin(in);
+	//Writer<T> fout(out);
+	//_filesort<T, comp>(fin, fout, mem, sort);	
+}
+
+
+template<class T, class comp, class sorter>
+void filesort(const char* in, const char* out, std::size_t mem, sorter sort) 
 {
 	assert(in != out);
 	Reader<T> fin(in);
 	Writer<T> fout(out);
-	_filesort<T, comp>(fin, fout, mem);	
+	_filesort<T, comp>(fin, fout, mem, sort);	
 }
 
 template<class T, class comp>
-void filesort(std::ifstream& in, std::ofstream& out, std::size_t mem) 
+void filesort(std::ifstream& in, std::ofstream& out, std::size_t mem, void (*sort)(std::vector<T>&) = head_sort<T, comp>) 
 {
 	Reader<T> fin(in);
 	Writer<T> fout(out);
-	_filesort<T, comp>(fin, fout, mem);	
+	_filesort<T, comp>(fin, fout, mem, sort);	
 }
 
 #endif

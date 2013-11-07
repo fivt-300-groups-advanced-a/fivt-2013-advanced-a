@@ -114,31 +114,25 @@ $(document).ready(function(){initNavTree('namespacebigsort.html','');});
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Функции</h2></td></tr>
-<tr class="memitem:aafceedf48ed2c8dfc743408232c7ef07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07">reversedBubblesort</a> (int a[], int len)</td></tr>
-<tr class="memdesc:aafceedf48ed2c8dfc743408232c7ef07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Функция сортировки пузырьком в обратную сторону  <a href="#aafceedf48ed2c8dfc743408232c7ef07">Подробнее...</a><br/></td></tr>
-<tr class="separator:aafceedf48ed2c8dfc743408232c7ef07"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c19c68fe6b3ef82e837b00210738c7e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e">bubblesort</a> (int a[], int len)</td></tr>
-<tr class="memdesc:a2c19c68fe6b3ef82e837b00210738c7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Функция сортировки пузырьком.  <a href="#a2c19c68fe6b3ef82e837b00210738c7e">Подробнее...</a><br/></td></tr>
-<tr class="separator:a2c19c68fe6b3ef82e837b00210738c7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memTemplParams" colspan="2">template&lt;class T , class Reader , class Writer , class TmpReader , class TmpWriter , class Sorter , class SortCmp , class MergeCmp &gt; </td></tr>
-<tr class="memitem:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#a6d560cc95939b2b9cabfea8ed092d4c9">bigsort</a> (T *pValue, Reader &amp;reader, Writer &amp;writer, size_t memory, MergeCmp mergecmp, SortCmp sortcmp, Sorter sorter, TmpReader &amp;tmpReader, TmpWriter &amp;tmpWriter)</td></tr>
-<tr class="memdesc:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">та самая функция, ради которой всё писалось  <a href="#a6d560cc95939b2b9cabfea8ed092d4c9">Подробнее...</a><br/></td></tr>
-<tr class="separator:a6d560cc95939b2b9cabfea8ed092d4c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad69137b3c2dd15604df05fea1809ed17"><td class="memTemplParams" colspan="2">template&lt;class T , class Reader , class Writer , class Separator , class TmpStream , class TmpSeparator , class Sorter , class MergeCmp , class DebugStream &gt; </td></tr>
+<tr class="memitem:ad69137b3c2dd15604df05fea1809ed17"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><a class="el" href="namespacebigsort.html#ad69137b3c2dd15604df05fea1809ed17">bigsort</a> (T &amp;tmpVal, Reader &amp;reader, Writer &amp;writer, Separator separator, int k, TmpStream tmpStream, TmpSeparator tmpSeparator, Sorter sorter, MergeCmp mergecmp, DebugStream &amp;debugStream)</td></tr>
+<tr class="memdesc:ad69137b3c2dd15604df05fea1809ed17"><td class="mdescLeft">&#160;</td><td class="mdescRight">та самая функция, ради которой всё писалось  <a href="#ad69137b3c2dd15604df05fea1809ed17">Подробнее...</a><br/></td></tr>
+<tr class="separator:ad69137b3c2dd15604df05fea1809ed17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Подробное описание</h2>
 <div class="textblock"><p>Пространство имён, в котором всё и находится </p>
 </div><h2 class="groupheader">Функции</h2>
-<a class="anchor" id="a6d560cc95939b2b9cabfea8ed092d4c9"></a>
+<a class="anchor" id="ad69137b3c2dd15604df05fea1809ed17"></a>
 <div class="memitem">
 <div class="memproto">
 <div class="memtemplate">
-template&lt;class T , class Reader , class Writer , class TmpReader , class TmpWriter , class Sorter , class SortCmp , class MergeCmp &gt; </div>
+template&lt;class T , class Reader , class Writer , class Separator , class TmpStream , class TmpSeparator , class Sorter , class MergeCmp , class DebugStream &gt; </div>
       <table class="memname">
         <tr>
           <td class="memname">void bigsort::bigsort </td>
           <td>(</td>
-          <td class="paramtype">T *&#160;</td>
-          <td class="paramname"><em>pValue</em>, </td>
+          <td class="paramtype">T &amp;&#160;</td>
+          <td class="paramname"><em>tmpVal</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -155,20 +149,26 @@ template&lt;class T , class Reader , class Writer , class TmpReader , class TmpW
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">size_t&#160;</td>
-          <td class="paramname"><em>memory</em>, </td>
+          <td class="paramtype">Separator&#160;</td>
+          <td class="paramname"><em>separator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">MergeCmp&#160;</td>
-          <td class="paramname"><em>mergecmp</em>, </td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">SortCmp&#160;</td>
-          <td class="paramname"><em>sortcmp</em>, </td>
+          <td class="paramtype">TmpStream&#160;</td>
+          <td class="paramname"><em>tmpStream</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">TmpSeparator&#160;</td>
+          <td class="paramname"><em>tmpSeparator</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -179,14 +179,14 @@ template&lt;class T , class Reader , class Writer , class TmpReader , class TmpW
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TmpReader &amp;&#160;</td>
-          <td class="paramname"><em>tmpReader</em>, </td>
+          <td class="paramtype">MergeCmp&#160;</td>
+          <td class="paramname"><em>mergecmp</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">TmpWriter &amp;&#160;</td>
-          <td class="paramname"><em>tmpWriter</em>&#160;</td>
+          <td class="paramtype">DebugStream &amp;&#160;</td>
+          <td class="paramname"><em>debugStream</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -197,73 +197,34 @@ template&lt;class T , class Reader , class Writer , class TmpReader , class TmpW
 </div><div class="memdoc">
 
 <p>та самая функция, ради которой всё писалось </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000003">Необходимо сделать:</a></b></dt><dd>научиться передавать std::sort по-человечески Переписать функцию как класс, чтобы не передавать фальшивые параметры? Или хитрым образом запилить значения по умолчанию И автопределение типа считываемого </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Необходимо сделать:</a></b></dt><dd>заменить k на задание количества памяти </dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Необходимо сделать:</a></b></dt><dd>написать так, чтобы компаратор для типа T превращался в компаратор для пары </dd></dl>
+<dl class="params"><dt>Аргументы</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">tmpVal</td><td>ссылка на переменную типа сортируемого значения<br/>
+ swap() должен быть определён для T </td></tr>
+    <tr><td class="paramname">reader</td><td>ссылка на поток ввода <br/>
+ должен иметь оператор &gt;&gt; переопределённый для T <br/>
+ должен иметь метод seekg(0, reader.beg); должен иметь метод tellg(); должен иметь метод eof(); </td></tr>
+    <tr><td class="paramname">writer</td><td>ссылка на поток вывода <br/>
+ должен иметь оператор &lt;&lt; перопределённый для T и Separator </td></tr>
+    <tr><td class="paramname">separator</td><td>То, чем разделены значения в ответе </td></tr>
+    <tr><td class="paramname">k</td><td>количество кусков, на котрое пилятся входные данные </td></tr>
+    <tr><td class="paramname">tmpStream</td><td>поток промежуточного ввода/вывода<br/>
+ tmpStream[i] должен иметь оператор &gt;&gt; для T; оператор &lt;&lt; для T и TmpSeparator<br/>
+ метод seekg(0, tmpStream[i].beg) обращения tmpStream[0] ... tmpStream[k - 1] корректны </td></tr>
+    <tr><td class="paramname">tmpSeparator</td><td>То, чем разделены значения в промежуточном выводе </td></tr>
+    <tr><td class="paramname">sorter</td><td>Сортировщик в памяти<br/>
+ Вызывается sorter(v.begin(), v.end()), где v - вектор &lt;T&gt; </td></tr>
+    <tr><td class="paramname">mergecmp</td><td>Компаратор, с помощью которого происходит объединение промежуточных значений<br/>
+ сравнивает пары &lt;T, int&gt; по T<br/>
+ </td></tr>
+    <tr><td class="paramname">debugStream</td><td>Ссылка на поток логов, разговоров с пользователем </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p>См. определение в файле <a class="el" href="bigsort_8h_source.html">bigsort.h</a> строка <a class="el" href="bigsort_8h_source.html#l00109">109</a></p>
-
-</div>
-</div>
-<a class="anchor" id="a2c19c68fe6b3ef82e837b00210738c7e"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bigsort::bubblesort </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>a</em>[], </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Функция сортировки пузырьком. </p>
-<p>Написана, чтобы потестить систему unit-тестирования Cмысловой нагрузки не несёт, так же как и <a class="el" href="namespacebigsort.html#aafceedf48ed2c8dfc743408232c7ef07" title="Функция сортировки пузырьком в обратную сторону ">reversedBubblesort()</a> </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000002">Необходимо сделать:</a></b></dt><dd>убрать к чёртовой матери, ибо всё равно не используется </dd></dl>
-
-<p>См. определение в файле <a class="el" href="bubblesort_8cpp_source.html">bubblesort.cpp</a> строка <a class="el" href="bubblesort_8cpp_source.html#l00003">3</a></p>
-
-</div>
-</div>
-<a class="anchor" id="aafceedf48ed2c8dfc743408232c7ef07"></a>
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void bigsort::reversedBubblesort </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>a</em>[], </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>len</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Функция сортировки пузырьком в обратную сторону </p>
-<p>Написана, чтобы потестить, точно так же, как и <a class="el" href="namespacebigsort.html#a2c19c68fe6b3ef82e837b00210738c7e" title="Функция сортировки пузырьком. ">bubblesort()</a> </p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Необходимо сделать:</a></b></dt><dd>убрать к чёртовой матери, ибо всё равно не используется </dd></dl>
-
-<p>См. определение в файле <a class="el" href="reversedbubblesort_8cpp_source.html">reversedbubblesort.cpp</a> строка <a class="el" href="reversedbubblesort_8cpp_source.html#l00003">3</a></p>
+<p>См. определение в файле <a class="el" href="bigsort_8h_source.html">bigsort.h</a> строка <a class="el" href="bigsort_8h_source.html#l00107">107</a></p>
 
 </div>
 </div>
@@ -273,7 +234,7 @@ template&lt;class T , class Reader , class Writer , class TmpReader , class TmpW
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="namespacebigsort.html">bigsort</a></li>
-    <li class="footer">Документация по Bigsort. Последние изменения: Пн 7 Окт 2013 03:36:35. Создано системой
+    <li class="footer">Документация по Bigsort. Последние изменения: Пн 21 Окт 2013 11:44:10. Создано системой
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.5 </li>
   </ul>

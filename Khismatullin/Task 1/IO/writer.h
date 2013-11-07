@@ -27,7 +27,7 @@ template <class T> class Writer
 			flag = false;
 			fout = new std :: ofstream(Filename.c_str());
 		}
-		explicit Writer(const std :: ofstream &Stream) 
+		explicit Writer(std :: ofstream &Stream) 
 		{
 			flag = true;
 			fout = &Stream;

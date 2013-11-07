@@ -13,8 +13,6 @@
 
 #include <gtest/gtest.h>
 
-// FIXME: integration test
-
 int main(int argc, char **argv)
 {
 	::testing::InitGoogleTest(&argc, argv);

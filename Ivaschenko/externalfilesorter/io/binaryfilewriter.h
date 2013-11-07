@@ -102,6 +102,9 @@ template <typename DataType> class BinaryFileWriter : public impl::BinaryFileWri
 			if (!ready()) return false;
 			return stream->write(reinterpret_cast<const char*>(&element), sizeof(DataType));
 		}
+
+	private:
+		BinaryFileWriter(const BinaryFileWriter &writer) {}
 };
 
 template<> class BinaryFileWriter<std::string> : public impl::BinaryFileWriterHelper
@@ -150,6 +153,9 @@ template<> class BinaryFileWriter<std::string> : public impl::BinaryFileWriterHe
 			if (!stream->write(element.c_str(), element.size())) return false;
 			return true;
 		}
+
+	private:
+		BinaryFileWriter(const BinaryFileWriter &writer) {}
 };
 
 #endif // BINARYFILEWRITER_H

@@ -35,7 +35,10 @@ template<typename DataType, typename BitBlockExtractor> class DigitalSorter
 				std::size_t range = extractor.getBlockRange(it);
 				std::vector<std::size_t> cnt(range, 0);
 				for (RandomAccessIterator jt = begin; jt != end; ++jt)
+				{
+					size_t cur = extractor(*jt, it);
 					++cnt[extractor(*jt, it)];
+				}
 				std::partial_sum(cnt.begin(), cnt.end(), cnt.begin());
 
 				std::vector<std::size_t> newPermutation(n);
