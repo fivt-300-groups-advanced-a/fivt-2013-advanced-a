@@ -3,21 +3,60 @@
 
 #include <vector>
 #include "BinTree.h"
-
+#include "friend_functions.h"
 
 template < class Type,class Comparator >
 class BinominalyHeap{
-template < class Type,class Comparator > friend class BinominalyTree;
+
 typedef BinominalyTree<Type,Comparator> BinT;
+
+template < class Type,class Comparator > friend class BinominalyTree;
+
 private:
 	std::vector<BinT*> trees;
+
+	void refresh_tree_roots()
+	{
+		for (unsigned int i=0;i<trees.size();i++)
+		if (trees[i])
+			if (trees[i]->parent) trees[i]=trees[i]->parent;
+	}
+
+	void delete_without_freeing(BinT* pointer)
+	{
+		sift_to_top(pointer);
+		refresh_tree_roots();
+		BinominalyHeap temporary;
+		temporary.trees=pointer->childs;
+		for (unsigned int i=0;i<trees.size();i++)
+			if (trees[i]==pointer) trees[i]=NULL;
+		while (trees.size()>0 && !trees[trees.size()-1]) 
+			trees.pop_back();
+		for (unsigned int i=0;i<temporary.trees.size();i++)
+			temporary.trees[i]->parent=NULL;
+		merge(temporary);
+	}
+
+	void add_by_pointer(BinT*& pointer)
+	{
+		BinominalyHeap<Type,Comparator> fictive_heap;
+		fictive_heap.trees.push_back(pointer);
+		merge(fictive_heap);
+	}
+
+	int find_max_ind()
+	{
+		int max_ind=0;
+		while (!trees[max_ind]) max_ind++;
+		Comparator cmp;
+		for (unsigned int i=max_ind+1;i<trees.size();i++)
+			if (trees[i])
+				if (cmp(trees[i]->top(),trees[max_ind]->top())) max_ind=i;
+		return max_ind;
+	}
+
 public:
-	static std::vector<BinT*> adressa;
-//	template <class Type,class Comparator >	friend void sift_to_top(BinT*&); 
-//	template <class Type,class Comparator >	friend void sift_up(BinT*&);
-//	template <class Type,class Comparator >	friend void clear_tree(BinT*); 
-//	template <class Type,class Comparator >	friend int quantity(BinT*);
-//	template <class Type,class Comparator >	friend bool check_invariants_for_trees(BinT*);
+	typedef BinT* pointer;
 
 	BinominalyHeap()
 	{
@@ -31,30 +70,22 @@ public:
 
 	Type getM()
 	{
-		Comparator cmp;
 		if (!trees.empty()) {
-			Type max=trees[0]->top();
-			for (int i=1;i<trees.size();i++)
-				if (cmp(trees[i]->top(),max)) max=trees[i]->top();
-			return max;
+			return trees[find_max_ind()]->top();
 		}
 	}
 	
 	Type extract()
 	{
 		if (!trees.empty()) {
-			int max_ind=0;
-			while (!trees[max_ind]) max_ind++;
-			Comparator cmp;
-			for (unsigned int i=max_ind+1;i<trees.size();i++)
-				if (trees[i])
-					if (cmp(trees[i]->top(),trees[max_ind]->top())) max_ind=i;
+			int max_ind=find_max_ind();
 			Type result=trees[max_ind]->top();
 			BinominalyHeap temporary;
 			temporary.trees=trees[max_ind]->childs;
 			delete trees[max_ind];
 			trees[max_ind]=NULL;
-			while (trees.size()>0 && max_ind==trees.size()-1) trees.pop_back();
+			while (trees.size()>0 && trees[trees.size()-1]==NULL) 
+				trees.pop_back();
 			for (unsigned int i=0;i<temporary.trees.size();i++)
 				temporary.trees[i]->parent=NULL;
 			merge(temporary);
@@ -62,32 +93,11 @@ public:
 		}
 	}
 
-	unsigned int insert(const Type &element)
+	BinT* insert(const Type &element)
 	{
 		BinT* back_pointer=new BinT(element);
-		BinominalyHeap<Type,Comparator> fictive_heap;
-		fictive_heap.trees.push_back(back_pointer);
-		merge(fictive_heap);
-		back_pointer->id=adressa.size();
-		adressa.push_back(back_pointer);
-		return back_pointer->id;
-	}
-
-	template <class Type,class Comparator >
-	friend void getresult(BinT*& first,BinT*& second,BinT*& carry)
-	{
-		if (first==NULL && second==NULL) { first=carry;carry=NULL;}
-		else if (first==NULL && carry==NULL) { first=second;second=NULL; }
-		else if (second==NULL && carry==NULL) return;
-		else if (first==NULL) { carry=mergeTrees(second,carry);second=NULL;first=NULL; }
-		else if (second==NULL) { carry=mergeTrees(first,carry);second=NULL;first=NULL; }
-		else if (carry==NULL) { carry=mergeTrees(first,second);second=NULL;first=NULL; }
-		else { 
-			BinT* temporary=carry;
-			carry=mergeTrees(first,second);
-			first=temporary;
-			second=NULL;
-		}
+		add_by_pointer(back_pointer);
+		return back_pointer;
 	}
 
 	void merge(BinominalyHeap<Type,Comparator>& assigned) {
@@ -96,43 +106,38 @@ public:
 		assigned.trees.resize(q);
 		BinT* carry=NULL;
 		for (int i=0;i<q;i++)
-			getresult<Type,Comparator>(trees[i],assigned.trees[i],carry);
+			getresult(trees[i],assigned.trees[i],carry);
 		if (carry) trees.push_back(carry);
 		assigned.trees.resize(0);
 	}
 
-	void delete_element(unsigned int pointer_id) 
+	void delete_element(BinT*& pointer) 
 	{
-		BinT* pointer=adressa[pointer_id];
-		sift_to_top(pointer,adressa);
-		BinominalyHeap temporary;
-		temporary.trees=pointer->childs;
-		for (unsigned int i=0;i<trees.size();i++)
-			if (trees[i])
-			if (trees[i]->id==pointer_id) 
-			{
-				delete trees[i];
-				trees[i]=NULL;
-			}
-		for (unsigned int i=0;i<temporary.trees.size();i++)
-			temporary.trees[i]->parent=NULL;
-		while (trees.size()>0 && !trees[trees.size()-1]) trees.pop_back();
-		merge(temporary);
-		adressa[pointer_id]=NULL;
+		delete_without_freeing(pointer);
+		delete pointer;
+		pointer=NULL;
 	}
 
-	void change_key(unsigned int& pointer_id,Type newValue)
+	void change_key_to(BinT* pointer,Type newValue)
 	{
 		Comparator cmp;
-		BinT* pointer=adressa[pointer_id];
 		if (cmp(newValue,pointer->top()))
 		{
 			pointer->info=newValue;
-			sift_up(pointer,adressa);
+			sift_up(pointer);
+			refresh_tree_roots();
 		} else {
-			delete_element(pointer_id);
-			pointer_id=insert(newValue);
+			delete_without_freeing(pointer);
+			pointer->info=newValue;
+			pointer->parent=NULL;
+			pointer->childs.resize(0);
+			add_by_pointer(pointer);
 		}
+	}
+
+	void change_key_on(BinT* pointer,Type delta)
+	{
+		change_key_to(pointer,pointer->top()+delta);
 	}
 
 	bool check_invariants()
@@ -148,9 +153,9 @@ public:
 		return f;
 	}
 
-	Type get_by_id(unsigned int id)
+	Type get_by_ptr(BinT* pointer)
 	{
-		return adressa[id]->top();
+		return pointer->top();
 	}
 
 	~BinominalyHeap(){
@@ -159,8 +164,5 @@ public:
 		trees.resize(0);
 	}
 };
-
-template <class Type,class Comparator>
-std::vector<BinominalyTree<Type,Comparator>*> BinominalyHeap<Type,Comparator>::adressa;
 
 #endif
