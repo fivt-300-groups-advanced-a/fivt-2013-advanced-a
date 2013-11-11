@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <cstdio>
 
-
 struct Sun {
     int x, y;
 };
@@ -27,7 +26,7 @@ struct Convertion {
 struct Pure {
     Pure(int x):x(x) { }
     int upgrade(int z) {
-        char* buf = new char[100];
+        char* buf = new char[10];
         sprintf(buf, "%s", z);
         for (int i = 0; i < strlen(buf); ++i) {
             x += buf[i] - '0';
