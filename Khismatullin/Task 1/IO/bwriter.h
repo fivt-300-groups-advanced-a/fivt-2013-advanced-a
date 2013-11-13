@@ -20,21 +20,21 @@ template <class T> class BinWriter
 		explicit BinWriter(const char* Filename) 
 		{
 			flag = false;
-			fout = new std :: ofstream(Filename);
+			fout = new std :: ofstream(Filename, std::ofstream::binary);
 		}
 		explicit BinWriter(const std :: string &Filename) 
 		{
 			flag = false;
-			fout = new std :: ofstream(Filename.c_str());
+			fout = new std :: ofstream(Filename.c_str(), std::ofstream::binary);
 		}
-		explicit BinWriter(const std :: ofstream &Stream) 
+		explicit BinWriter(std :: ofstream &Stream) 
 		{
 			flag = true;
 			fout = &Stream;
 		}
 		bool operator () (const T& var) 
 		{
-			return ((*fout).write((char*) &var, sizeof(T)));
+			return (fout->write((char*) &var, sizeof(T)));
 		}
 		
 	private:

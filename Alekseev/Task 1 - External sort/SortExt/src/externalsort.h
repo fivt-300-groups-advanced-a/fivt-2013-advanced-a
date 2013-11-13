@@ -13,7 +13,7 @@
 
 template<typename DataT,      // type of the data to be sorted
          class Comparator   = std::less<DataT>,       // should have a bool operator()(DataT&) method
-         class LocalSorter  = StdSorter,              // should have an operator()(Iterator begin, Iterator end) method
+         class LocalSorter  = StdSorter<Comparator>,  // should have an operator()(Iterator begin, Iterator end) method
          class TempQueue    = FStreamQueue<DataT,
                                            typename OptimalStreamIO<DataT>::ReaderType,
                                            typename OptimalStreamIO<DataT>::WriterType>
@@ -52,26 +52,10 @@ private:
     bool dumpBuffer(TempQueue *dest, DataT *buffer, std::size_t n)
     {
         localSort(buffer, buffer + n);
-        if (!checkSorted(buffer, buffer + n))
-            return false;
+        assert(std::is_sorted(buffer, buffer + n, compare));
         for (std::size_t i = 0; i < n; ++i)
             dest->push(buffer[i]);
         return true;
-    }
-
-    template<class It>
-    bool checkSorted(It a, It b)
-    {
-        if (a == b)
-            return true;
-        while (true)
-        {
-            It t = a++;
-            if (a == b)
-                return true;
-            if (!compare(*t, *a))
-                return false;
-        }
     }
 
     template<class InputReader>
@@ -88,7 +72,7 @@ private:
             if (currentLoad == bufferSize)
             {
                 buckets.emplace_back(new TempQueue);
-                if (!dumpBuffer(buckets.back(), buffer.get(), currentLoad))
+                if (!dumpBuffer(buckets.back().get(), buffer.get(), currentLoad))
                     return false;
                 currentLoad = 0;
             }
@@ -96,7 +80,7 @@ private:
         if (currentLoad)
         {
             buckets.emplace_back(new TempQueue);
-            if (!dumpBuffer(buckets.back(), buffer.first, currentLoad))
+            if (!dumpBuffer(buckets.back().get(), buffer.get(), currentLoad))
                 return false;
         }
 
@@ -108,12 +92,14 @@ private:
     {
         bool operator() (const HeapNode& a, const HeapNode& b)
         {
-            if (compare(b.first, a.first))
-                return true;
-            if (compare(a.first, b.first))
-                return false;
-            return a.second < b.second;
+            return compare(b.first, a.first);
+//            if (compare(b.first, a.first))
+//                return true;
+//            if (compare(a.first, b.first))
+//                return false;
+//            return a.second < b.second;
         }
+        Comparator compare;
     };
 
     template<class OutputWriter>
@@ -123,7 +109,7 @@ private:
         for (std::size_t i = 0; i < buckets.size(); ++i)
         {
             DataT value;
-            buckets[i].pop(value);
+            buckets[i]->pop(value);
             heap.emplace(value, i);
         }
 
@@ -136,13 +122,13 @@ private:
             if (buckets[node.second]->pop(node.first))
                 heap.push(node);
             else
-                buckets[node.second]->reset();
+                buckets[node.second].reset();
         }
         return true;
     }
 
-    Comparator compare;
     LocalSorter localSort;
+    Comparator compare;
 };
 
 #endif // EXTERNALSORT_H

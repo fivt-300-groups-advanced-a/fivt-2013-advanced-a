@@ -4,7 +4,8 @@ namespace std
 {
 std::istream &operator >> (std::istream &in, ComplexData &d)
 {
-    return in >> d.d >> d.s;
+    in >> d.d;
+    return getline(getline(in, d.s), d.s);
 }
 
 std::ostream &operator << (std::ostream &out, const ComplexData &d)
@@ -15,5 +16,5 @@ std::ostream &operator << (std::ostream &out, const ComplexData &d)
 
 bool operator == (const ComplexData &a, const ComplexData &b)
 {
-    return a.d - b.d < 1e-8 && a.s == b.s;
+    return a.d == b.d && a.s == b.s;
 }

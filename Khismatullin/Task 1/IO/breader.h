@@ -17,29 +17,29 @@ template <class T> class BinReader
 				fin = NULL;
 			}
 		}
-		explicit BinReader()
+		BinReader()
 		{
 			flag = true;
 		}
 		explicit BinReader(const char* Filename)
 		{
 			flag = false;
-			fin = new std :: ifstream(Filename);
+			fin = new std :: ifstream(Filename, std::ifstream::binary);
 		}
 		explicit BinReader(const std :: string &Filename)
 		{
 			flag = false;
 			//std::cout << "GGDFGFGFGFGFGF\n";
-			fin = new std :: ifstream(Filename.c_str());
+			fin = new std :: ifstream(Filename.c_str(), std::ifstream::binary);
 		}
-		explicit BinReader(const std :: ifstream &Stream)
+		explicit BinReader(std :: ifstream &Stream)
 		{
 			flag = true;
 			fin = &Stream;
 		}
 		bool operator () (T& var)
 		{
-			return ((*fin).read((char*) &var, sizeof(T)));
+			return (fin->read((char*) &var, sizeof(T)));
 		}
 
 	private:
