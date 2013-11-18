@@ -56,6 +56,7 @@ void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_
     if (ccin->eos()) {
         qsort(buffer, n, CC);
         sort_utils::writeBlock(ccout, buffer, n);
+        free(buffer);
         return;
     }
     do {
@@ -92,6 +93,7 @@ void bigSort(Reader<T> * ccin, Writer<T> * ccout, cmp * CC = new cmp(), int MAX_
     for (int i = 0; i < files.size(); i++) {
         remove(sort_utils::tempFileName(i).c_str());
     }
+    free(buffer);
 }
 
 #endif
