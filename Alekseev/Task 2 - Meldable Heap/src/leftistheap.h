@@ -3,7 +3,7 @@
 
 #include <functional>
 
-template<class T> class TestAccess;
+template<class T> class Asserted;
 
 template<typename KeyT, class CompareT = std::less<KeyT> >
 class LeftistHeap
@@ -114,11 +114,16 @@ public:
         another.root = nullptr;
     }
 
+    Compare * comparator()
+    {
+        return &compare;
+    }
+
 private:
     typedef std::size_t Height;
 
     friend class LeftistHeap<Key, Compare>::Index;
-    friend class TestAccess<LeftistHeap<Key, Compare>>;
+    friend class Asserted<LeftistHeap<Key, Compare>>;
 
     struct Node
     {

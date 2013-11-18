@@ -3,6 +3,8 @@
 #include "leftistheap.h"
 #include "dijkstra.h"
 
+#include <typeinfo>
+
 TEST(Stress, Dijkstra)
 {
     std::vector<std::vector<int>> cases
@@ -12,9 +14,10 @@ TEST(Stress, Dijkstra)
     };
     for (int i = 0; i < 1000; ++i)
     {
-        auto testcase = RandomGraphGenerator::gen(i, cases[i%cases.size()][0], cases[i%cases.size()][1], cases[i%cases.size()][2]);
+        auto param = cases[i%cases.size()];
+        auto testcase = RandomGraphGenerator::gen(i, param[0], param[1], param[2]);
 
         Dijkstra d(testcase);
-        d.solve(0);
+        d.solve<Asserted<LeftistHeap<std::pair<long long, int>>>>(0);
     }
 }

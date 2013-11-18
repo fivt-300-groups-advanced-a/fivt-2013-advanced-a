@@ -12,7 +12,7 @@
 #include "leftistheap.h"
 
 template<class T>
-class TestAccess{};
+class Asserted{};
 
 //template<class T>
 //TestAccess<T> acc(T* ptr)
@@ -36,7 +36,7 @@ ostream& operator << (ostream& out, const std::pair<A, B>& pair)
 }
 
 template<typename KeyT, class CompareT>
-class TestAccess<LeftistHeap<KeyT, CompareT>>
+class Asserted<LeftistHeap<KeyT, CompareT>>
 {
 public:
     typedef KeyT     Key;
@@ -46,23 +46,69 @@ public:
     typedef typename Heap::Node       Node;
     typedef typename Heap::NodePtr    NodePtr;
     typedef typename Heap::Height     Height;
+    typedef typename Heap::Index      Index;
 
-    TestAccess(Heap * heap): heap(heap) {}
+    Asserted(const Compare& compare = Compare()): heap(compare) {}
+
+    bool isEmpty()
+    {
+        return heap.isEmpty();
+    }
+
+    Compare * comparator()
+    {
+        return heap.comparator();
+    }
+
+    template<typename... Args>
+    Index emplace(const Args&... args)
+    {
+        Index ret = heap.emplace(args...);
+        controlSet.emplace(args...);
+        assertInvariants();
+        assertKeysSet(controlSet);
+        return ret;
+    }
+    Index emplace(const Key key)
+    {
+        Index ret = heap.push(key);
+        controlSet.push(key);
+        assertInvariants();
+        assertKeysSet(controlSet);
+        return ret;
+    }
+    Index set(Index at, const Key &key)
+    {
+        controlSet.erase(controlSet.find(*at));
+        Index ret = heap.set(at, key);
+        controlSet.insert(key);
+        assertInvariants();
+        assertKeysSet(controlSet);
+        return ret;
+    }
+    Key takeTop()
+    {
+        Key ret = std::move(heap.takeTop());
+        controlSet.erase(ret);
+        assertInvariants();
+        assertKeysSet(controlSet);
+        return ret;
+    }
 
     void assertKeysSet(std::multiset<Key, Compare> keys)
     {
-        assertKeysSet(heap->root, keys);
-        EXPECT_TRUE(keys.empty());
+        assertKeysSet(heap.root, keys);
+        ASSERT_TRUE(keys.empty());
     }
 
     void assertInvariants()
     {
-        assertInvariants(heap->root);
+        assertInvariants(heap.root);
     }
 
     std::string printableTraverse()
     {
-        return printableTraverse(heap->root, 0);
+        return printableTraverse(heap.root, 0);
     }
 
 private:
@@ -86,12 +132,12 @@ private:
         if (root->leftSon)
         {
             ASSERT_EQ(root, root->leftSon->parent) << error("bad parent", root->leftSon);
-            ASSERT_TRUE(heap->compare(root->key, root->leftSon->key)) << error("less than parent", root->leftSon);
+            ASSERT_TRUE(heap.compare(root->key, root->leftSon->key)) << error("less than parent", root->leftSon);
         }
         if (root->rightSon)
         {
             ASSERT_EQ(root, root->rightSon->parent) << error("bad parent", root->rightSon);
-            ASSERT_TRUE(heap->compare(root->key, root->rightSon->key)) << error("less than parent", root->rightSon);
+            ASSERT_TRUE(heap.compare(root->key, root->rightSon->key)) << error("less than parent", root->rightSon);
         }
         Height leftH = root->leftSon ? root->leftSon->minHeight : 0;
         Height rightH = root->rightSon ? root->rightSon->minHeight : 0;
@@ -134,13 +180,14 @@ private:
         std::string ret;
         ret += msg + "\n" + repr(badPlace, 0) + "\ntraverse:\n\n";
         this->badPlace = badPlace;
-        ret += printableTraverse(heap->root, 0);
+        ret += printableTraverse(heap.root, 0);
         badPlace = nullptr;
         return ret;
     }
 
-    Heap * heap;
+    Heap heap;
     NodePtr badPlace;
+    std::multiset<Key, Compare> controlSet;
 };
 
 #endif // TESTUTILS_H
