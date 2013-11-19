@@ -5,9 +5,10 @@
 
 #include <list>
 
-template<typename DataType, typename Comparator> class BinomialHeap;
-template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifier;
-template<typename DataType, typename Comparator> class BinomialHeapIndex;
+template <typename DataType, typename Comparator> class BinomialHeap;
+template <typename DataType, typename Comparator> class BinomialHeapNodeIdentifier;
+template <typename DataType, typename Comparator> class BinomialHeapIndex;
+template <typename Class> class TestAccess;
 
 /**
  * Class representing const reference to a heap node
@@ -51,8 +52,10 @@ template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifie
  *	 - decrease value of element
  * Uses user-defined comparator
  */
-template<typename DataType, typename Comparator> class BinomialHeap
+template<typename DataType, typename Comparator = std::less<DataType> > class BinomialHeap
 {
+	friend class TestAccess< BinomialHeap<DataType, Comparator> >;
+
 	private:
 		typedef BinomialHeapNode<DataType, Comparator> NodeType;
 		typedef typename std::list<NodeType*>::iterator IndexType;
@@ -76,7 +79,7 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			clear();
 		}
 
-		int size() const
+		std::size_t size() const
 		{
 			return indexList.size();
 		}
@@ -277,10 +280,10 @@ template<typename DataType, typename Comparator> class BinomialHeap
 					}
 					cur = nextNode;
 				}
-				else
+				else  // proceed
 				{
 					prev = cur;
-					cur = cur->listLink; // proceed
+					cur = cur->listLink;
 				}
 			node = 0; // second heap is now empty
 		}

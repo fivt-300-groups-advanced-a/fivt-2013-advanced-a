@@ -25,17 +25,17 @@ template<typename DataType, typename Comparator> class BinomialHeapNode
 			if (listLink) delete listLink;
 		}
 
-		const BinomialHeapNode* getListLink() const
+		BinomialHeapNode* getListLink() const
 		{
 			return listLink;
 		}
 
-		const BinomialHeapNode* getParent() const
+		BinomialHeapNode* getParent() const
 		{
 			return parent;
 		}
 
-		const BinomialHeapNode* getLeftChild() const
+		BinomialHeapNode* getLeftChild() const
 		{
 			return leftChild;
 		}
@@ -68,10 +68,6 @@ template<typename DataType, typename Comparator> class BinomialHeapNode
 
 		void merge(BinomialHeapNode<DataType, Comparator> *node)
 		{
-			assert(children == node->children);
-			assert(parent == 0);
-			assert(node->parent == 0);
-
 			node->parent = this;
 			node->listLink = leftChild;
 			leftChild = node;
