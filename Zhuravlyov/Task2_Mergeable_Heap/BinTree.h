@@ -4,6 +4,12 @@
 #include <vector>
 #include "unHeap.h"
 
+template <class Structure >
+struct ValueReference
+{
+	Structure* node;
+};
+
 template <class Type,class Comparator>
 class BinominalyTree{
 
@@ -14,7 +20,7 @@ private:
 	std::vector<BinominalyTree<Type,Comparator>*> childs;
 	BinominalyTree<Type,Comparator>* parent;
 	Type info;
-	unsigned char my_parent_index;
+	ValueReference<BinT>* backward_pointer;
 
 public:
 	BinominalyTree(Type element) {
@@ -29,13 +35,18 @@ public:
 	template <class Type,class Comparator> friend bool check_invariants_for_trees(BinT* tree);
 	template <class Type,class Comparator> friend int quantity(BinT* tree);
 	template <class Type,class Comparator> friend void clear_tree(BinT* tree);
-	template <class Type,class Comparator> friend void replace(BinT* low,BinT* top);
+	template <class Type,class Comparator> friend void replace(BinT*& low,BinT*& top);
 	template <class Type,class Comparator> friend void refresh_parents(BinT*& pointer);
 	template <class Type,class Comparator> friend void getresult(BinT*& first,BinT*& second,BinT*& carry);
 
 	Type top()
 	{
 		return info;
+	}
+
+	~BinominalyTree()
+	{
+		delete backward_pointer;
 	}
 };
 
