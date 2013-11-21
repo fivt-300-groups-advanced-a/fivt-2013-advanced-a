@@ -13,7 +13,7 @@ class ValPointer
   public:
     ValPointer()
     {
-      _ref = NULL;
+      _ref = nullptr;
     }
     ValPointer(ValHolder<T>* ref)
     {
@@ -28,7 +28,8 @@ template <class T>
 class ValHolder
 {
   public:
-    ValHolder(T val, BiTree<T>* pos = NULL)
+    ValHolder() {}
+    ValHolder(T val, BiTree<T>* pos = nullptr)
     {
       _val = val;
       _pos = pos;
@@ -38,6 +39,7 @@ class ValHolder
       _pos = pos;
     }
   friend class TestAccess<ValHolder<T>,T>;
+  friend class BiTree<T>;
   private:
     T _val;
     BiTree<T>* _pos;
@@ -46,10 +48,27 @@ class ValHolder
 template <class T>
 class BiTree
 {
+  public:
+    BiTree()
+    {
+      _child.clear();
+      _parent = nullptr;
+      _level = 0;
+      _pval = nullptr;
+    }
+    BiTree(T val)
+    {
+      _child.clear();
+      _parent = nullptr;
+      _level = 1;
+      _pval = std::unique_ptr<ValHolder<T> > (new ValHolder<T>);
+      _pval->_val = val;
+      _pval->_pos = this;
+    }
   friend class TestAccess<BiTree<T>,T>;
   private:
     std::vector <std::unique_ptr <BiTree <T> > > _child;
     BiTree<T>* _parent;
     int _level;
-    std::unique_ptr<ValHolder<T> > _val;
+    std::unique_ptr<ValHolder<T> > _pval;
 };
