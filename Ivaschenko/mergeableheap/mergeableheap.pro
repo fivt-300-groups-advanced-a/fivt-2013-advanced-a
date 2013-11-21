@@ -12,5 +12,6 @@ SOURCES +=
 
 HEADERS += \
     model/binomialheap.h \
-    model/binomialheapnode.h
+    model/binomialheapnode.h \
+    model/testaccess.h
 

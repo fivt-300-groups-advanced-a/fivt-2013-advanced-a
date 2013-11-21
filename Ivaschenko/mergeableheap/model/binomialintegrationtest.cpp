@@ -8,8 +8,6 @@
 #include <vector>
 #include <queue>
 
-// TODO: integration tests
-
 TEST(BinomialHeapIntegration, HeapHandIntSort)
 {
 	std::vector< std::vector<int> > tests =
@@ -268,7 +266,10 @@ TEST(BinomialHeapIntegration, DijkstraWithHeap)
 		TestCaseGenerator::genTestCaseFixedProb(5, 0.8, 10, 6),
 		TestCaseGenerator::genTestCaseFixedProb(10, 0.2, 10, 7),
 		TestCaseGenerator::genTestCaseFixedProb(10, 0.5, 10, 8),
-		TestCaseGenerator::genTestCaseFixedProb(10, 0.8, 10, 9)
+		TestCaseGenerator::genTestCaseFixedProb(10, 0.8, 10, 9),
+		TestCaseGenerator::genTestCaseFixedProb(20, 0.3, 1000, 10),
+		TestCaseGenerator::genTestCaseFixedProb(20, 0.6, 1000, 11),
+		TestCaseGenerator::genTestCaseFixedProb(20, 0.9, 1000, 12)
 	};
 
 	for (std::size_t i = 0; i < tests.size(); ++i)

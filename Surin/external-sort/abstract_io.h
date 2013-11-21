@@ -6,12 +6,14 @@ class Reader {
 public:
     virtual Reader<T> & operator >>(T & x) = 0;
     virtual bool eos() = 0;
+    virtual ~Reader(){}
 };
 
 template<class T>
 class Writer {
 public:
     virtual Writer<T> & operator <<(const T & x) = 0;
+    virtual ~Writer(){}
 };
 
 #endif

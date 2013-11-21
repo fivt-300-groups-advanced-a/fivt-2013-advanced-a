@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++11 -ggdb -pg
+CXXFLAGS := -std=c++11 -O3
 
 main: clean main.o
 	$(CXX) $(CXXFLAGS) ./main.o -o main

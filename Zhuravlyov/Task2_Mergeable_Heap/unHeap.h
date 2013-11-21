@@ -7,41 +7,27 @@
 
 template < class Type,class Comparator >
 class BinominalyHeap{
+public:
 
-typedef BinominalyTree<Type,Comparator> BinT;
-
-template < class Type,class Comparator > friend class BinominalyTree;
+typedef ValueReference<BinominalyTree<Type,Comparator>>* pointer;
 
 private:
+
+	typedef BinominalyTree<Type,Comparator> BinT;
+
+	template < class Type,class Comparator > friend class BinominalyTree;
+
 	std::vector<BinT*> trees;
-
-	void refresh_tree_roots()
-	{
-		for (unsigned int i=0;i<trees.size();i++)
-		if (trees[i])
-			if (trees[i]->parent) trees[i]=trees[i]->parent;
-	}
-
-	void delete_without_freeing(BinT* pointer)
-	{
-		sift_to_top(pointer);
-		refresh_tree_roots();
-		BinominalyHeap temporary;
-		temporary.trees=pointer->childs;
-		for (unsigned int i=0;i<trees.size();i++)
-			if (trees[i]==pointer) trees[i]=NULL;
-		while (trees.size()>0 && !trees[trees.size()-1]) 
-			trees.pop_back();
-		for (unsigned int i=0;i<temporary.trees.size();i++)
-			temporary.trees[i]->parent=NULL;
-		merge(temporary);
-	}
 
 	void add_by_pointer(BinT*& pointer)
 	{
-		BinominalyHeap<Type,Comparator> fictive_heap;
-		fictive_heap.trees.push_back(pointer);
-		merge(fictive_heap);
+		if (trees.size()==0) trees.push_back(pointer);
+		else if (trees[0]==NULL) trees[0]=pointer;
+		else {
+			BinominalyHeap<Type,Comparator> fictive_heap;
+			fictive_heap.trees.push_back(pointer);
+			merge(fictive_heap);
+		}
 	}
 
 	int find_max_ind()
@@ -55,13 +41,21 @@ private:
 		return max_ind;
 	}
 
-public:
-	typedef BinT* pointer;
-
-	BinominalyHeap()
+	void erase_by_maxind(const int &max_ind)
 	{
-		trees.resize(0);
+		BinominalyHeap temporary;
+		temporary.trees=trees[max_ind]->childs;
+		delete trees[max_ind];
+		trees[max_ind]=NULL;
+		while (trees.size()>0 && trees[trees.size()-1]==NULL) 
+			trees.pop_back();
+		for (unsigned int i=0;i<temporary.trees.size();i++)
+			temporary.trees[i]->parent=NULL;
+		merge(temporary);
 	}
+
+public:
+	BinominalyHeap() {}
 
 	bool empty()
 	{
@@ -80,24 +74,19 @@ public:
 		if (!trees.empty()) {
 			int max_ind=find_max_ind();
 			Type result=trees[max_ind]->top();
-			BinominalyHeap temporary;
-			temporary.trees=trees[max_ind]->childs;
-			delete trees[max_ind];
-			trees[max_ind]=NULL;
-			while (trees.size()>0 && trees[trees.size()-1]==NULL) 
-				trees.pop_back();
-			for (unsigned int i=0;i<temporary.trees.size();i++)
-				temporary.trees[i]->parent=NULL;
-			merge(temporary);
+			erase_by_maxind(max_ind);
 			return result;
 		}
 	}
 
-	BinT* insert(const Type &element)
+	pointer insert(const Type &element)
 	{
 		BinT* back_pointer=new BinT(element);
 		add_by_pointer(back_pointer);
-		return back_pointer;
+		pointer unique_pointer=new ValueReference<BinT>;
+		unique_pointer->node=back_pointer;
+		back_pointer->backward_pointer=unique_pointer;
+		return unique_pointer;
 	}
 
 	void merge(BinominalyHeap<Type,Comparator>& assigned) {
@@ -111,33 +100,32 @@ public:
 		assigned.trees.resize(0);
 	}
 
-	void delete_element(BinT*& pointer) 
+	void delete_element(pointer& pointer) 
 	{
-		delete_without_freeing(pointer);
-		delete pointer;
+		sift_to_top(pointer->node);
+		int maxind;
+		for (unsigned int i=0;i<trees.size();i++)
+			if (pointer->node==trees[i]) maxind=i;
+		erase_by_maxind(maxind);
 		pointer=NULL;
 	}
 
-	void change_key_to(BinT* pointer,Type newValue)
+	void change_key_to(pointer& pointer,Type newValue)
 	{
 		Comparator cmp;
-		if (cmp(newValue,pointer->top()))
+		if (cmp(newValue,pointer->node->top()))
 		{
-			pointer->info=newValue;
-			sift_up(pointer);
-			refresh_tree_roots();
+			pointer->node->info=newValue;
+			sift_up(pointer->node);
 		} else {
-			delete_without_freeing(pointer);
-			pointer->info=newValue;
-			pointer->parent=NULL;
-			pointer->childs.resize(0);
-			add_by_pointer(pointer);
+			delete_element(pointer);
+			pointer=insert(newValue);
 		}
 	}
 
-	void change_key_on(BinT* pointer,Type delta)
+	void change_key_on(pointer& pointer,Type delta)
 	{
-		change_key_to(pointer,pointer->top()+delta);
+		change_key_to(pointer,(pointer->node)->top()+delta);
 	}
 
 	bool check_invariants()
@@ -153,9 +141,9 @@ public:
 		return f;
 	}
 
-	Type get_by_ptr(BinT* pointer)
+	Type get_by_ptr(pointer pointer)
 	{
-		return pointer->top();
+		return (pointer->node)->top();
 	}
 
 	~BinominalyHeap(){

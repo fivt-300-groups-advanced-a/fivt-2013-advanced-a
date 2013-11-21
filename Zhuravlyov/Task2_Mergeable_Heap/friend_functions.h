@@ -13,30 +13,17 @@
 			std::swap(first,second);
 		second->parent=first;
 		first->childs.push_back(second);
-		second->my_parent_index=first->childs.size()-1;;
 		return first;
 	}
 
 	template <class Type,class Comparator >
-	void refresh_parents(BinominalyTree<Type,Comparator>*& pointer)
+	void replace(BinominalyTree<Type,Comparator>*& low,
+				 BinominalyTree<Type,Comparator>*& top)
 	{
-		if (pointer)
-		for (unsigned int i=0;i<pointer->childs.size();i++)
-			pointer->childs[i]->parent=pointer;
-	}
-
-	template <class Type,class Comparator >
-	void replace(BinominalyTree<Type,Comparator>* low,
-				 BinominalyTree<Type,Comparator>* top)
-	{
-		if (top->parent) top->parent->childs[top->my_parent_index]=low;
-		low->parent=top->parent;
-		top->parent=low;  
-		top->childs[low->my_parent_index]=top;
-		top->childs.swap(low->childs);
-		std::swap(low->my_parent_index,top->my_parent_index);
-		refresh_parents(low);
-		refresh_parents(top);
+		std::swap(low->info,top->info);
+		std::swap(low->backward_pointer->node,top->backward_pointer->node);
+		std::swap(low->backward_pointer,top->backward_pointer);
+		low=top;
 	}
 
 	template <class Type,class Comparator >
@@ -97,9 +84,9 @@
 				   BinominalyTree<Type,Comparator>*& second,
 				   BinominalyTree<Type,Comparator>*& carry)
 	{
+		if (second==NULL && carry==NULL) return;
 		if (first==NULL && second==NULL) { first=carry;carry=NULL;}
 		else if (first==NULL && carry==NULL) { first=second;second=NULL; }
-		else if (second==NULL && carry==NULL) return;
 		else if (first==NULL) { carry=mergeTrees(second,carry);second=NULL;first=NULL; }
 		else if (second==NULL) { carry=mergeTrees(first,carry);second=NULL;first=NULL; }
 		else if (carry==NULL) { carry=mergeTrees(first,second);second=NULL;first=NULL; }
