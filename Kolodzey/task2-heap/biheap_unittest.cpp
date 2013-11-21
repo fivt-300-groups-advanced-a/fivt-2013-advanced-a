@@ -81,6 +81,7 @@ TEST(ValPointer, Constructor)
   EXPECT_EQ(a_pv._ref(), &v);
 }
 
+/*
 TEST(BiTree, trivialConstructor)
 {
   BiTree<int> t;
@@ -91,6 +92,7 @@ TEST(BiTree, trivialConstructor)
   EXPECT_EQ(a_t._parent(), nullptr);
   EXPECT_EQ(a_t._level(), 0);
 }
+*/
 
 TEST(BiTree, nontrivialConstructor)
 {
@@ -145,13 +147,15 @@ TEST(BiTree, badCallEat)
 {
   std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
   
+  /*
   std::unique_ptr<BiTree<int> > d (new BiTree<int>);
   BiTree<int>* pd = &(*d);
   EXPECT_EQ(a->eat(d), 0);
   EXPECT_EQ(pd, &(*d));
-
+  
   std::unique_ptr<BiTree<int> > e (new BiTree<int>);
   EXPECT_EQ(d->eat(e), 0);
+  */
 
   std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
   EXPECT_EQ(a->eat(b), 1);
@@ -180,11 +184,42 @@ TEST(BiTree, swapPtrs)
   EXPECT_EQ(a_v._pos(), a_a._bitree);
   EXPECT_EQ(a_v._val(), 7);
   TestAccess<BiTree<int>,int> a_b;
-  a_b._bitree = &(*b);
+  a_b._bitree = &(*b); //жуткая конструкция, заменить на get
   ValHolder<int> u = *(a_b._pval());
   TestAccess<ValHolder<int>,int> a_u;
   a_u._valholder = &u;
   EXPECT_EQ(a_u._pos(), a_b._bitree);
   EXPECT_EQ(a_u._val(), 8);
   //заметь, что в этом тесте *v совсем не равен a._pval, это другая переменная
+}
+
+TEST(BiTreeFunc, rehang)
+{
+  BiTree<char> t('a');
+  BiTree<char> s('b');
+  ValPointer<char> pa = t.get_pval();
+  ValPointer<char> pb = s.get_pval();
+  BiTreeFunc<char>::rehang(pa, pb);
+
+  TestAccess<BiTree<char>,char> a_t;
+  a_t._bitree = &t;
+  ValHolder<char>* b = (a_t._pval()).get();
+  TestAccess<ValHolder<char>,char> a_b;
+  a_b._valholder = b;
+  EXPECT_EQ(a_b._pos(), a_t._bitree);
+  EXPECT_EQ(a_b._val(), 'b');
+  TestAccess<ValPointer<char>,char> a_pb;
+  a_pb._valpointer = &pb;
+  EXPECT_EQ(a_pb._ref(), b);
+
+  TestAccess<BiTree<char>,char> a_s;
+  a_s._bitree = &s;
+  ValHolder<char>* a = (a_s._pval()).get();
+  TestAccess<ValHolder<char>,char> a_a;
+  a_a._valholder = a;
+  EXPECT_EQ(a_a._pos(), a_s._bitree);
+  EXPECT_EQ(a_a._val(), 'a');
+  TestAccess<ValPointer<char>,char> a_pa;
+  a_pa._valpointer = &pa;
+  EXPECT_EQ(a_pa._ref(), a);
 }
