@@ -100,9 +100,91 @@ TEST(BiTree, nontrivialConstructor)
   EXPECT_EQ(a_t._child().size(), 0);
   EXPECT_EQ(a_t._parent(), nullptr);
   EXPECT_EQ(a_t._level(), 1);
-  ValHolder<int> v = *a_t._pval();
+  ValHolder<int> v = *(a_t._pval());
   TestAccess<ValHolder<int>, int> a_v;
   a_v._valholder = &v;
   EXPECT_EQ(a_v._val(), 7);
-  EXPECT_EQ(a_v._pos(), &t);
+  EXPECT_EQ(a_v._pos(), a_t._bitree);
+}
+
+TEST(BiTree, rightCallEat)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  
+  TestAccess<BiTree<int>,int> a_a;
+  a_a._bitree = &(*a);
+  ValHolder<int> k = *(a_a._pval());
+  TestAccess<ValHolder<int>, int> a_k;
+  a_k._valholder = &k;
+  EXPECT_EQ(a_k._val(), 8);
+  EXPECT_EQ(a_k._pos(), a_a._bitree);
+  
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  bool flag = a->eat(b);
+  EXPECT_EQ(flag, 1);
+  EXPECT_EQ(b, nullptr);
+  EXPECT_EQ(a_a._level(), 2);
+  EXPECT_EQ(a_a._parent(), nullptr);
+  EXPECT_EQ(a_a._child().size(), 1);
+  TestAccess<ValHolder<int>,int> a_v;
+  a_v._valholder = &(*a_a._pval());
+  EXPECT_EQ(a_v._val(), 8);
+  EXPECT_EQ(a_v._pos(), a_a._bitree);
+  TestAccess<BiTree<int>,int> a_b;
+  a_b._bitree = &(*(a_a._child()[0]));
+  EXPECT_EQ(a_b._level(), 1);
+  EXPECT_EQ(a_b._parent(), a_a._bitree);
+  EXPECT_EQ(a_b._child().size(), 0);
+  TestAccess<ValHolder<int>,int> a_u;
+  a_u._valholder = &(*a_b._pval());
+  EXPECT_EQ(a_u._val(), 7);
+  EXPECT_EQ(a_u._pos(), a_b._bitree);
+}
+
+TEST(BiTree, badCallEat)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  
+  std::unique_ptr<BiTree<int> > d (new BiTree<int>);
+  BiTree<int>* pd = &(*d);
+  EXPECT_EQ(a->eat(d), 0);
+  EXPECT_EQ(pd, &(*d));
+
+  std::unique_ptr<BiTree<int> > e (new BiTree<int>);
+  EXPECT_EQ(d->eat(e), 0);
+
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  EXPECT_EQ(a->eat(b), 1);
+  EXPECT_EQ(nullptr, &(*b));
+
+  EXPECT_EQ(b->eat(a), 0);
+
+  EXPECT_EQ(a->eat(b), 0);
+
+  std::unique_ptr<BiTree<int> > c (new BiTree<int> (6));
+  BiTree<int>* pc = &(*c);
+  EXPECT_EQ(a->eat(c), 0);
+  EXPECT_EQ(pc, &(*c));
+}
+
+TEST(BiTree, swapPtrs)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  swap(a,b);
+  TestAccess<BiTree<int>,int> a_a;
+  a_a._bitree = &(*a);
+  ValHolder<int> v = *(a_a._pval());
+  TestAccess<ValHolder<int>,int> a_v;
+  a_v._valholder = &v;
+  EXPECT_EQ(a_v._pos(), a_a._bitree);
+  EXPECT_EQ(a_v._val(), 7);
+  TestAccess<BiTree<int>,int> a_b;
+  a_b._bitree = &(*b);
+  ValHolder<int> u = *(a_b._pval());
+  TestAccess<ValHolder<int>,int> a_u;
+  a_u._valholder = &u;
+  EXPECT_EQ(a_u._pos(), a_b._bitree);
+  EXPECT_EQ(a_u._val(), 8);
+  //заметь, что в этом тесте *v совсем не равен a._pval, это другая переменная
 }

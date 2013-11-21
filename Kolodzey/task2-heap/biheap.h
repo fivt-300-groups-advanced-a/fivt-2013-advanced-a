@@ -28,7 +28,6 @@ template <class T>
 class ValHolder
 {
   public:
-    ValHolder() {}
     ValHolder(T val, BiTree<T>* pos = nullptr)
     {
       _val = val;
@@ -56,14 +55,35 @@ class BiTree
       _level = 0;
       _pval = nullptr;
     }
+    //Важно, трудноловимая, но возможная к возникновению бага:
+    //Если попробовать присвоить по указателю свежесконструированный BiTree
+    //То ссылка из соответствующего ValHolder будет вести не туда!
+    //Она будет вести туда, где сконструировался новый BiTree
+    //А конструируется он явно не в месте, занятым пустым BiTree,
+    //Созданным при создании указателя
     BiTree(T val)
     {
       _child.clear();
       _parent = nullptr;
       _level = 1;
-      _pval = std::unique_ptr<ValHolder<T> > (new ValHolder<T>);
-      _pval->_val = val;
-      _pval->_pos = this;
+      _pval = std::unique_ptr<ValHolder<T> > (new ValHolder<T>(val, this));
+    }
+    bool eat(std::unique_ptr<BiTree<T> >& pt)
+    {
+      if (this == nullptr)
+        return 0;
+      if (pt == nullptr)
+        return 0;
+      if (_level != (*pt)._level)
+        return 0;
+      if (_level == 0)
+        return 0;
+      ++_level;
+      _child.push_back(nullptr);
+      _child.back().swap(pt);
+      _child.back()->_parent = this;
+      return 1;
+
     }
   friend class TestAccess<BiTree<T>,T>;
   private:
