@@ -1,4 +1,5 @@
 #include <utility>
+#include <string>
 #include "gtest/gtest.h"
 #include "biheap.h"
 
@@ -222,4 +223,76 @@ TEST(BiTreeFunc, rehang)
   TestAccess<ValPointer<char>,char> a_pa;
   a_pa._valpointer = &pa;
   EXPECT_EQ(a_pa._ref(), a);
+}
+
+TEST(BiTree, is_son)
+{
+  std::unique_ptr<BiTree<std::string> > t (new BiTree<std::string>("Sasha"));
+  ValPointer<std::string> vpSasha = t->get_pval();
+  std::unique_ptr<BiTree<std::string> > s (new BiTree<std::string>("Masha"));
+  ValPointer<std::string> vpMasha = s->get_pval();
+  EXPECT_EQ(t->is_son(vpSasha), 1);
+  EXPECT_EQ(s->is_son(vpMasha), 1);
+  EXPECT_EQ(s->is_son(vpSasha), 0);
+  EXPECT_EQ(t->is_son(vpMasha), 0);
+  BiTreeFunc<std::string>::rehang(vpMasha, vpSasha);
+  EXPECT_EQ(t->is_son(vpSasha), 0);
+  EXPECT_EQ(s->is_son(vpMasha), 0);
+  EXPECT_EQ(s->is_son(vpSasha), 1);
+  EXPECT_EQ(t->is_son(vpMasha), 1);
+  s->eat(t); //t is nullptr now
+  EXPECT_EQ(t->is_son(vpSasha), 0);
+  EXPECT_EQ(s->is_son(vpMasha), 1);
+  EXPECT_EQ(s->is_son(vpSasha), 1);
+  EXPECT_EQ(t->is_son(vpMasha), 0);
+  EXPECT_EQ(s->get_val(), "Sasha");
+}
+
+TEST(BiTree, lift)
+{
+  std::unique_ptr<BiTree<std::string> > t (new BiTree<std::string>("Sasha"));
+  std::unique_ptr<BiTree<std::string> > s (new BiTree<std::string>("Masha"));
+  ValPointer<std::string> vpMasha = s->get_pval();
+  t->eat(s);
+  EXPECT_EQ(t->get_val(), "Sasha");
+  t->lift(vpMasha);
+  EXPECT_EQ(t->get_val(), "Masha");
+  TestAccess<BiTree<std::string>,std::string> a_t;
+  a_t._bitree = t.get();
+  EXPECT_EQ((a_t._child()[0])->get_val(), "Sasha");
+}
+
+TEST(BiTreeFunc, merge)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  std::unique_ptr<BiTree<int> > c (nullptr);
+  BiTreeFunc<int>::merge(a, b, c, std::less<int>());
+  EXPECT_EQ(a, nullptr);
+  EXPECT_EQ(b, nullptr);
+  EXPECT_EQ(c->get_val(), 7);
+  TestAccess<BiTree<int>,int> access_c;
+  BiTree<int>* temp = c.get();
+  access_c._bitree = temp;
+  EXPECT_EQ((access_c._child()[0])->get_val(), 8);
+}
+
+TEST(BiTreeFunc, cutroot)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  std::unique_ptr<BiTree<int> > d (new BiTree<int> (9));
+  std::unique_ptr<BiTree<int> > e (new BiTree<int> (11));
+  a->eat(b);
+  d->eat(e);
+  a->eat(d);
+  std::list<std::unique_ptr<BiTree<int> > > chlist;
+  BiTreeFunc<int>::cutroot(a, chlist);
+  EXPECT_EQ(a, nullptr);
+  EXPECT_EQ((chlist.front())->get_val(), 7);
+  EXPECT_EQ((chlist.back())->get_val(), 9);
+  TestAccess<BiTree<int>,int> access_ch1;
+  access_ch1._bitree = (chlist.back()).get();
+  EXPECT_EQ(access_ch1._level(), 2);
+  EXPECT_EQ(((access_ch1._child())[0])->get_val(), 11);
 }
