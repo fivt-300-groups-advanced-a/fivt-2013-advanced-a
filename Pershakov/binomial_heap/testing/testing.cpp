@@ -5,11 +5,12 @@
 #include <ctime>
 
 #include "../binomial_heap.h"
+#include "stress_test.h"
 
 /*
  * Integration test by heapsorting vector<int>
  */
-TEST(IntegrationTest, TestByHeapsortOfInt){
+/*TEST(IntegrationTest, TestByHeapsortOfInt){
     srand(time(0));
     int sz = rand() % 10000;
     std::vector<int> to_sort(sz);
@@ -21,10 +22,12 @@ TEST(IntegrationTest, TestByHeapsortOfInt){
     for (int i = 0; i < sz; i++)
         heap.insert(to_sort[i]);
     for (int i = 0; i < sz; i++){
-        ASSERT_EQ(heap.extractMin(), ans[i]);
+        ASSERT_EQ(heap.extractMin().first, ans[i]);
+        ASSERT_EQ(heap.size(), sz - i - 1);
     }
     ASSERT_TRUE(heap.empty());
-}
+    ASSERT_EQ(heap.size(), 0);
+}*/
 
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
