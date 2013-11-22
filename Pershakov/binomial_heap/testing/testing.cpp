@@ -10,7 +10,7 @@
 /*
  * Integration test by heapsorting vector<int>
  */
-/*TEST(IntegrationTest, TestByHeapsortOfInt){
+TEST(IntegrationTest, TestByHeapsortOfInt){
     srand(time(0));
     int sz = rand() % 10000;
     std::vector<int> to_sort(sz);
@@ -27,7 +27,7 @@
     }
     ASSERT_TRUE(heap.empty());
     ASSERT_EQ(heap.size(), 0);
-}*/
+}
 
 int main(int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);

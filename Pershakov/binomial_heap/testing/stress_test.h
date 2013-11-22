@@ -107,10 +107,7 @@ TEST(StressTest, TestWithVector){
     Heap heap;
     Slow slow_heap;
 
-    //int k = time(0);
-    int k = 1385158347;
-    srand(k);
-    std::cerr << k << std::endl;
+    srand(time(0));
 
     //insert some elements
     insert(heap, slow_heap);
@@ -149,8 +146,13 @@ TEST(StressTest, TestWithVector){
         decreaseKey(heap, slow_heap);
         extract(heap, slow_heap);
     }
-
-
+    
+    // extract elements while it's not empty
+    while (!heap.empty()){
+        check(heap, slow_heap);
+        heap.extractMin();
+        slow_heap.extractMin();
+    }
 }
 
 

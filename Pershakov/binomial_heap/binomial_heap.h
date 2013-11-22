@@ -25,7 +25,7 @@ template<class T> class Node {
         explicit Node(T value){
             key = value;
             pred = NULL;
-            id = NodeId<T>(this);
+            id = new NodeId<T>(this);
         }
 
         ~Node(){
@@ -35,7 +35,7 @@ template<class T> class Node {
         Node *pred;
         List child;
         int degree;
-        NodeId<T> id;
+        NodeId<T> *id;
 };
 
 template<class T> class NodeId {
@@ -157,7 +157,7 @@ template<class T, class Comparator> class BinomialHeap {
 
         NodeIdPtr insert(T value){
             BinomialHeap<T, Comparator> new_heap(value);
-            NodeIdPtr ans = &(*new_heap.roots.begin())->id;
+            NodeIdPtr ans = (*new_heap.roots.begin())->id;
             merge(new_heap);
             return ans;
         }
@@ -168,7 +168,7 @@ template<class T, class Comparator> class BinomialHeap {
             Iterator min_it = findMin();
             T min_val = (*min_it)->key;
             BinomialHeap<T, Comparator> new_heap(**min_it);
-            NodeIdPtr id = &((*min_it)->id);
+            NodeIdPtr id = (*min_it)->id;
             delete *min_it;
             roots.erase(min_it);
             merge(new_heap);
@@ -208,9 +208,11 @@ template<class T, class Comparator> class BinomialHeap {
 
         void swap(HeapNode *a, HeapNode *b){
             std::swap(a->key, b->key);
-            HeapNode *buf = a->id.node_ptr;
-            a->id.node_ptr = b->id.node_ptr;
-            b->id.node_ptr = buf;
+            NodeIdPtr buf = a->id;
+            a->id = b->id;
+            b->id = buf;
+            a->id->node_ptr = a;
+            b->id->node_ptr = b;
         }
 
         void destructorDfs(HeapNode *node){
