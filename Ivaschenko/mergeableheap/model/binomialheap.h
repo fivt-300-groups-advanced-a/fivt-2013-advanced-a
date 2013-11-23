@@ -3,10 +3,15 @@
 
 #include "binomialheapnode.h"
 
-template<typename DataType, typename Comparator> class BinomialHeap;
+#include <list>
+
+template <typename DataType, typename Comparator> class BinomialHeap;
+template <typename DataType, typename Comparator> class BinomialHeapNodeIdentifier;
+template <typename DataType, typename Comparator> class BinomialHeapIndex;
+template <typename Class> class TestAccess;
 
 /**
- * Class representating const reference to a heap node
+ * Class representing const reference to a heap node
  * Identifier is always associated with data pushed into heap from creation to deletion
  */
 template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifier
@@ -15,22 +20,14 @@ template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifie
 
 	private:
 		typedef BinomialHeapNode<DataType, Comparator> NodeType;
+		typedef typename std::list<NodeType*>::iterator IndexType;
 
 	public:
 		/**
 		 * @brief BinomialHeapNodeIdentifier creates new identifier from pointer to node
 		 * @param nNode pointer to node
 		 */
-		explicit BinomialHeapNodeIdentifier(NodeType *nNode): node(nNode) {}
-
-		/**
-		 * @brief valid checks if Identifier points to nothing
-		 * @return true if identifier seems to be valid
-		 */
-		bool valid() const
-		{
-			return node != nullptr;
-		}
+		explicit BinomialHeapNodeIdentifier(IndexType nIndex): index(nIndex) {}
 
 		/**
 		 * @brief operator * provides access to data in heap
@@ -38,11 +35,11 @@ template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifie
 		 */
 		const DataType& operator * () const
 		{
-			return node->getKey();
+			return (*index)->getKey();
 		}
 
 	private:
-		NodeType *node;
+		IndexType index;
 };
 
 /**
@@ -55,10 +52,13 @@ template<typename DataType, typename Comparator> class BinomialHeapNodeIdentifie
  *	 - decrease value of element
  * Uses user-defined comparator
  */
-template<typename DataType, typename Comparator> class BinomialHeap
+template<typename DataType, typename Comparator = std::less<DataType> > class BinomialHeap
 {
+	friend class TestAccess< BinomialHeap<DataType, Comparator> >;
+
 	private:
 		typedef BinomialHeapNode<DataType, Comparator> NodeType;
+		typedef typename std::list<NodeType*>::iterator IndexType;
 
 	public:
 		typedef BinomialHeapNodeIdentifier<DataType, Comparator> NodeIdType;
@@ -66,17 +66,22 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		/**
 		 * @brief BinomialHeap creates new empty heap with default Comparator
 		 */
-		BinomialHeap(): root(nullptr), cmp() {}
+		BinomialHeap(): root(nullptr), indexList(), cmp() {}
 
 		/**
 		 * @brief BinomialHeap creates new empty heap with specified Comparator
 		 * @param nCmp comparator
 		 */
-		explicit BinomialHeap(Comparator &nCmp): root(nullptr), cmp(nCmp) {}
+		explicit BinomialHeap(Comparator &nCmp): root(nullptr), indexList(), cmp(nCmp) {}
 
 		~BinomialHeap()
 		{
 			clear();
+		}
+
+		std::size_t size() const
+		{
+			return indexList.size();
 		}
 
 		/**
@@ -96,6 +101,8 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		{
 			if (root) delete root;
 			root = 0;
+
+			indexList.clear();
 		}
 
 		/**
@@ -103,14 +110,14 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 * Complexity O(log n)
 		 * @return identifier of the smallest element
 		 */
-		NodeIdType top() const
+		DataType top() const
 		{
-			if (!root) return NodeIdType(nullptr);
+			assert(!empty());
 			NodeType *answer = root;
 			for (NodeType *current = root; current; current = current->listLink)
 				if (!answer || cmp(current->key, answer->key))
 					answer = current;
-			return NodeIdType(answer);
+			return answer->getKey();
 		}
 
 		/**
@@ -121,13 +128,16 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		 */
 		NodeIdType push(const DataType &value)
 		{
-			NodeType *newNode = new NodeType(value), *reference = newNode;
+			indexList.push_front(nullptr);
+			NodeType *newNode = new NodeType(value, indexList.begin());
+			indexList.front() = newNode;
 			mergeHeaps(newNode);
-			return NodeIdType(reference);
+			return NodeIdType(indexList.begin());
 		}
 
 		/**
-		 * @brief pop finds the smallest element in heap and erases it
+		 * @brief pop finds the smallest element in heap and erases it. Identifiers are not affected
+		 * except one for deleted element
 		 * Complexity: O(log n)
 		 * @return value of the smallest element
 		 */
@@ -144,34 +154,37 @@ template<typename DataType, typename Comparator> class BinomialHeap
 		}
 
 		/**
-		 * @brief decreaseKey decreases value of specified element
+		 * @brief decreaseKey decreases value of specified element. Identifiers are not invalidated
 		 * Complexity: O(log n)
-		 * @param nodeId identifier of element
+		 * @param id identifier of element
 		 * @param newKey it's new value
 		 */
-		void decreaseKey(const NodeIdType &nodeId, const DataType &newKey)
+		void decreaseKey(const NodeIdType &id, const DataType &newKey)
 		{
-			assert(nodeId.exist());
-			NodeType *node = nodeId.node;
+			NodeType *node = *id.index;
 			node->key = newKey;
 			while (node->parent)
 			{
 				if (!cmp(node->key, node->parent->key)) break;
-				node->swap(node->parent);
+				swapElementsData(node, node->parent);
+				node = node->parent;
 			}
 		}
 
 		/**
-		 * @brief erase erases specified element from heap
+		 * @brief erase erases specified element from heap. All indentifiers (except deleted) are not affected
 		 * Complexity: O(log n)
-		 * @param nodeId identifier of element
+		 * @param id identifier of element
 		 */
-		void erase(const NodeIdType &nodeId)
+		void erase(const NodeIdType &id)
 		{
-			assert(nodeId.valid());
-			NodeType *node = nodeId.node, prev = 0;
+			NodeType *node = *id.index, *prev = 0;
 			while (node->parent)
-				node->swap(node->parent);
+			{
+				swapElementsData(node, node->parent);
+				node = node->parent;
+			}
+
 			for (NodeType *current = root; current->listLink; current = current->listLink)
 				if (current->listLink == node)
 				{
@@ -183,18 +196,41 @@ template<typename DataType, typename Comparator> class BinomialHeap
 
 		/**
 		 * @brief merge merges one binomial heap to another.
-		 * Pointers of the second heap are still valid in another, but the second heap becomes empty
+		 * Identifiers of the second heap are still valid in another
+		 * Important: second heap becomes empty
 		 * Complexity: O(log n + log m)
 		 * @param heap a heap to merge with
 		 */
 		void merge(BinomialHeap<DataType, Comparator> &heap)
 		{
+			indexList.splice(indexList.begin(), heap.indexList); // Constant time merge lists
 			mergeHeaps(heap.root);
 		}
 
 	private:
 		NodeType *root;
+		std::list<NodeType*> indexList;
 		Comparator cmp;
+
+		void swapElementsData(NodeType* first, NodeType* second)
+		{
+			swap(*first->index, *second->index);
+			first->swap(*second);
+		}
+
+		NodeType* reverseList(NodeType *node)
+		{
+			if (!node) return nullptr;
+			NodeType *prev = 0;
+			for (NodeType *current = node;;)
+			{
+				NodeType *nextNode = current->listLink;
+				current->listLink = prev;
+				prev = current;
+				if (!nextNode) return current;
+				current = nextNode;
+			}
+		}
 
 		/**
 		 * @brief mergeHeaps merges given heap to own
@@ -244,26 +280,12 @@ template<typename DataType, typename Comparator> class BinomialHeap
 					}
 					cur = nextNode;
 				}
-				else
+				else  // proceed
 				{
 					prev = cur;
-					cur = cur->listLink; // proceed
+					cur = cur->listLink;
 				}
 			node = 0; // second heap is now empty
-		}
-
-		NodeType* reverseList(NodeType *node)
-		{
-			if (!node) return nullptr;
-			NodeType *prev = 0;
-			for (NodeType *current = node;;)
-			{
-				NodeType *nextNode = current->listLink;
-				current->listLink = prev;
-				prev = current;
-				if (!nextNode) return current;
-				current = nextNode;
-			}
 		}
 
 		/**
@@ -283,6 +305,8 @@ template<typename DataType, typename Comparator> class BinomialHeap
 			mergeHeaps(node->leftChild); // merge children to root list
 			node->listLink = 0;  // has no next element more
 			node->leftChild = 0; // has no children more
+
+			indexList.erase(node->index); // delete reference to node from index
 			delete node; // kill him! free memory!
 		}
 };
