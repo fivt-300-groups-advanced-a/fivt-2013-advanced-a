@@ -103,6 +103,22 @@ void decreaseKey(Heap &heap, Slow &slow_heap){
     }
 }
 
+void erase(Heap &heap, Slow &slow_heap){
+    int cnt = rand() % 1000;
+    check(heap, slow_heap);
+    for (int i = 0; i < cnt; i++){
+        if (heap.empty())
+            break;
+        int pos = rand() % values.size();
+        int val = values[pos];
+        values.erase(values.begin() + pos);
+        slow_heap.erase(val);
+        heap.erase(*ids[val].begin());
+        ids[val].erase(ids[val].begin());
+        check(heap, slow_heap);
+    }
+}
+
 TEST(StressTest, TestWithVector){
     Heap heap;
     Slow slow_heap;
@@ -118,19 +134,16 @@ TEST(StressTest, TestWithVector){
     // extract some elements
     extract(heap, slow_heap);
 
-    // insert some elements
     insert(heap, slow_heap);
+
+    // erase some elements
+    erase(heap, slow_heap);
 
     // decrease some keys
     decreaseKey(heap, slow_heap);
-
-    // insert some elements
     insert(heap, slow_heap);
-
-    // decrease again
     decreaseKey(heap, slow_heap);
-
-    // create another heap, insert elements there and merge with previous
+    erase(heap, slow_heap);
     create(heap, slow_heap);
 
     for (int i = 0; i < 20; i++){
@@ -143,6 +156,7 @@ TEST(StressTest, TestWithVector){
         insert(heap, slow_heap);
         create(heap, slow_heap);
         create(heap, slow_heap);
+        erase(heap, slow_heap);
         decreaseKey(heap, slow_heap);
         extract(heap, slow_heap);
     }

@@ -10,25 +10,32 @@
 template<class T> class NodeId;
 
 template<class T> class Node { 
+
+    template <class Type, class Comparator> friend class BinomialHeap;
+    template <class Type, class Comparator> friend class TestHeap;
+    template <class Type> friend class CmpNodesDegree;
+    template <class Type> friend class NodeId;
+
     private:
-        template <class Type, class Comparator> friend class BinomialHeap;
-        template <class Type> friend class CmpNodesDegree;
-        template <class Type> friend class NodeId;
 
         typedef std::list<Node<T>*> List;
         
         Node(){
             key = 0;
             pred = NULL;
+            id = NULL;
+            degree = 0;
         }
 
         explicit Node(T value){
             key = value;
             pred = NULL;
             id = new NodeId<T>(this);
+            degree = 0;
         }
 
         ~Node(){
+            delete id;
         }
 
         T key;
@@ -39,9 +46,12 @@ template<class T> class Node {
 };
 
 template<class T> class NodeId {
+
+    template <class Type, class Comparator> friend class BinomialHeap;
+    template <class Type, class Comparator> friend class TestHeap;
+    template <class Type> friend class Node;
+
     private:
-        template <class Type, class Comparator> friend class BinomialHeap;
-        template <class Type> friend class Node;
 
         Node<T> *node_ptr;
 
@@ -84,7 +94,6 @@ template<class T, class Comparator> class BinomialHeap {
 
         explicit BinomialHeap(const HeapNode &node){
             roots = node.child;
-            roots.reverse();
             for (Iterator it = roots.begin(); it != roots.end(); it++)
                 (*it)->pred = NULL;
             sz = 0;
@@ -130,14 +139,14 @@ template<class T, class Comparator> class BinomialHeap {
                         (after_next == res_list.end() || 
                          (*after_next)->degree != (*next)->degree)){
                     if (cmp((*it)->key, (*next)->key)){
-                        (*it)->child.push_front(*next);
+                        (*it)->child.push_back(*next);
                         (*next)->pred = *it;
                         (*it)->degree++;
                         next = roots.erase(next);
                         after_next = next;
                         after_next++;
                     } else {
-                        (*next)->child.push_front(*it);
+                        (*next)->child.push_back(*it);
                         (*next)->degree++;
                         (*it)->pred = *next;
                         it = roots.erase(it);
@@ -191,8 +200,27 @@ template<class T, class Comparator> class BinomialHeap {
             }
         }
 
-    private:
+        void erase(NodeIdPtr id){
+            assert(id);
+            assert(id->node_ptr);
+            HeapNode *cur_node = id->node_ptr;
+            while (cur_node->pred){
+                swap(cur_node, cur_node->pred);
+                cur_node = cur_node->pred;
+            }
+            int old_sz = sz - 1;
+            BinomialHeap<T, Comparator> new_heap(*cur_node);
+            delete cur_node;
+            for (Iterator it = roots.begin(); it != roots.end(); it++)
+                if (*it == cur_node){
+                    roots.erase(it);
+                    break;
+                }
+            merge(new_heap);
+            sz = old_sz;
+        }
 
+    protected:
         Comparator cmp;
         List roots;
         int sz;
@@ -206,7 +234,7 @@ template<class T, class Comparator> class BinomialHeap {
             return cur_min;
         }
 
-        void swap(HeapNode *a, HeapNode *b){
+        void swap(HeapNode *a, HeapNode *b){ 
             std::swap(a->key, b->key);
             NodeIdPtr buf = a->id;
             a->id = b->id;

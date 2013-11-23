@@ -6,6 +6,7 @@
 
 #include "../binomial_heap.h"
 #include "stress_test.h"
+#include "invariant_test.h"
 
 /*
  * Integration test by heapsorting vector<int>

@@ -48,12 +48,20 @@ template <class T, class Comparator> class SlowHeap{
             assert(0);
         }
         
-        void decreaseKey(int old_val, int new_val){
+        void decreaseKey(T old_val, T new_val){
             assert(new_val <= old_val);
             for (int i = 0; i < (int)heap.size(); i++)
                 if (isEqual(old_val, heap[i])){
                     heap[i] = new_val;
                     return;
+                }
+        }
+
+        void erase(T val){
+            for (int i = 0; i < (int)heap.size(); i++)
+                if (isEqual(heap[i], val)){
+                    heap.erase(heap.begin() + i);
+                    break;
                 }
         }
 
