@@ -5,8 +5,8 @@
 
 
 	template <class Type,class Comparator>
-	BinominalyTree<Type,Comparator>* mergeTrees(BinominalyTree<Type,Comparator>*& first,
-												BinominalyTree<Type,Comparator>*& second)
+	BinomialTree<Type,Comparator>* mergeTrees(BinomialTree<Type,Comparator>*& first,
+											  BinomialTree<Type,Comparator>*& second)
 	{
 		Comparator cmp;
 		if (!cmp(first->info,second->info)) 
@@ -17,8 +17,8 @@
 	}
 
 	template <class Type,class Comparator >
-	void replace(BinominalyTree<Type,Comparator>*& low,
-				 BinominalyTree<Type,Comparator>*& top)
+	void replace(BinomialTree<Type,Comparator>*& low,
+				 BinomialTree<Type,Comparator>*& top)
 	{
 		std::swap(low->info,top->info);
 		std::swap(low->backward_pointer->node,top->backward_pointer->node);
@@ -27,7 +27,7 @@
 	}
 
 	template <class Type,class Comparator >
-	void sift_up(BinominalyTree<Type,Comparator>* element) 
+	void sift_up(BinomialTree<Type,Comparator>* element) 
 	{
 		if (element) { 
 			Comparator cmp;
@@ -37,7 +37,7 @@
 	}
 
 	template <class Type,class Comparator>
-	void sift_to_top(BinominalyTree<Type,Comparator>* element) 
+	void sift_to_top(BinomialTree<Type,Comparator>* element) 
 	{
 		if (element) 
 			while (element->parent) 
@@ -45,7 +45,7 @@
 	}
 
 	template <class Type,class Comparator>
-	bool check_invariants_for_trees(BinominalyTree<Type,Comparator>* tree)
+	bool check_invariants_for_trees(BinomialTree<Type,Comparator>* tree)
 	{
 		if (tree) {
 			bool f=1;
@@ -60,7 +60,7 @@
 	}
 
 	template <class Type,class Comparator>
-	int quantity(BinominalyTree<Type,Comparator>* tree)
+	int quantity(BinomialTree<Type,Comparator>* tree)
 	{
 		if (!tree) return 0;
 		int sum=1;
@@ -70,7 +70,7 @@
 	}
 
 	template <class Type,class Comparator>
-	void clear_tree(BinominalyTree<Type,Comparator>* tree)
+	void clear_tree(BinomialTree<Type,Comparator>* tree)
 	{
 		if (tree!=NULL) {
 			for (unsigned int i=0;i<tree->childs.size();i++)
@@ -80,9 +80,9 @@
 	}
 
 	template <class Type,class Comparator >
-	void getresult(BinominalyTree<Type,Comparator>*& first,
-				   BinominalyTree<Type,Comparator>*& second,
-				   BinominalyTree<Type,Comparator>*& carry)
+	void getresult(BinomialTree<Type,Comparator>*& first,
+				   BinomialTree<Type,Comparator>*& second,
+				   BinomialTree<Type,Comparator>*& carry)
 	{
 		if (second==NULL && carry==NULL) return;
 		if (first==NULL && second==NULL) { first=carry;carry=NULL;}
@@ -91,7 +91,7 @@
 		else if (second==NULL) { carry=mergeTrees(first,carry);second=NULL;first=NULL; }
 		else if (carry==NULL) { carry=mergeTrees(first,second);second=NULL;first=NULL; }
 		else { 
-			BinominalyTree<Type,Comparator>* temporary=carry;
+			BinomialTree<Type,Comparator>* temporary=carry;
 			carry=mergeTrees(first,second);
 			first=temporary;
 			second=NULL;
