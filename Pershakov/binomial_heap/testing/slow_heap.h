@@ -6,6 +6,13 @@
 
 template <class T, class Comparator> class SlowHeap{
     public:
+        SlowHeap(){
+        }
+
+        explicit SlowHeap(const Comparator &new_cmp){
+            cmp = new_cmp;
+        }
+
         void clear(){
             heap.clear();
         }
@@ -38,18 +45,17 @@ template <class T, class Comparator> class SlowHeap{
 
         T extractMin(){
             T value = getMin();
-            for (int i = 0; i < (int)heap.size(); i++)
-                if (isEqual(value, heap[i])){
-                    for (int j = i; j + 1 < (int)heap.size(); j++)
-                        heap[j] = heap[j + 1];
-                    heap.pop_back();
+            for (int i = 0; i < (int)heap.size(); i++){
+                if (isEqual(heap[i], value)){
+                    heap.erase(heap.begin() + i);
                     return value;
                 }
+            }
             assert(0);
         }
         
-        void decreaseKey(T old_val, T new_val){
-            assert(new_val <= old_val);
+        void decreaseKey(const T &old_val, const T &new_val){
+            assert(!cmp(old_val, new_val));
             for (int i = 0; i < (int)heap.size(); i++)
                 if (isEqual(old_val, heap[i])){
                     heap[i] = new_val;
@@ -57,12 +63,13 @@ template <class T, class Comparator> class SlowHeap{
                 }
         }
 
-        void erase(T val){
-            for (int i = 0; i < (int)heap.size(); i++)
+        void erase(const T &val){
+            for (int i = 0; i < (int)heap.size(); i++){
                 if (isEqual(heap[i], val)){
                     heap.erase(heap.begin() + i);
-                    break;
+                    return;
                 }
+            }
         }
 
     private:
@@ -73,7 +80,7 @@ template <class T, class Comparator> class SlowHeap{
             return !cmp(a, b) && !cmp(b, a);
         }
 
-        std::vector<T> getHeap() const{
+        std::vector<T> getHeap() const {
             return heap;
         }
 

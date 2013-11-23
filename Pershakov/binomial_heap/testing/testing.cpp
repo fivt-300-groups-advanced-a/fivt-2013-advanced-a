@@ -7,6 +7,7 @@
 #include "../binomial_heap.h"
 #include "stress_test.h"
 #include "invariant_test.h"
+#include "test_with_point_class.h"
 
 /*
  * Integration test by heapsorting vector<int>

@@ -17,7 +17,6 @@ template<class T> class Node {
     template <class Type> friend class NodeId;
 
     private:
-
         typedef std::list<Node<T>*> List;
         
         Node(){
@@ -27,7 +26,7 @@ template<class T> class Node {
             degree = 0;
         }
 
-        explicit Node(T value){
+        explicit Node(const T &value){
             key = value;
             pred = NULL;
             id = new NodeId<T>(this);
@@ -52,7 +51,6 @@ template<class T> class NodeId {
     template <class Type> friend class Node;
 
     private:
-
         Node<T> *node_ptr;
 
         NodeId(){
@@ -87,7 +85,12 @@ template<class T, class Comparator> class BinomialHeap {
             sz = 0;
         }
 
-        explicit BinomialHeap(T value){
+        explicit BinomialHeap(const Comparator &new_cmp){
+            cmp = new_cmp;
+            sz = 0;
+        }
+
+        explicit BinomialHeap(const T &value){
             roots.push_back(new HeapNode(value));
             sz = 1;
         }
@@ -164,7 +167,7 @@ template<class T, class Comparator> class BinomialHeap {
             roots = res_list;
         }
 
-        NodeIdPtr insert(T value){
+        NodeIdPtr insert(const T &value){
             BinomialHeap<T, Comparator> new_heap(value);
             NodeIdPtr ans = (*new_heap.roots.begin())->id;
             merge(new_heap);
@@ -185,14 +188,14 @@ template<class T, class Comparator> class BinomialHeap {
             return std::make_pair(min_val, id);
         }
 
-        void decreaseKey(NodeIdPtr id, int new_val){
+        void decreaseKey(NodeIdPtr id, const T &new_val){
             assert(id);
             assert(id->node_ptr);
-            assert(new_val <= id->node_ptr->key);
+            assert(!cmp(id->node_ptr->key, new_val));
             HeapNode *cur_node = id->node_ptr;
             cur_node->key = new_val;
             while (cur_node->pred){
-                if (cur_node->pred->key > new_val){
+                if (cmp(new_val, cur_node->pred->key)){
                     swap(cur_node, cur_node->pred);
                     cur_node = cur_node->pred;
                 } else 
