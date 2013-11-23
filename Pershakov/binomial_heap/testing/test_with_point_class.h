@@ -16,12 +16,11 @@
  * Comparator - by distancce from a given point
  */
 TEST(PointsTest, StressWithSlowHeap){
-    PointComparator cmp(32, 98);
+    PointComparator cmp(9, 92);
     RandomPointGenerator gen(cmp);
     BinomialHeap<Point, PointComparator> heap(cmp);
     SlowHeap<Point, PointComparator> slow_heap(cmp);
-    Tester<Point, PointComparator, RandomPointGenerator, 
-        PointHash, PointEqual> 
+    Tester<Point, PointComparator, RandomPointGenerator> 
         tester(cmp, gen);
 
     tester.insert(heap, slow_heap);

@@ -8,6 +8,7 @@
 #include "stress_test.h"
 #include "invariant_test.h"
 #include "test_with_point_class.h"
+#include "unit_tests.h"
 
 /*
  * Integration test by heapsorting vector<int>

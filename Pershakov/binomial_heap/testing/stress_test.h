@@ -35,8 +35,7 @@ class RandomIntGenerator {
 TEST(StressTest, TestWithVector){
     typedef BinomialHeap<int, std::less<int> > Heap;
     typedef SlowHeap<int, std::less<int> > Slow;
-    Tester<int, std::less<int>, RandomIntGenerator, 
-        std::hash<int>, std::equal_to<int> > tester;
+    Tester<int, std::less<int>, RandomIntGenerator> tester;
     Heap heap;
     Slow slow_heap;
 

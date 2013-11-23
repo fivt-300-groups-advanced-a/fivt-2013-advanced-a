@@ -68,7 +68,7 @@ class RandomPointGenerator {
             srand(time(0));
         }
 
-        explicit RandomPointGenerator(PointComparator new_cmp){
+        explicit RandomPointGenerator(const PointComparator &new_cmp){
             cmp = new_cmp;
             srand(time(0));
         }
@@ -79,7 +79,7 @@ class RandomPointGenerator {
             return Point(x, y);
         }
 
-        Point decrease(Point b){
+        Point decrease(const Point &b){
             if (!cmp(b, cmp.getO()) && !cmp(cmp.getO(), b))
                 return b;
             Point c = b;
@@ -124,7 +124,7 @@ class PointHash {
 
 class PointEqual {
     public:
-        bool operator () (const Point &a, const Point &b){
+        bool operator () (const Point &a, const Point &b) const {
             return a.getX() == b.getX() && a.getY() == b.getY();
         }
 };
