@@ -4,38 +4,85 @@
 
 #include <cassert>
 #include <list>
+#include <iostream>
+#include <algorithm>
 
-template<class T> struct Node { 
-    Node(){
-        key = 0;
-        pred = NULL;
-    }
+template<class T> class NodeId;
 
-    explicit Node(T value){
-        key = value;
-        pred = NULL;
-    }
-    
-    T key;
-    Node *pred;
-    std::list<Node<T>*> child;
-    int degree;
+template<class T> class Node { 
+    private:
+        template <class Type, class Comparator> friend class BinomialHeap;
+        template <class Type> friend class CmpNodesDegree;
+        template <class Type> friend class NodeId;
+
+        typedef std::list<Node<T>*> List;
+        
+        Node(){
+            key = 0;
+            pred = NULL;
+        }
+
+        explicit Node(T value){
+            key = value;
+            pred = NULL;
+            id = new NodeId<T>(this);
+        }
+
+        ~Node(){
+        }
+
+        T key;
+        Node *pred;
+        List child;
+        int degree;
+        NodeId<T> *id;
 };
 
-template<class T> struct cmpNodes {
+template<class T> class NodeId {
+    private:
+        template <class Type, class Comparator> friend class BinomialHeap;
+        template <class Type> friend class Node;
+
+        Node<T> *node_ptr;
+
+        NodeId(){
+            node_ptr = NULL;
+        }
+
+        explicit NodeId(Node<T> *ptr){
+            node_ptr = ptr;
+        }
+
+        ~NodeId(){
+        }
+};
+
+template<class T> struct CmpNodesDegree {
     bool operator() (Node<T> *a, Node<T> *b){
         return a->degree < b->degree;
     }
 };
 
 template<class T, class Comparator> class BinomialHeap {
+    private:
+        typedef Node<T> HeapNode;
+        typedef std::list<HeapNode*> List;
+        typedef typename List::iterator Iterator;
+        typedef CmpNodesDegree<T> DegreeCmp;
+        typedef NodeId<T>* NodeIdPtr;
+
+
     public:
+        BinomialHeap(){
+            sz = 0;
+        }
+
         explicit BinomialHeap(T value){
-            roots.push_back(new Node<T>(value));
+            roots.push_back(new HeapNode(value));
             sz = 1;
         }
 
-        explicit BinomialHeap(const Node<T> &node){
+        explicit BinomialHeap(const HeapNode &node){
             roots = node.child;
             roots.reverse();
             for (Iterator it = roots.begin(); it != roots.end(); it++)
@@ -43,7 +90,14 @@ template<class T, class Comparator> class BinomialHeap {
             sz = 0;
         }
 
-        BinomialHeap(){
+        ~BinomialHeap(){
+            clear();
+        }
+
+        void clear(){
+            for (Iterator it = roots.begin(); it != roots.end(); it++)
+                destructorDfs(*it);
+            roots.clear();
             sz = 0;
         }
 
@@ -64,7 +118,7 @@ template<class T, class Comparator> class BinomialHeap {
         void merge(BinomialHeap<T, Comparator> &oth){
             sz += oth.size();
             List res_list = roots;
-            res_list.merge(oth.roots, cmpNodes<T>());
+            res_list.merge(oth.roots, DegreeCmp());
 
             Iterator it = res_list.begin();
             Iterator next = it;
@@ -101,31 +155,36 @@ template<class T, class Comparator> class BinomialHeap {
             roots = res_list;
         }
 
-        void insert(T value){
+        NodeIdPtr insert(T value){
             BinomialHeap<T, Comparator> new_heap(value);
+            NodeIdPtr ans = (*new_heap.roots.begin())->id;
             merge(new_heap);
+            return ans;
         }
 
-        T extractMin(){
+        std::pair<T, NodeIdPtr> extractMin(){
             int old_sz = sz;
             old_sz--;
             Iterator min_it = findMin();
             T min_val = (*min_it)->key;
             BinomialHeap<T, Comparator> new_heap(**min_it);
+            NodeIdPtr id = (*min_it)->id;
+            delete *min_it;
             roots.erase(min_it);
             merge(new_heap);
             sz = old_sz;
-            return min_val;
+            return std::make_pair(min_val, id);
         }
 
-        void decreaseKey(Node<T> *node, int new_val){
-            assert(node);
-            assert(new_val <= node->key);
-            node->key = new_val;
-            Node<T> *cur_node = node;
+        void decreaseKey(NodeIdPtr id, int new_val){
+            assert(id);
+            assert(id->node_ptr);
+            assert(new_val <= id->node_ptr->key);
+            HeapNode *cur_node = id->node_ptr;
+            cur_node->key = new_val;
             while (cur_node->pred){
                 if (cur_node->pred->key > new_val){
-                    swap(cur_node->key, cur_node->pred->key);
+                    swap(cur_node, cur_node->pred);
                     cur_node = cur_node->pred;
                 } else 
                     break;
@@ -133,8 +192,6 @@ template<class T, class Comparator> class BinomialHeap {
         }
 
     private:
-        typedef typename std::list<Node<T>*>::iterator Iterator;
-        typedef std::list<Node<T>*> List;
 
         Comparator cmp;
         List roots;
@@ -147,6 +204,22 @@ template<class T, class Comparator> class BinomialHeap {
                 if (cmp((*it)->key, (*cur_min)->key))
                     cur_min = it;
             return cur_min;
+        }
+
+        void swap(HeapNode *a, HeapNode *b){
+            std::swap(a->key, b->key);
+            NodeIdPtr buf = a->id;
+            a->id = b->id;
+            b->id = buf;
+            a->id->node_ptr = a;
+            b->id->node_ptr = b;
+        }
+
+        void destructorDfs(HeapNode *node){
+            for (Iterator it = node->child.begin(); 
+                    it != node->child.end(); it++)
+                destructorDfs(*it);
+            delete node;
         }
 };
 
