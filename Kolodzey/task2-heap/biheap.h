@@ -25,6 +25,8 @@ class ValPointer
     }
     const T& get_val()
     {
+      if (_ref == nullptr)
+        std::cerr << "Accessing value by empty valptr" << std::endl;
       return _ref->get_val();
     }
     friend class TestAccess<ValPointer<T>,T>;
@@ -85,6 +87,10 @@ class BiTree
       _level = 1;
       _pval = std::unique_ptr<ValHolder<T> > (new ValHolder<T>(val, this));
     }
+    int get_level()
+    {
+      return _level;
+    }
     ValPointer<T> get_pval()
     {
       return ValPointer<T>(_pval.get());
@@ -135,7 +141,6 @@ class BiTree
       }
       return 0;
     }
-    
     const T& get_val()
     {
       return _pval->get_val();
@@ -197,7 +202,7 @@ class BiTreeFunc
       //по идее при некорректности операции возвращается 0 и всё остаётся, как было
     }
     static bool cutroot(std::unique_ptr<BiTree<T> >& tree,
-                        std::list<std::unique_ptr<BiTree<T> > >& children)
+                        std::list<std::unique_ptr<BiTree<T> > >& children)//список упорядочен по возрастанию уровня
     {
       if (tree == nullptr)
         return 0;
@@ -210,18 +215,158 @@ class BiTreeFunc
       tree.reset();
       return 1;
     }
+    static bool cmp_levels(const std::unique_ptr<BiTree<T> >& a,
+                    const std::unique_ptr<BiTree<T> >& b)
+    {
+      if ((a == nullptr) && (b == nullptr))
+        return 0;
+      if (a == nullptr) //нулевой указатель считается самым маленьким деревом
+        return 1;
+      if (b == nullptr)
+        return 0;
+      return (a->get_level() < b->get_level());
+    }
 };
 
 //и на 200+ строке наконец-то заканчиваются вспомогательные классы...
-template <class T, class Compare> 
+template <class T, class Compare = std::less<int> > 
 class BiHeap
 {
-  BiHeap(Compare cmp = std::less<T>())
-  {
-    _forest.clear();
-    _cmp = cmp;
-  }
-private:
-  Compare _cmp;
-  std::list<std::unique_ptr<BiTree<T> > > _forest;
+  public:
+    typedef typename std::list<std::unique_ptr<BiTree<T> > >::iterator Itlist;
+    BiHeap(Compare cmp = std::less<T>())
+    {
+      _forest.clear();
+      _cmp = cmp;
+    }
+    ValPointer<T> insert(T val)
+    {
+      std::unique_ptr<BiTree<T> > tree (new BiTree<T> (val));
+      ValPointer<T> ans = tree->get_pval();
+      std::list<std::unique_ptr<BiTree<T> > > listForTree;
+      listForTree.push_back(nullptr);
+      swap(listForTree.back(), tree);
+      insert_list(listForTree);
+      improve_list();
+      return ans;
+    }
+    
+    void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour
+    {
+      std::list<std::unique_ptr<BiTree<T> > > elem;
+      heap.export_to_list(elem); //может это и костыль, но как ещё обходить <std::list> does not provide a call operator?
+      insert_list(elem);
+      improve_list();
+    }
+    
+    bool is_empty()
+    {
+      return (_forest.size() == 0);
+    }
+
+    ValPointer<T> get_top_ref()
+    {
+      if (is_empty())
+        return ValPointer<T>(nullptr);
+      ValPointer<T> ans = (_forest.front())->get_pval();
+      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
+      for (it = _forest.begin(); it != _forest.end(); ++it)
+      {
+        if (_cmp((*it)->get_val(), ans.get_val()))
+          ans = (*it)->get_pval();
+      }
+      return ans;
+    }
+
+    const T& top()
+    {
+      return get_top_ref().get_val(); //падает при запросе к пустой куче
+    }
+
+    bool erase(ValPointer<T> pval)
+    {
+      Itlist it = _forest.begin();
+      while (it != _forest.end())
+      {
+        if ((*it)->is_son(pval))
+        {
+          std::unique_ptr<BiTree<T> > tr(nullptr);
+          swap(*it, tr);
+          _forest.erase(it);
+          tr->lift(pval);
+          std::list<std::unique_ptr<BiTree<T> > > ch;
+          BiTreeFunc<T>::cutroot(tr, ch);
+          insert_list(ch);
+          improve_list();
+          return 1;
+        }
+        ++it;
+      }
+      return 0;
+    }
+    bool pop()
+    {
+      ValPointer<T> ptop = get_top_ref();
+      return erase(ptop);
+    }
+  friend class TestAccess <BiHeap<T, Compare>,T>;
+  private:
+    void export_to_list(std::list<std::unique_ptr<BiTree<T> > >& elem)
+    {
+      elem.clear();
+      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
+      for (it = _forest.begin(); it != _forest.end(); ++it)
+      {
+        elem.push_back(nullptr);
+        swap(elem.back(), *it);
+      }
+      _forest.clear();
+    }
+    void insert_list(std::list<std::unique_ptr<BiTree<T> > >& elem)
+    {
+      _forest.merge(elem, BiTreeFunc<T>::cmp_levels);
+    }
+    bool improve_list()
+    {
+      //std::cerr << "entered method improve_list" << std::endl;
+      Itlist it = _forest.end();
+      --it;
+      while (it != _forest.begin())
+      {
+        typename std::list<std::unique_ptr<BiTree<T> > >::iterator next = it;
+        --next;
+        if ((*it == nullptr) || (*next == nullptr)) //не, ну мёржить нулевые деревья… такое нам хранить не надо, лучше падать.
+        { 
+          std::cerr << "zero trees in heap" << std::endl;
+          return 0;
+        }
+        //std::cerr << "it lvl " << (*it)->get_level()
+        //          << " val " << (*it)->get_val() << std::endl;
+        //std::cerr << "next lvl " << (*next)->get_level()
+        //          << " val " << (*next)->get_val() << std::endl;
+        if ((*next)->get_level() < (*it)->get_level())
+        {
+          --it;
+        }
+        else if ((*next)->get_level() == (*it)->get_level())
+        {
+          std::unique_ptr<BiTree<T> > c (nullptr);
+          BiTreeFunc<T>::merge(*it, *next, c, _cmp);
+          //std::cerr << "successful merge" << std::endl;
+          _forest.erase(next);
+          //std::cerr << "erased" << std::endl;
+          swap(c, *it);
+          if (it != (--_forest.end()))
+            ++it; 
+        }
+        else if ((*next)->get_level() > (*it)->get_level()) //список деревьев не упорядочен по возрастанию размера, вернуть 0, значения испорчены :(
+        {
+          std::cerr << "trees are not ordered by size in heap" << std::endl;
+          return 0;
+        }
+      }
+      return 1;
+    }
+    Compare _cmp;
+    std::list<std::unique_ptr<BiTree<T> > > _forest;
 };

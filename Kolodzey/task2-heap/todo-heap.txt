@@ -158,3 +158,5 @@ void clear()
 Тест удаление/добавление элемента
 
 Тесты на утечки памяти с clear()
+
+утащить к себе http://informatics.mccme.ru/moodle/mod/statements/view.php?chapterid=755

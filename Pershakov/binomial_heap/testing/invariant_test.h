@@ -7,7 +7,7 @@
 
 #include "test_heap.h"
 #include "../binomial_heap.h"
-#include "testing_functions.h"
+#include "testing_utilities.h"
 
 namespace InvariantTesting {
 
