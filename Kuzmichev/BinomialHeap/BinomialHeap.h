@@ -11,6 +11,7 @@ using namespace std;
 template <class T>
 class Vertex
 {
+	
 public:
 	T key;
 	Vertex * ancestor;
@@ -22,35 +23,47 @@ public:
 };
 
 template <class T>
-void decreaseKey(Vertex <T> * v, T newValue)
-{
-	assert(!(v->key < newValue));
-	v->key = newValue;
-	while(v->ancestor != NULL)
-	{
-		if (v->key < v->ancestor->key)
-		{
-			swap(v->key, v->ancestor->key);
-			v = v->ancestor;
-		}
-		else break;
-	}
-}
-
-
-
-template <class T>
-class Heap
+class pointer
 {
 public:
+	Vertex <T> * * link;
+
+	pointer()
+	{
+		link = NULL;
+	}
+	/*pointer(Vertex <T> ** _link)
+	{
+		link = _link;
+	}*/
+	pointer(Vertex <T> * _link)
+	{
+		link = &_link;
+	}
+};
+
+
+//template <class T>
+
+
+
+
+template <class T, class Comparator>
+class Heap
+{
+	//typedef Vertex <T> * * Pointer;
+protected:
 	vector <Vertex <T> *> list;
-	Heap()
+	Comparator cmp;
+	public:
+	Heap(Comparator _cmp)
 	{
 		list.clear();
+		cmp = _cmp;
 	}
 	//explicit Heap(vector <Vertex <T> * > _list) : list(_list) {}
 
-	Heap <T> * innerMerge(Heap <T> * secondHeap, bool flagInplace)
+	Heap <T, Comparator> * innerMerge(Heap <T, Comparator> * secondHeap, bool flagInplace)
 	{
 		vector <Vertex <T> *  > new_list; 
 		int curThis = 0;
@@ -75,10 +88,10 @@ public:
 		//list.clear();
 		
 		//while(curResult < new_list.size() - 1)
-		Heap <T> * resultHeap;
+		Heap <T, Comparator> * resultHeap;
 		if (flagInplace)
 			list.clear();
-		else resultHeap = new Heap <T> ();
+		else resultHeap = new Heap <T, Comparator> (cmp);
 		for (int curResult = 0; curResult < (int)new_list.size() - 1; curResult++)
 		{
 			if (new_list[curResult]->degree == new_list[curResult + 1]->degree)
@@ -86,7 +99,7 @@ public:
 				Vertex <T> * A = new_list[curResult];
 				Vertex <T> * B = new_list[curResult + 1];
 				//Vertex <T> * tmp = curResult->next->next;
-				if (A->key >= B->key)
+				if (!cmp(A->key, B->key))
 				{
 					swap(A, B);
 				}	
@@ -118,27 +131,28 @@ public:
 		return (flagInplace ? NULL : resultHeap);
 	}
 
-	Heap <T> * merge(Heap <T> * secondHeap)
+	Heap <T, Comparator> * merge(Heap <T, Comparator> * secondHeap)
 	{
 		return innerMerge(secondHeap, false);
 	}
 
-	void inplaceMerge(Heap <T> * secondHeap)
+	void inplaceMerge(Heap <T, Comparator> * secondHeap)
 	{
 		innerMerge(secondHeap, true);
 	}
 
-	Vertex <T> * insert(T newElem)
-	//void insert(T newElem)
+	//pointer <T> insert(T newElem)
+	void insert(T newElem)
 	{
-		Heap <T> * H2 = new Heap();
+		Heap <T, Comparator> * H2 = new Heap(cmp);
 		Vertex <T> * v = new Vertex <T>(newElem);
+		
 		H2->list.pb(v);
 		inplaceMerge(H2);
-		//Heap <T>  * mergedHeap = merge(H2);
-		//list = mergedHeap->list;
-		//delete mergedHeap;
-		return v;
+		//printf("v = %d &v = %d\n", v, &v);
+		
+		//pointer <T> ret = new pointer <T> (&v);
+		//return pointer <T> (v);
 	}
 	T getMin()
 	{
@@ -146,7 +160,7 @@ public:
 			return T();
 		int minIndex = 0;
 		for (int j = 1; j < list.size(); j++)
-			if (list[j]->key < list[minIndex]->key)
+			if (cmp(list[j]->key, list[minIndex]->key))
 			{
 				minIndex = j;
 			}
@@ -160,12 +174,12 @@ public:
 		//T minElem = list[0]->key;
 		for (int j = 1; j < list.size(); j++)
 			//if (list[j]->key < minElem)
-			if (list[j]->key < list[minIndex]->key)
+			if (cmp(list[j]->key, list[minIndex]->key))
 			{
 				//minElem = list[j]->key;
 				minIndex = j;
 			}
-		Heap <T> * splitted = new Heap <T>();
+		Heap <T, Comparator> * splitted = new Heap <T, Comparator>(cmp);
 		Vertex <T> * current = list[minIndex]->child;
 		while(current != NULL)
 		{
@@ -177,28 +191,62 @@ public:
 		T minElem = list[minIndex]->key;
 		list.erase(list.begin() + minIndex);
 		inplaceMerge(splitted);
-		//Heap <T> * tmpHeap = merge(splitted);
+		//Heap <T, Comparator> * tmpHeap = merge(splitted);
 		//list = tmpHeap->list;
 		return minElem;
 	}
-	inline void deleteElem(Vertex <T> * v, T minusInf)
+	/*inline void deleteElem(Vertex <T> * v, T minusInf)
 	{
 		decreaseKey(v, minusInf);
 		extractMin();
-	}	
-	bool checkDegreeInvariant()
+	}	*/
+	
+	int getSize()
 	{
-		//int cntSame = 1;
-		for (int j = 1; j < list.size(); j++)
+		int totalSize = 0;
+		for(int j = 0; j < list.size(); j++)
+			totalSize += (1 << list[j]->degree);
+		return totalSize;
+	}
+	template <class T, class Comparator>
+	friend class HeapChecker;
+
+	/*void decreaseKey(pointer <T> &  v, T newValue)
+	{
+		Vertex <T> * p = *v.link;
+		assert(!(p->key < newValue));
+		p->key = newValue;
+		while(p->ancestor != NULL)
 		{
-			if (list[j]->degree <= list[j - 1]->degree)
-				return false;
-			/*if (list[j]->degree == list[j - 1]->degree)
+			if (p->key < p->ancestor->key)
 			{
-				cntSame++;
-				return false;
+				swap(p->key, p->ancestor->key);
+				v.link = &p->ancestor;
 			}
-			else cntSame = 1;*/
+			else break;
+		}
+	}*/
+
+};
+
+template <class T, class Comparator>
+class HeapChecker
+{
+public:
+	bool checkPowerOfTwo(Heap <T, Comparator> * H, int powerOfTwo)
+	{
+		return (H->list.size() == 1 && H->list[0]->degree == powerOfTwo);
+	}
+	bool checkDegreeInvariant(Heap <T, Comparator> * H, int normalDegree)
+	{
+		if (H->list.empty())
+			return true;
+		if (H->list[0]->degree > normalDegree)
+			return false;
+		for (int j = 1; j < H->list.size(); j++)
+		{
+			if (H->list[j]->degree <= H->list[j - 1]->degree || H->list[j]->degree > normalDegree)
+				return false;
 		}
 		return true;
 	}
