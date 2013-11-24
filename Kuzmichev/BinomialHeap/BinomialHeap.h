@@ -48,8 +48,9 @@ public:
 	{
 		list.clear();
 	}
-	explicit Heap(vector <Vertex <T> * > _list) : list(_list) {}
-	Heap * merge(Heap * secondHeap)
+	//explicit Heap(vector <Vertex <T> * > _list) : list(_list) {}
+
+	Heap <T> * innerMerge(Heap <T> * secondHeap, bool flagInplace)
 	{
 		vector <Vertex <T> *  > new_list; 
 		int curThis = 0;
@@ -69,11 +70,15 @@ public:
 				
 			}
 		}
-		int curResult = 0;
-		vector <Vertex <T> * > resultList;
+		//int curResult = 0;
+		//vector <Vertex <T> * > resultList;
 		//list.clear();
 		
 		//while(curResult < new_list.size() - 1)
+		Heap <T> * resultHeap;
+		if (flagInplace)
+			list.clear();
+		else resultHeap = new Heap <T> ();
 		for (int curResult = 0; curResult < (int)new_list.size() - 1; curResult++)
 		{
 			if (new_list[curResult]->degree == new_list[curResult + 1]->degree)
@@ -91,22 +96,48 @@ public:
 				A->child->next = oldChild;
 				new_list[curResult + 1] = A;
 				A->degree++;
+				if (curResult + 2 < new_list.size() && new_list[curResult + 2]->degree < new_list[curResult + 1]->degree)
+					swap(new_list[curResult +1], new_list[curResult + 2]);
+				
 			}
-			else resultList.pb(new_list[curResult]);
+			//else resultList.pb(new_list[curResult]);
+			else if (flagInplace)
+			{
+				list.pb(new_list[curResult]);
+			}
+			else resultHeap->list.pb(new_list[curResult]);
 		}
 		if (!new_list.empty())
-			resultList.pb(new_list.back());
-		return new Heap(resultList);
-		
+		{
+			if (flagInplace)
+			{
+				list.pb(new_list.back());
+			}
+			else resultHeap->list.pb(new_list.back());
+		}
+		return (flagInplace ? NULL : resultHeap);
 	}
+
+	Heap <T> * merge(Heap <T> * secondHeap)
+	{
+		return innerMerge(secondHeap, false);
+	}
+
+	void inplaceMerge(Heap <T> * secondHeap)
+	{
+		innerMerge(secondHeap, true);
+	}
+
 	Vertex <T> * insert(T newElem)
 	//void insert(T newElem)
 	{
 		Heap <T> * H2 = new Heap();
 		Vertex <T> * v = new Vertex <T>(newElem);
 		H2->list.pb(v);
-		Heap <T>  * mergedHeap = merge(H2);
-		list = mergedHeap->list;
+		inplaceMerge(H2);
+		//Heap <T>  * mergedHeap = merge(H2);
+		//list = mergedHeap->list;
+		//delete mergedHeap;
 		return v;
 	}
 	T getMin()
@@ -145,8 +176,9 @@ public:
 		reverse(splitted->list.begin(), splitted->list.end());
 		T minElem = list[minIndex]->key;
 		list.erase(list.begin() + minIndex);
-		Heap <T> * tmpHeap = merge(splitted);
-		list = tmpHeap->list;
+		inplaceMerge(splitted);
+		//Heap <T> * tmpHeap = merge(splitted);
+		//list = tmpHeap->list;
 		return minElem;
 	}
 	inline void deleteElem(Vertex <T> * v, T minusInf)
@@ -154,4 +186,20 @@ public:
 		decreaseKey(v, minusInf);
 		extractMin();
 	}	
+	bool checkDegreeInvariant()
+	{
+		//int cntSame = 1;
+		for (int j = 1; j < list.size(); j++)
+		{
+			if (list[j]->degree <= list[j - 1]->degree)
+				return false;
+			/*if (list[j]->degree == list[j - 1]->degree)
+			{
+				cntSame++;
+				return false;
+			}
+			else cntSame = 1;*/
+		}
+		return true;
+	}
 };

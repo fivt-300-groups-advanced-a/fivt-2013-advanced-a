@@ -42,6 +42,16 @@ void test(Heap <int> * H)
 	myset.clear();
 	forn(j, 1000000)
 	{
+		if (j == 50000)
+		{
+			int hhh = 0;
+		}
+		bool f = H->checkDegreeInvariant();
+		if (!f)
+		{
+			printf("FAIL");
+			exit(0);
+		}
 		//printf("iteration %d\n", j);
 		int typ;
 		while(true)
@@ -54,6 +64,7 @@ void test(Heap <int> * H)
 			}
 			break;
 		}
+		//typ = 2;
 		if (typ == 0)
 		{
 			int our_ans = H->extractMin();
@@ -100,7 +111,18 @@ int main()
 	//Heap <int> * H4 = new Heap<int> ();
 	//test(H4);
 	Heap <int> * H5 = new Heap<int>();
-	pointer p1 = H5->insert(10);
+	H5->insert(5);
+	H5->insert(6);
+	H5->insert(7);
+	Heap <int> * H6 = new Heap<int>();
+	H6->insert(8);
+	H6->insert(9);
+	H6->insert(10);
+	H5 = H5->merge(H6);
+	Heap <int> * H7 = new Heap<int>();
+	test(H7);
+	//test(H5);
+	/*pointer p1 = H5->insert(10);
 	pointer p2 = H5->insert(10);
 	pointer p3 = H5->insert(10);
 	minn(H5);
@@ -109,5 +131,5 @@ int main()
 	decreaseKey(p1, 4);
 	minn(H5);
 	H5->deleteElem(p1, -100500);
-	minn(H5);
+	minn(H5);*/
 }
