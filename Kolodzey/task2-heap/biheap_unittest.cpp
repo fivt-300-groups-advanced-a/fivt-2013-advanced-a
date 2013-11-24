@@ -51,6 +51,32 @@ class TestAccess <BiTree<Value>, Value>
     }
     BiTree<Value>* _bitree;
 };
+
+template<class Value, class Compare>
+class TestAccess <BiHeap<Value, Compare>, Value>
+{
+  public:
+    Compare& _cmp()
+    {
+      return _biheap->_cmp;
+    }
+    std::list<std::unique_ptr<BiTree<Value> > >& _forest()
+    {
+      return _biheap->_forest;
+    }
+    static void insert_list(BiHeap<Value, Compare>& biheap,
+                       std::list<std::unique_ptr<BiTree<Value> > >& elem)
+    {
+      biheap.insert_list(elem);
+    }
+    static bool improve_list(BiHeap<Value, Compare>& biheap)
+    {
+      bool flag = 0;
+      flag = biheap.improve_list();
+      return flag;
+    }
+    BiHeap<Value, Compare>* _biheap;
+};
 TEST(ValHolder, Constructor)
 {
   ValHolder<int> v(7);
@@ -295,4 +321,126 @@ TEST(BiTreeFunc, cutroot)
   access_ch1._bitree = (chlist.back()).get();
   EXPECT_EQ(access_ch1._level(), 2);
   EXPECT_EQ(((access_ch1._child())[0])->get_val(), 11);
+}
+
+TEST(BiHeap, Constructor)
+{
+  BiHeap<int,std::greater<int> > p((std::greater<int>()));
+  //указывть тип компаратора обязательно, по переданному значению он его не определить
+  TestAccess<BiHeap<int, std::greater<int> >,int> access_p;
+  access_p._biheap = &p;
+  EXPECT_EQ(access_p._forest().size(), 0);
+}
+
+TEST(BiTreeFunc, cmp_levels)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  std::unique_ptr<BiTree<int> > d (new BiTree<int> (9));
+  std::unique_ptr<BiTree<int> > e (nullptr);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(a, b), 0);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(b, a), 0);
+  a->eat(b);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(a, b), 0);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(b, a), 1);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(a, d), 0);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(d, a), 1);
+  EXPECT_EQ(BiTreeFunc<int>::cmp_levels(b, e), 0);
+}
+
+TEST(BiHeap, insert_list)
+{
+  BiHeap<int> heap;
+  std::list<std::unique_ptr<BiTree<int> > > elem;
+  std::unique_ptr<BiTree<int> > a(new BiTree<int> (8));
+  elem.push_back(nullptr);
+  swap(a, elem.back());
+  EXPECT_EQ(a, nullptr);
+  TestAccess<BiHeap<int,std::less<int> >,int>::insert_list(heap, elem);
+  EXPECT_EQ(elem.size(), 0);
+  TestAccess<BiHeap<int,std::less<int> >,int> access_heap;
+  access_heap._biheap = &heap;
+  EXPECT_EQ(access_heap._forest().back()->get_val(), 8);
+  std::unique_ptr<BiTree<int> > b(new BiTree<int> (9));
+  std::unique_ptr<BiTree<int> > c(new BiTree<int> (12));
+  c->eat(b);
+  elem.push_back(nullptr);
+  elem.push_back(nullptr);
+  swap(elem.back(), c);
+  TestAccess<BiHeap<int,std::less<int> >,int>::insert_list(heap, elem);
+  EXPECT_EQ(access_heap._forest().back()->get_val(), 12);
+  EXPECT_EQ(access_heap._forest().front(), nullptr);
+}
+
+TEST(BiHeap, improve_list)
+{
+  BiHeap<int> heap;
+  std::list<std::unique_ptr<BiTree<int> > > elem;
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (1));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (2));
+  std::unique_ptr<BiTree<int> > c (new BiTree<int> (3));
+  std::unique_ptr<BiTree<int> > d (new BiTree<int> (4));
+  std::unique_ptr<BiTree<int> > e (new BiTree<int> (5));
+  std::unique_ptr<BiTree<int> > f (new BiTree<int> (6));
+  std::unique_ptr<BiTree<int> > g (new BiTree<int> (7));
+  std::unique_ptr<BiTree<int> > h (new BiTree<int> (8));
+  c->eat(d);
+  e->eat(f);
+  g->eat(h);
+  e->eat(g);
+  elem.push_back(nullptr);
+  swap(a, elem.back());
+  elem.push_back(nullptr);
+  swap(b, elem.back());
+  elem.push_back(nullptr);
+  swap(c, elem.back());
+  elem.push_back(nullptr);
+  swap(e, elem.back());
+  TestAccess<BiHeap<int,std::less<int> >,int>::insert_list(heap, elem);
+  TestAccess<BiHeap<int,std::less<int> >,int>::improve_list(heap);
+  TestAccess<BiHeap<int,std::less<int> >,int> access_heap;
+  access_heap._biheap = &heap;
+  EXPECT_EQ(access_heap._forest().size(), 1);
+  EXPECT_EQ(access_heap._forest().front()->get_val(), 1);
+  EXPECT_EQ(access_heap._forest().front()->get_level(), 4);
+  TestAccess<BiTree<int>,int> access_tree;
+  access_tree._bitree  = access_heap._forest().front().get();
+  EXPECT_EQ(access_tree._child().size(), 3);
+  EXPECT_EQ(((access_tree._child())[0])->get_val(), 2);
+  EXPECT_EQ(((access_tree._child())[0])->get_level(), 1);
+  EXPECT_EQ(((access_tree._child())[1])->get_val(), 3);
+  EXPECT_EQ(((access_tree._child())[1])->get_level(), 2);
+  TestAccess<BiTree<int>,int> access_ch1;
+  access_ch1._bitree  = (access_tree._child())[1].get();
+  EXPECT_EQ((access_ch1._child()[0])->get_val(), 4);
+  EXPECT_EQ(((access_tree._child())[2])->get_val(), 5);
+  EXPECT_EQ(((access_tree._child())[2])->get_level(), 3);
+  TestAccess<BiTree<int>,int> access_ch2;
+  access_ch2._bitree  = (access_tree._child())[2].get();
+  EXPECT_EQ(access_ch2._child()[0]->get_val(), 6);
+  EXPECT_EQ(access_ch2._child()[1]->get_val(), 7);
+}
+
+TEST(BiHeap, insert)
+{
+  BiHeap<int> heap;
+  heap.insert(1);
+  heap.insert(2);
+  heap.insert(4);
+  heap.insert(3);
+  TestAccess<BiHeap<int,std::less<int> >,int> access_heap;
+  access_heap._biheap = &heap;
+  EXPECT_EQ(access_heap._forest().size(), 1);
+  EXPECT_EQ(access_heap._forest().front()->get_val(), 1);
+  EXPECT_EQ(access_heap._forest().front()->get_level(), 3);
+  TestAccess<BiTree<int>,int> access_tree;
+  access_tree._bitree  = access_heap._forest().front().get();
+  EXPECT_EQ(access_tree._child().size(), 2);
+  EXPECT_EQ(((access_tree._child())[0])->get_val(), 2);
+  EXPECT_EQ(((access_tree._child())[0])->get_level(), 1);
+  EXPECT_EQ(((access_tree._child())[1])->get_val(), 3);
+  EXPECT_EQ(((access_tree._child())[1])->get_level(), 2);
+  TestAccess<BiTree<int>,int> access_ch1;
+  access_ch1._bitree  = (access_tree._child())[1].get();
+  EXPECT_EQ((access_ch1._child()[0])->get_val(), 4);
 }
