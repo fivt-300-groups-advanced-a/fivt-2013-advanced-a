@@ -53,22 +53,27 @@
 		<Unit filename="Makefile">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Test" />
 		</Unit>
 		<Unit filename="comparator.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Test" />
 		</Unit>
 		<Unit filename="heap.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Test" />
 		</Unit>
 		<Unit filename="main.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Test" />
 		</Unit>
 		<Unit filename="test.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Test" />
 		</Unit>
 		<Extensions>
 			<envvars />
