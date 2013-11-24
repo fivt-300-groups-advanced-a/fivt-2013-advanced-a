@@ -25,6 +25,8 @@ class ValPointer
     }
     const T& get_val()
     {
+      if (_ref == nullptr)
+        std::cerr << "Accessing value by empty valptr" << std::endl;
       return _ref->get_val();
     }
     friend class TestAccess<ValPointer<T>,T>;
@@ -139,7 +141,6 @@ class BiTree
       }
       return 0;
     }
-    
     const T& get_val()
     {
       return _pval->get_val();
@@ -232,22 +233,95 @@ template <class T, class Compare = std::less<int> >
 class BiHeap
 {
   public:
+    typedef typename std::list<std::unique_ptr<BiTree<T> > >::iterator Itlist;
     BiHeap(Compare cmp = std::less<T>())
     {
       _forest.clear();
       _cmp = cmp;
     }
-    void insert(T val)
+    ValPointer<T> insert(T val)
     {
       std::unique_ptr<BiTree<T> > tree (new BiTree<T> (val));
+      ValPointer<T> ans = tree->get_pval();
       std::list<std::unique_ptr<BiTree<T> > > listForTree;
       listForTree.push_back(nullptr);
       swap(listForTree.back(), tree);
       insert_list(listForTree);
       improve_list();
+      return ans;
+    }
+    
+    void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour
+    {
+      std::list<std::unique_ptr<BiTree<T> > > elem;
+      heap.export_to_list(elem); //может это и костыль, но как ещё обходить <std::list> does not provide a call operator?
+      insert_list(elem);
+      improve_list();
+    }
+    
+    bool is_empty()
+    {
+      return (_forest.size() == 0);
+    }
+
+    ValPointer<T> get_top_ref()
+    {
+      if (is_empty())
+        return ValPointer<T>(nullptr);
+      ValPointer<T> ans = (_forest.front())->get_pval();
+      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
+      for (it = _forest.begin(); it != _forest.end(); ++it)
+      {
+        if (_cmp((*it)->get_val(), ans.get_val()))
+          ans = (*it)->get_pval();
+      }
+      return ans;
+    }
+
+    const T& top()
+    {
+      return get_top_ref().get_val(); //падает при запросе к пустой куче
+    }
+
+    bool erase(ValPointer<T> pval)
+    {
+      Itlist it = _forest.begin();
+      while (it != _forest.end())
+      {
+        if ((*it)->is_son(pval))
+        {
+          std::unique_ptr<BiTree<T> > tr(nullptr);
+          swap(*it, tr);
+          _forest.erase(it);
+          tr->lift(pval);
+          std::list<std::unique_ptr<BiTree<T> > > ch;
+          BiTreeFunc<T>::cutroot(tr, ch);
+          insert_list(ch);
+          improve_list();
+          return 1;
+        }
+        ++it;
+      }
+      return 0;
+    }
+    bool pop()
+    {
+      ValPointer<T> ptop = get_top_ref();
+      return erase(ptop);
     }
   friend class TestAccess <BiHeap<T, Compare>,T>;
   private:
+    void export_to_list(std::list<std::unique_ptr<BiTree<T> > >& elem)
+    {
+      elem.clear();
+      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
+      for (it = _forest.begin(); it != _forest.end(); ++it)
+      {
+        elem.push_back(nullptr);
+        swap(elem.back(), *it);
+      }
+      _forest.clear();
+    }
     void insert_list(std::list<std::unique_ptr<BiTree<T> > >& elem)
     {
       _forest.merge(elem, BiTreeFunc<T>::cmp_levels);
@@ -255,8 +329,7 @@ class BiHeap
     bool improve_list()
     {
       //std::cerr << "entered method improve_list" << std::endl;
-      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
-      it = _forest.end();
+      Itlist it = _forest.end();
       --it;
       while (it != _forest.begin())
       {
