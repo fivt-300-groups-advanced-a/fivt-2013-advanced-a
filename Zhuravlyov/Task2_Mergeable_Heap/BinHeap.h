@@ -6,29 +6,16 @@
 #include "friend_functions.h"
 
 template < class Type,class Comparator >
-class BinominalyHeap{
+class BinomialHeap{
 public:
 
-typedef ValueReference<BinominalyTree<Type,Comparator>>* pointer;
+typedef ValueReference<BinomialTree<Type,Comparator>>* Pointer;
 
 private:
 
-	typedef BinominalyTree<Type,Comparator> BinT;
-
-	template < class Type,class Comparator > friend class BinominalyTree;
-
+	typedef BinomialTree<Type,Comparator> BinT;
+	template < class Type,class Comparator > friend class BinomialTree;
 	std::vector<BinT*> trees;
-
-	void add_by_pointer(BinT*& pointer)
-	{
-		if (trees.size()==0) trees.push_back(pointer);
-		else if (trees[0]==NULL) trees[0]=pointer;
-		else {
-			BinominalyHeap<Type,Comparator> fictive_heap;
-			fictive_heap.trees.push_back(pointer);
-			merge(fictive_heap);
-		}
-	}
 
 	int find_max_ind()
 	{
@@ -43,7 +30,7 @@ private:
 
 	void erase_by_maxind(const int &max_ind)
 	{
-		BinominalyHeap temporary;
+		BinomialHeap temporary;
 		temporary.trees=trees[max_ind]->childs;
 		delete trees[max_ind];
 		trees[max_ind]=NULL;
@@ -55,8 +42,6 @@ private:
 	}
 
 public:
-	BinominalyHeap() {}
-
 	bool empty()
 	{
 		return !trees.size();
@@ -79,17 +64,23 @@ public:
 		}
 	}
 
-	pointer insert(const Type &element)
+	Pointer insert(const Type &element)
 	{
-		BinT* back_pointer=new BinT(element);
-		add_by_pointer(back_pointer);
-		pointer unique_pointer=new ValueReference<BinT>;
-		unique_pointer->node=back_pointer;
-		back_pointer->backward_pointer=unique_pointer;
-		return unique_pointer;
+		BinT* element_pointer=new BinT(element);
+		if (trees.size()==0) trees.push_back(element_pointer);
+		else if (trees[0]==NULL) trees[0]=element_pointer;
+		else {
+			BinomialHeap<Type,Comparator> fictive_heap;
+			fictive_heap.trees.push_back(element_pointer);
+			merge(fictive_heap);
+		}
+		Pointer back_pointer=new ValueReference<BinT>;
+		back_pointer->node=element_pointer;
+		element_pointer->backward_pointer=back_pointer;
+		return back_pointer;
 	}
 
-	void merge(BinominalyHeap<Type,Comparator>& assigned) {
+	void merge(BinomialHeap<Type,Comparator>& assigned) {
 		int q=std::max(trees.size(),assigned.trees.size());
 		trees.resize(q);
 		assigned.trees.resize(q);
@@ -100,32 +91,32 @@ public:
 		assigned.trees.resize(0);
 	}
 
-	void delete_element(pointer& pointer) 
+	void delete_element(Pointer& user_pointer) 
 	{
-		sift_to_top(pointer->node);
+		sift_to_top(user_pointer->node);
 		int maxind;
 		for (unsigned int i=0;i<trees.size();i++)
-			if (pointer->node==trees[i]) maxind=i;
+			if (user_pointer->node==trees[i]) maxind=i;
 		erase_by_maxind(maxind);
-		pointer=NULL;
+		user_pointer=NULL;
 	}
 
-	void change_key_to(pointer& pointer,Type newValue)
+	void change_key_to(Pointer& user_pointer,const Type& newValue)
 	{
 		Comparator cmp;
-		if (cmp(newValue,pointer->node->top()))
+		if (cmp(newValue,user_pointer->node->top()))
 		{
-			pointer->node->info=newValue;
-			sift_up(pointer->node);
+			user_pointer->node->info=newValue;
+			sift_up(user_pointer->node);
 		} else {
-			delete_element(pointer);
-			pointer=insert(newValue);
+			delete_element(user_pointer);
+			user_pointer=insert(newValue);
 		}
 	}
 
-	void change_key_on(pointer& pointer,Type delta)
+	void change_key_on(Pointer& user_pointer,Type delta)
 	{
-		change_key_to(pointer,(pointer->node)->top()+delta);
+		change_key_to(user_pointer,user_pointer->node->top()+delta);
 	}
 
 	bool check_invariants()
@@ -141,12 +132,12 @@ public:
 		return f;
 	}
 
-	Type get_by_ptr(pointer pointer)
+	Type get_by_ptr(const Pointer& user_pointer)
 	{
-		return (pointer->node)->top();
+		return user_pointer->node->top();
 	}
 
-	~BinominalyHeap(){
+	~BinomialHeap(){
 		for (unsigned int i=0;i<trees.size();i++)
 			clear_tree(trees[i]);
 		trees.resize(0);

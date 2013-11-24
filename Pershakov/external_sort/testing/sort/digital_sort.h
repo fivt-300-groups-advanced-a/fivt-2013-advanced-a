@@ -2,6 +2,8 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include "../../sort/digital_sorter.h"
 
 /*
@@ -11,25 +13,14 @@
 const unsigned int MOD = (1 << 16);
 
 TEST(TestIntegerDigitExtractor, Int){
-    unsigned int a = 241241431;
-    IntegerDigitExtractor<int> extractor;
-    EXPECT_EQ(extractor.getCntDigits(a), 2);
-    EXPECT_EQ((extractor.getDigit(a, 1) - MOD) * MOD + 
-            extractor.getDigit(a, 0) - MOD, a);
-
-    a = 0;
-    EXPECT_EQ(extractor.getCntDigits(a), 1);
-    EXPECT_EQ(extractor.getDigit(a, 0) - MOD, a);
-    
-    a = 3213;
-    EXPECT_EQ(extractor.getCntDigits(a), 1);
-    EXPECT_EQ((extractor.getDigit(a, 1) - MOD) * MOD + 
-            extractor.getDigit(a, 0) - MOD, a);
-
-    a = -42343224;
-    EXPECT_EQ(extractor.getCntDigits(a), 2);
-    EXPECT_EQ((extractor.getDigit(a, 1) - MOD) * MOD + 
-            extractor.getDigit(a, 0) - MOD, a);
+    srand(time(0));
+    for (int i = 0; i < 1000; i++){
+        int a = rand() % 1000000 - 2000000;;
+        IntegerDigitExtractor<int> extractor;
+        ASSERT_EQ(extractor.getCntDigits(a), 2);
+        ASSERT_EQ((extractor.getDigit(a, 1) - MOD) * MOD + 
+                extractor.getDigit(a, 0) - MOD, a);
+    }
 }
 
 /*
@@ -37,13 +28,14 @@ TEST(TestIntegerDigitExtractor, Int){
  */
 
 TEST(TestDigitalSorter, Int){
-    std::vector<int> a(6);
-    a[0] = -12, a[1] = 213, a[2] = 31343432, a[3] = 0;
-    a[4] = -2365352, a[5] = 432;
+    int sz = 1000;
+    std::vector<int> a(sz);
+    for (int i = 0; i < sz; i++)
+        a[i] = rand() % 1000000 - 2000000;
     std::vector<int> b = a;
     std::sort(b.begin(), b.end());
     DigitalSorter<int, IntegerDigitExtractor<int> > sorter;
     sorter(a);
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < sz; i++)
         ASSERT_EQ(a[i], b[i]);
 }

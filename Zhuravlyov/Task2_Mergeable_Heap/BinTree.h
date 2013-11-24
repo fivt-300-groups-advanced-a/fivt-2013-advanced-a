@@ -2,7 +2,7 @@
 #define BIN_TREE
 
 #include <vector>
-#include "unHeap.h"
+#include "BinHeap.h"
 
 template <class Structure >
 struct ValueReference
@@ -11,19 +11,18 @@ struct ValueReference
 };
 
 template <class Type,class Comparator>
-class BinominalyTree{
-
-typedef BinominalyTree<Type,Comparator> BinT;
-template <class Type,class Comparator> friend class BinominalyHeap;
+class BinomialTree{
 
 private:
-	std::vector<BinominalyTree<Type,Comparator>*> childs;
-	BinominalyTree<Type,Comparator>* parent;
+	typedef BinomialTree<Type,Comparator> BinT;
+	template <class Type,class Comparator> friend class BinomialHeap;
+	std::vector<BinomialTree<Type,Comparator>*> childs;
+	BinomialTree<Type,Comparator>* parent;
 	Type info;
 	ValueReference<BinT>* backward_pointer;
 
 public:
-	BinominalyTree(Type element) {
+	BinomialTree(Type element) {
 		childs.resize(0);
 		parent=NULL;
 		info=element;
@@ -44,7 +43,7 @@ public:
 		return info;
 	}
 
-	~BinominalyTree()
+	~BinomialTree()
 	{
 		delete backward_pointer;
 	}
