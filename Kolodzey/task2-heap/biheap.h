@@ -2,6 +2,7 @@
 #include <utility>
 #include <memory>
 #include <list>
+#include <iostream>
 
 template <class Container, class Value> class TestAccess;
 

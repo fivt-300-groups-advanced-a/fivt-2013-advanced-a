@@ -502,9 +502,6 @@ TEST(BiHeap, get_top_ref)
 TEST(BiHeap, top)
 {
   BiHeap<int> heap;
-  ValPointer<int> ref0 = heap.get_top_ref();
-  TestAccess<ValPointer<int>,int> access_ref0;
-  access_ref0._valpointer = &ref0;
   heap.insert(5);
   EXPECT_EQ(heap.top(), 5);
   heap.insert(6);
@@ -534,4 +531,15 @@ TEST(BiHeap, erase)
   EXPECT_EQ((*it)->get_val(),3);
   ++it;
   EXPECT_EQ((*it)->get_val(),1);
+}
+
+TEST(BiHeap, top_unusualcmp)
+{
+  BiHeap<int,std::greater<int> > heap((std::greater<int>()));
+  heap.insert(5);
+  EXPECT_EQ(heap.top(), 5);
+  heap.insert(6);
+  EXPECT_EQ(heap.top(), 6);
+  heap.insert(2);
+  EXPECT_EQ(heap.top(), 6);
 }
