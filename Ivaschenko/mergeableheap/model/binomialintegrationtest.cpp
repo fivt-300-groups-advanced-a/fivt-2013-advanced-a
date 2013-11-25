@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "model/binomialheap.h"
+#include "model/testaccess.h"
 
 #include <algorithm>
 #include <utility>
@@ -29,6 +30,7 @@ TEST(BinomialHeapIntegration, HeapHandIntSort)
 
 		for (int x : test)
 			heap.push(x);
+
 		for (size_t i = 0; i < sorted.size(); ++i)
 			EXPECT_EQ(sorted[i], heap.pop()) << "Differs at token #" << i;
 	}
@@ -103,6 +105,35 @@ TEST(BinomialHeapIntegration, StressWithPriorityQueue)
 				}
 			}
 		}
+	}
+}
+
+TEST(BinomialHeapIntegration, TestMerge)
+{
+	std::vector< std::pair<int, int> > tests =
+	{
+		{2, 0}, {2, 1}, {2, 2},
+		{5, 3}, {5, 4},
+		{10, 5}, {50, 6},
+		{1000, 7}, {50000, 8}
+	};
+	for (auto test : tests)
+
+	{
+		int n = test.first, seed = test.second;
+		std::vector< BinomialHeap<int> > heaps(n);
+		std::vector<int> values(n);
+		for (int i = 0; i < n; ++i) values[i] = i;
+		std::shuffle(values.begin(), values.end(), std::mt19937(seed));
+		for (int i = 0; i < n; ++i)
+			heaps[i].push(values[i]);
+		for (int i = 0; i + 1 < n; ++i)
+		{
+			heaps[i + 1].merge(heaps[i]);
+			EXPECT_TRUE(heaps[i].empty());
+		}
+		for (int i = 0; i < n; ++i)
+			EXPECT_EQ(i, heaps[n - 1].pop());
 	}
 }
 
