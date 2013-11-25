@@ -1,7 +1,7 @@
 #ifndef TESTS
 #define TESTS
 
-#include "unHeap.h"
+#include "BinHeap.h"
 #include "gtest/gtest.h"
 #include "FileIO.h"
 #include <vector>
@@ -10,8 +10,8 @@
 
 TEST(UnitTests,Insert_Merge_getMin_extractMin)
 {
-	BinominalyHeap<int,std::less<int> > heap1;
-	BinominalyHeap<int,std::less<int> > heap2;
+	BinomialHeap<int,std::less<int> > heap1;
+	BinomialHeap<int,std::less<int> > heap2;
 	int mas[1000];
 	for (int i=0;i<1000;i++)
 		mas[i]=rand()%1000000;
@@ -33,11 +33,11 @@ TEST(UnitTests,Insert_Merge_getMin_extractMin)
 
 TEST(UnitTests,Insert_Decresaing)
 {
-	BinominalyHeap<int,std::less<int> > heap;
+	BinomialHeap<int,std::less<int> > heap;
 	std::vector<int> mass(1000);
 	for (int i=0;i<1000;i++)
 		mass[i]=rand()%1000000;
-	typedef BinominalyHeap<int,std::less<int>>::pointer pointer;
+	typedef BinomialHeap<int,std::less<int>>::Pointer pointer;
 	std::vector<pointer> pointers(1000);
 	for (int i=0;i<1000;i++)
 		pointers[i]=heap.insert(mass[i]);
@@ -45,8 +45,12 @@ TEST(UnitTests,Insert_Decresaing)
 	{
 		int delta=rand()%100000;
 		heap.change_key_on(pointers[i],-delta);
-		mass[i]-=delta;
+		heap.check_invariants();
+		mass[i]-=delta; 
 	}
+	for (int i=0;i<1000;i++)
+		EXPECT_EQ(mass[i],heap.get_by_ptr(pointers[i]));
+	heap.check_invariants();
 	std::sort(mass.begin(),mass.end());
 	for (unsigned int i=0;i<mass.size();i++)
 		EXPECT_EQ(heap.extract(),mass[i]);
@@ -55,17 +59,20 @@ TEST(UnitTests,Insert_Decresaing)
 
 TEST(UnitTests,Insert_Delete)
 {
-	BinominalyHeap<int, std::greater<int> > heap;
+	BinomialHeap<int, std::greater<int> > heap;
 	std::vector<int> mass(1000);
 	for (int i=0;i<1000;i++)
 		mass[i]=rand()%1000000;
-	typedef BinominalyHeap<int,std::greater<int>>::pointer pointer;
+	typedef BinomialHeap<int,std::greater<int>>::Pointer pointer;
 	std::vector<pointer> index(1000);
 	for (unsigned int i=0;i<1000;i++)
 		index[i]=heap.insert(mass[i]);
 	EXPECT_TRUE(heap.check_invariants());
 	for (unsigned int i=0;i<1000;i+=2)
+	{
 		heap.delete_element(index[i]);
+		EXPECT_TRUE(heap.check_invariants());
+	}
 	EXPECT_TRUE(heap.check_invariants());
 	for (unsigned int i=998;i>0;i-=2)
 		mass.erase(mass.begin()+i);
@@ -78,11 +85,11 @@ TEST(UnitTests,Insert_Delete)
 
 TEST(UnitTests,Insert_Delete_Change)
 {
-	BinominalyHeap<int,std::less<int> > heap;
+	BinomialHeap<int,std::less<int> > heap;
 	std::vector<int> mass(1000);
 	for (int i=0;i<1000;i++)
 		mass[i]=rand()%1000000;
-	typedef BinominalyHeap<int,std::less<int>>::pointer pointer;
+	typedef BinomialHeap<int,std::less<int>>::Pointer pointer;
 	std::vector<pointer> pointers(1000);
 	for (int i=0;i<1000;i++)
 		pointers[i]=heap.insert(mass[i]);
@@ -94,12 +101,16 @@ TEST(UnitTests,Insert_Delete_Change)
 	heap.change_key_to(pointers[100],-600);
 	heap.change_key_on(pointers[0],-100000);
 	heap.delete_element(pointers[0]);
+	heap.change_key_on(pointers[20],100000);
+	heap.change_key_on(pointers[20],200000);
+	heap.change_key_on(pointers[20],300000);
+	mass[20]+=600000;
+	mass[100]=-600;
 	EXPECT_TRUE(heap.check_invariants());
 	for (int i=0;i<1000;i++)
-		if (i!=5 && i!=0 && i!=100 && i!=500)
+		if (i!=5 && i!=0 && i!=500)
 			EXPECT_EQ(mass[i],heap.get_by_ptr(pointers[i]));
-	mass[100]=-600;
-	mass[0]-=100000; 
+	mass[0]-=100000;
 	mass.erase(mass.begin()+500);
 	mass.erase(mass.begin()+5); 
 	mass.erase(mass.begin());
@@ -111,11 +122,11 @@ TEST(UnitTests,Insert_Delete_Change)
 
 TEST(UnitTests,Insert_Change_Merge)
 {
-	BinominalyHeap<int,std::less<int>> heap1;
-	BinominalyHeap<int,std::less<int>> heap2;
-	BinominalyHeap<int,std::less<int>> heap3;
+	BinomialHeap<int,std::less<int>> heap1;
+	BinomialHeap<int,std::less<int>> heap2;
+	BinomialHeap<int,std::less<int>> heap3;
 	std::vector<int> mass(3000);
-	typedef BinominalyHeap<int,std::less<int>>::pointer pointer;
+	typedef BinomialHeap<int,std::less<int>>::Pointer pointer;
 	std::vector<pointer> pointers(3000);
 	for (int i=0;i<3000;i++)
 	{
@@ -165,8 +176,8 @@ struct point_cmp{
 
 TEST(IntegrationTests,SampleTypeTesting)
 {
-	BinominalyHeap<point,point_cmp> heap1,heap2;
-	typedef BinominalyHeap<point,point_cmp>::pointer pointer;
+	BinomialHeap<point,point_cmp> heap1,heap2;
+	typedef BinomialHeap<point,point_cmp>::Pointer pointer;
 	std::vector<point> mass(1000);
 	std::vector<pointer> pointers(1000);
 	for (int i=0;i<1000;i++)
@@ -208,8 +219,8 @@ TEST(IntegrationTests,SampleTypeTesting)
 	EXPECT_TRUE(heap1.empty()); 
 }
 
-const int number_of_vectors=2000;
-const int size_of_vector=50;
+const int number_of_vectors=5000;
+const int size_of_vector=40;
 
 TEST(IntegrationTests,TimeCheckTesting_MakeInput)
 {
@@ -221,16 +232,14 @@ TEST(IntegrationTests,TimeCheckTesting_MakeInput)
 
 void mergeVectors(std::vector<int>& a,std::vector<int>& b)
 {
-	for (int i=0;i<b.size();i++)
+	for (unsigned int i=0;i<b.size();i++)
 		a.push_back(b[i]);
 	std::sort(a.begin(),a.end());
 }
 
 void insert_to_vector(std::vector<int>& a,int b)
 {
-	std::vector<int> c;
-	c.push_back(b);
-	mergeVectors(a,c);
+	a.push_back(b);
 }
 
 TEST(IntegrationTests,TimeCheckTesting_Vector)
@@ -249,7 +258,7 @@ TEST(IntegrationTests,TimeCheckTesting_Vector)
 	for (int i=0;i<number_of_vectors;i++)
 		mergeVectors(common_vector,vectors[i]);
 	BinaryFileWriter write("vector.res");
-	for (int i=0;i<common_vector.size();i++)
+	for (unsigned int i=0;i<common_vector.size();i++)
 		write(common_vector[i]);
 	read.close();
 	write.close();
@@ -258,7 +267,7 @@ TEST(IntegrationTests,TimeCheckTesting_Vector)
 TEST(IntegrationTests,TimeCheckTesting_Heap)
 {
 	BinaryFileReader read("filename.dat");
-	typedef BinominalyHeap<int,std::less<int>> BinHint;
+	typedef BinomialHeap<int,std::less<int>> BinHint;
 	std::vector<BinHint> heaps(number_of_vectors);
 	BinHint common_heap;
 	for (int i=0;i<number_of_vectors;i++)
@@ -288,6 +297,71 @@ TEST(IntegrationTests,TimeCheckTesting_CheckResult)
 	remove("filename.dat");
 	remove("vector.res");
 	remove("heap.res");
+}
+
+TEST(IntegrationTests,HeapSort)
+{
+	BinomialHeap<int,std::less<int>> heap;
+	int n=100000;
+	std::vector<int> mass(n);
+	for (int i=0;i<n;i++)
+		mass[i]=rand()%1000000000;
+	for (int i=0;i<n;i++)
+		heap.insert(mass[i]);
+	std::sort(mass.begin(),mass.end());
+	for (int i=0;i<n;i++)
+		EXPECT_EQ(heap.extract(),mass[i]);
+	EXPECT_TRUE(heap.empty());
+}
+
+int number_of_operations=1000000;
+TEST(StressTesting,Test)
+{
+	typedef BinomialHeap<int,std::less<int>> BinH;
+	std::vector<BinH> heaps(2);
+	typedef BinH::Pointer pointer;
+	std::vector<std::vector<pointer>> ptrs(2);
+	for (int i=0;i<number_of_operations;i++)
+	{
+		int operation=rand()%6;
+		int number=rand()%100000000;
+		int hi=rand()%2;
+		int ptrnumber;
+		if (ptrs[hi].size())
+			ptrnumber=rand()%ptrs[hi].size();
+		if (heaps[hi].empty()) ptrs[hi].push_back(heaps[hi].insert(number));
+		else 
+			if (operation==0) {
+			ptrs[hi].push_back(heaps[hi].insert(number));
+		} else if (operation==1) {
+			if (!heaps[hi].empty()) {
+				heaps[hi].extract();
+				ptrs[hi].resize(0);
+			}
+		} 
+		else if (operation==2) {
+			if (ptrs[hi].size())
+				if (ptrs[hi][ptrnumber])
+					heaps[hi].delete_element(ptrs[hi][ptrnumber]);
+		} 
+		else if (operation==3) {
+			if (ptrs[hi].size())
+				if (ptrs[hi][ptrnumber]) 
+					heaps[hi].change_key_on(ptrs[hi][ptrnumber],number);
+		} else if (operation==4) {
+			if (ptrs[hi].size())
+				if (ptrs[hi][ptrnumber]) 
+					heaps[hi].change_key_to(ptrs[hi][ptrnumber],number);
+		}
+		else {
+			heaps[hi].merge(heaps[1-hi]);
+			for (unsigned int i=0;i<ptrs[1-hi].size();i++)
+				ptrs[hi].push_back(ptrs[1-hi][i]);
+			ptrs[1-hi].resize(0);
+		}
+		heaps[0].check_invariants();
+		heaps[1].check_invariants();
+	}
 }
 
 #endif

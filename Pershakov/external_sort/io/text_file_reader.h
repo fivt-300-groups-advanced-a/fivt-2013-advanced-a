@@ -8,7 +8,7 @@
 
 template <class T> class TextFileReader {
     public:
-        explicit TextFileReader(){}
+        TextFileReader(){}
 
         explicit TextFileReader(const std::string &filename){
             setStream(filename);

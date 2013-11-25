@@ -60,7 +60,7 @@ protected:
                 min = *i;
         }
     }
-    //after norm vertices in root list must contain valid positions
+    //after norm vertices in root list must contain valid self-positions
     void norm() {
         vert * arr[szlog];
         memset(arr, 0, sizeof(arr));
@@ -85,8 +85,9 @@ protected:
             v->inv = true;
         }
     }
-    
+
     void cut(vert * v) {
+        v->inv = false;
         if (v->parent == nullptr) return;
         //if v->parent == nullptr then v->pos may be invalid 
         v->parent->l.erase(v->pos);
@@ -101,10 +102,18 @@ protected:
     }
 public:
     class Iterator{
-    public:
+        friend Heap<T, cmp>;
         vert * pos;
+    public:
         Iterator(vert * _pos) {
             pos = _pos;
+        }
+        const T & operator *() {
+            return pos->val;
+        }
+        Iterator(){pos = nullptr;}
+        bool valid() {
+            return pos;
         }
     };
 
@@ -128,7 +137,7 @@ public:
         while ((1 << (szlog/2)) <= sz) szlog++;
     }
 
-    T & getMin() {
+    const T & getMin() {
         return min->val;
     }
 
@@ -163,7 +172,7 @@ public:
         decreaseKey(it);
         removeMin();
     }
-    //TODO: fix memory leak
+    //TODO: fix memory leaks
     //fixed
     void clear() {
         for_each(l.begin(), l.end(), [&](vert * v){delete v;});

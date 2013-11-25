@@ -6,5 +6,10 @@ CONFIG -= qt
 SOURCES += main.cpp
 
 HEADERS += \
-    BinomialHeap.h
+    BinomialHeap.h \
+    IntegrationTest.h \
+    VectorHeap.h \
+    ChechHeap.h \
+    InvariantTest.h \
+    MyTypeTest.h
 
