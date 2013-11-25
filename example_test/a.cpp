@@ -40,6 +40,8 @@ struct Pure {
 int main() {
     Pure A(5);
     A.upgrade(131);
+
+    exit(0);
     assert(A.x == 5 + 1 + 3 + 1);
 
     Convertion Q;

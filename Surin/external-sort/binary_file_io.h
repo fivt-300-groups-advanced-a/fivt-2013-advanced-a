@@ -48,7 +48,7 @@ public:
         return *this;
     }
     ~BFReader() {
-        delete buffer;
+        free(buffer);
         close();
     }
     void close() {
@@ -103,7 +103,7 @@ public:
     }
     ~BFWriter() {
         close();
-        delete buffer;
+        free(buffer);
     }
     void close() {
         if (fd != NULL) {

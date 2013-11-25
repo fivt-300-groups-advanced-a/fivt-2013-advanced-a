@@ -168,7 +168,6 @@ TEST(Sorting, small_int_test) {
 }
 
 //slow performance test
-/*
 #define NINT 100000000
 
 TEST(Sorting, int_test) {
@@ -180,14 +179,9 @@ TEST(Sorting, int_test) {
     BFReader<int> inp("tempfile");
     ASSERT_NO_THROW(bigSort(&inp, &outp, new CInvOp<int, CLess<int> >()));
     outp.close();
-    inp.close();
-    inp.open("new-outp");
-    std::vector<int> v;
-    ASSERT_TRUE(sortedstream(inp, new CInvOp<int, CLess<int> >(), v));
     remove("tempfile");
     remove("new-outp");
 }
-*/
 
 int main(int argc, char ** argv) {
     testing::InitGoogleTest(&argc, argv);
