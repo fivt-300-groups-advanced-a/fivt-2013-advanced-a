@@ -42,12 +42,12 @@ class Tester {
             srand(time(0));
         }
 
-        Tester(const Comparator &new_cmp): ids(new_cmp) {
+        explicit Tester(const Comparator &new_cmp): ids(new_cmp) {
             srand(time(0));
             cmp = new_cmp;
         }
 
-        Tester(const RandomGenerator &new_rnd){
+        explicit Tester(const RandomGenerator &new_rnd){
             srand(time(0));
             rnd = new_rnd;
         }
