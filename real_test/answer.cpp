@@ -95,7 +95,7 @@ int main() {
         px.push_back(i + 9);
         py.push_back(px.back() * 7);
     }
-    for(int i = 0; i * 3 <= px.size(); ++i) {
+    for(int i = 0; i * 3 < /*+1*/ px.size(); ++i) {
         PairRefs<int> p1(px[i * 3], py[i * 3]);
         PairRefs<int> p2(px[i * 3 + 1], py[i * 3 + 1]);
         PairRefs<int> p3(px[i * 3 + 2], py[i * 3 + 2]);
