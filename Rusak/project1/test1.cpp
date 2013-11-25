@@ -164,7 +164,7 @@ void sort_speed_ints(int col, int RAM) {
   clock_t t1 = clock();
   //generate
   BinaryWriter<int> os("temp.txt");
-  for (int i=0;i<col;i++) os(rand()%100);
+  for (int i=0;i<col;i++) os(rand());
   os.close();
   clock_t t2 = clock();
   //sort
@@ -195,5 +195,6 @@ int main() {
   sort_rand_ints_asc();
   sort_rand_ints_desc();
   sort_rand_doubles_asc();
-  sort_speed_ints(100000000, 4000000);
+  //sort_speed_ints(100000000, 4000000);
+  sort_speed_ints(100000, 400);
 }

@@ -1,47 +1,77 @@
 #include "BinomialHeap.h"
 #include <cstdio>
-#include <cassert>
 #include <set>
 #include <ctime>
+#include "gtest/gtest.h"
 
-typedef Vertex <int> * pointer;
 #define forn(i, n) for (int i = 0; i < (int)n; i++)
 
-void add(Heap <int> * H, int x)
+struct triple
 {
-	H->insert(x);
-	printf("%d\n", H->getMin());
-	fflush(stdout);
-}
+        int x;
+        int y;
+        int z;
+};
 
-void minn(Heap <int> * H)
+struct tripleCmp
 {
-	printf("%d\n", H->getMin());
-}
+    bool operator ()(triple A, triple B)
+    {
+        if (A.x != B.x)
+                return A.x < B.x;
+        if (A.y != B.y)
+                return A.y < B.y;
+        return A.z < B.z;
+    }
+};
 
-void init(Heap <int> * H)
+TEST(generate_big_heap, generate_big_heap)
 {
-	int minn = 100500;
-	forn(j, 10)
+	tripleCmp cmp;
+	Heap <triple, tripleCmp> * H = new Heap <triple, tripleCmp > (cmp);
+	HeapChecker <triple, tripleCmp> checker;
+	int cur = 0;
+	forn(it, 10000)
 	{
-		int new_e = rand() % 10 + 10 - j;
-		
-		H->insert(new_e);
-		minn = min(minn, new_e);
-		int h_min = H->getMin();
-		assert(h_min == minn);
-		printf("new_e = %d minn = %d h_min = %d\n", new_e, minn, h_min);
+		triple new_triple;
+		new_triple.x = rand();
+		new_triple.y = rand();
+		new_triple.z = rand();
+		H->insert(new_triple);
+		ASSERT_TRUE(checker.checkDegreeInvariant(H, 17));
+		if (it + 1 == (1 << cur))
+		{
+			ASSERT_TRUE(checker.checkPowerOfTwo(H, cur));
+			cur++;
+		}
+	}
+	triple prevMin;
+	ASSERT_EQ(H->getSize(), 10000);
+	forn(it, H->getSize())
+	{
+		triple newMin = H->extractMin();
+		if (it != 0)
+			ASSERT_FALSE(cmp(newMin, prevMin));
+		prevMin = newMin;
+		ASSERT_TRUE(checker.checkDegreeInvariant(H, 17));
 	}
 }
 
-multiset <int> myset;
 
-void test(Heap <int> * H)
+TEST(int_less_test, int_less_test)
 {
-	int start_time = clock();
+	std::less <int> cmp;
+	Heap <int, std::less <int>> * H = new Heap <int, std::less<int> > (cmp);
+	
+	HeapChecker <int, std::less<int>> checker;
+	multiset <int> myset;
+	//int start_time = clock();
 	myset.clear();
-	forn(j, 1000000)
+	forn(j, 10000)
 	{
+		ASSERT_EQ(H->getSize(), myset.size());
+		
+		ASSERT_TRUE(checker.checkDegreeInvariant(H, 14));
 		//printf("iteration %d\n", j);
 		int typ;
 		while(true)
@@ -54,60 +84,101 @@ void test(Heap <int> * H)
 			}
 			break;
 		}
+		//typ = 2;
 		if (typ == 0)
 		{
 			int our_ans = H->extractMin();
 			int right_ans = *myset.begin();
 			//printf("erase our_ans = %d right_ans = %d\n", our_ans, right_ans);
-			assert(our_ans == right_ans);
+			ASSERT_TRUE(our_ans == right_ans);
+			
 			myset.erase(myset.begin());
 		}
 		else if (typ == 1)
 		{
 			int our_ans = H->getMin();
 			int right_ans = *myset.begin();
+			//printf("erase our_ans = %d right_ans = %d\n", our_ans, right_ans);
+			ASSERT_TRUE(our_ans == right_ans);
 			//printf("get our_ans = %d right_ans = %d\n", our_ans, right_ans);
-			assert(our_ans == right_ans);
+			
 		}
 		else
 		{
-			int r = rand() % 1000;
+			//int r = rand() % 1000;
 			//printf("add %d\n", r);
+			int r = rand() % 1000;
+			
 			H->insert(r);
 			myset.insert(r);
 		}
 	}
-	printf("time %d\n", clock() - start_time);
 }
 
-int main()
+TEST(triple_test, triple_test)
 {
-	//freopen("output.txt", "w", stdout);
-	/*Heap <int> * H1 = new Heap<int>();
-	minn(H1);
-	Heap <int> * H2 = new Heap<int>();
-	//init(H1);
-	//init(H2);
-	/*add(H1, 5);
-	add(H1, 2);
-	add(H1, 3);
-	add(H2, 10);
-	add(H2, 15);
-	add(H2, 100);*/
+	tripleCmp cmp;
+	Heap <triple, tripleCmp> * H = new Heap <triple, tripleCmp > (cmp);
+	
+	HeapChecker <triple, tripleCmp> checker;
+	//multiset <triple> myset(tripleCmp);
+	multiset <triple, tripleCmp> myset;
+	//int start_time = clock();
+	myset.clear();
+	forn(j, 10000)
+	{
+		ASSERT_EQ(H->getSize(), myset.size());
+		ASSERT_TRUE(checker.checkDegreeInvariant(H, 14));
+		//printf("iteration %d\n", j);
+		int typ;
+		while(true)
+		{
+			typ = rand() % 3;
+			if (typ == 0 || typ == 1)
+			{
+				if (myset.empty())
+					continue;
+			}
+			break;
+		}
+		//typ = 2;
+		if (typ == 0)
+		{
+			triple our_ans = H->extractMin();
+			triple right_ans = *myset.begin();
+			//printf("erase our_ans = %d right_ans = %d\n", our_ans, right_ans);
+			ASSERT_FALSE(cmp(our_ans, right_ans));
+			ASSERT_FALSE(cmp(right_ans, our_ans));
+			myset.erase(myset.begin());
+		}
+		else if (typ == 1)
+		{
+			triple our_ans = H->getMin();
+			triple right_ans = *myset.begin();
+			//printf("erase our_ans = %d right_ans = %d\n", our_ans, right_ans);
+			ASSERT_FALSE(cmp(right_ans, our_ans));
+			ASSERT_FALSE(cmp(our_ans, right_ans));
+			//printf("get our_ans = %d right_ans = %d\n", our_ans, right_ans);
+			
+		}
+		else
+		{
+			//int r = rand() % 1000;
+			//printf("add %d\n", r);
+			triple r;
+			r.x = rand() % 1000;
+			r.y = rand() % 1000;
+			r.z = rand() % 1000;
+			H->insert(r);
+			myset.insert(r);
+		}
+	}
+}
 
-	//Heap <int> * H3 = H1->merge(H2);
-	//minn(H3);
-	//Heap <int> * H4 = new Heap<int> ();
-	//test(H4);
-	Heap <int> * H5 = new Heap<int>();
-	pointer p1 = H5->insert(10);
-	pointer p2 = H5->insert(10);
-	pointer p3 = H5->insert(10);
-	minn(H5);
-	pointer p4 = H5->insert(5);
-	minn(H5);
-	decreaseKey(p1, 4);
-	minn(H5);
-	H5->deleteElem(p1, -100500);
-	minn(H5);
+
+int main(int argc, char ** argv)
+{
+	testing::InitGoogleTest(&argc, argv); 
+    RUN_ALL_TESTS(); 
+	
 }
