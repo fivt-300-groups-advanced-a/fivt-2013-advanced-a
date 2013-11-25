@@ -115,12 +115,11 @@ TEST(Hard, DecreaseKeyTest) {
         hh.checkHeap();
     }
 }
-
-Heap<int, CLess<int> > hh[1000000];
-Heap<int, CLess<int> >::Iterator it[1000000];
+const int n = 1000000;
+Heap<int, CLess<int> > hh[n];
+Heap<int, CLess<int> >::Iterator it[n];
 
 TEST(Nightmare, StressTest) {
-    const int n = 1000000;
     typedef Heap<int, CLess<int> > THeap;
     for (int i = 0; i < n; i++) {
         it[i] = hh[i].insert(rand());
@@ -158,8 +157,26 @@ TEST(Nightmare, StressTest) {
     }
 }
 
-int main(int argc, char ** argv) {
-    srand(time(0));
+TEST(Nigtmare, DecreaseKeyStress) {
+    Heap<int> h;
+    for (int i = 0; i < n; i++) {
+        it[i] = h.insert(rand());
+    }
+    int ll = 0;
+    for (int i = 0; i < n; i++) {
+        if (i % 10000 == 0) {
+            h.remove(it[ll++]);
+            it[ll - 1] = Heap<int>::Iterator();
+        }
+        int cc = rand()%(n - ll  - 1) + ll + 1;
+        ASSERT_LT(cc, n);
+        ASSERT_LT(ll, cc);
+        h.decreaseKey(it[cc], *(it[cc]) - 1);
+    }
+}
+
+int main(int argc, char ** argv) { //1231
+    srand(/*time(0)*/1212311);
     fib[0] = 1;
     for (int i = 1; i < 100; ++i) {
         fib[i] = 2;
