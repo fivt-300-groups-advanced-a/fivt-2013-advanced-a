@@ -5,8 +5,9 @@
 #include <list>
 #include <memory.h>
 #include <algorithm>
+#include <vector>
 
-template<class T, typename cmp=CLess<T> >
+template<class T, typename cmp=CLess<T>, int szlog=43>
 class Heap {
 public : 
     class Iterator;
@@ -24,14 +25,15 @@ protected:
             parent = _par;
         }
         ~vert() {
-            for_each(l.begin(), l.end(), [&](vert * v){delete v;});
+            for (auto i = l.begin(); i != l.end(); i++)
+                delete *i;
         }
     };
 
     std::list<vert*> l;
     vert * min = nullptr;
     cmp * less;
-    int sz = 0, szlog = 0;
+    int sz = 0;
     
     vert * hang(vert * a, vert * b) {
         if (!(*less)(a->val, b->val)) std::swap(a, b);
@@ -40,7 +42,7 @@ protected:
         return a;
     }
 
-    void add(vert ** arr, vert * v) {
+    void add(std::vector<vert *> & arr, vert * v) {
         while (v != nullptr) {
             int s = v->l.size();
             if (arr[s] != nullptr) {
@@ -60,10 +62,9 @@ protected:
                 min = *i;
         }
     }
-    //after norm vertices in root list must contain valid positions
+    //after norm vertices in root list must contain valid self-positions
     void norm() {
-        vert * arr[szlog];
-        memset(arr, 0, sizeof(arr));
+        std::vector<vert*> arr(szlog, nullptr);
         for (auto i = l.begin(); i != l.end(); i++) {
             add(arr, *i);
         }
@@ -85,8 +86,9 @@ protected:
             v->inv = true;
         }
     }
-    
+
     void cut(vert * v) {
+        v->inv = false;
         if (v->parent == nullptr) return;
         //if v->parent == nullptr then v->pos may be invalid 
         v->parent->l.erase(v->pos);
@@ -94,17 +96,25 @@ protected:
         v->pos = l.insert(l.end(), v);
     }
     
-    void decreaseKey(Iterator it) {
-        rcut(it.pos->parent);
-        cut(it.pos);
-        min = it.pos;
+    void decreaseKey(vert * v) {
+        rcut(v->parent);
+        cut(v);
+        min = v;
     }
 public:
     class Iterator{
-    public:
+        friend Heap<T, cmp>;
         vert * pos;
+    public:
         Iterator(vert * _pos) {
             pos = _pos;
+        }
+        const T & operator *() {
+            return pos->val;
+        }
+        Iterator(){pos = nullptr;}
+        bool valid() {
+            return pos != nullptr;
         }
     };
 
@@ -122,13 +132,14 @@ public:
     void merge(Heap<T, cmp> * h) {
         l.splice(l.end(), h->l);
         if (min == nullptr) min = h->min;
-        else if (min != nullptr || (*less)(min->val, h->min->val))
+        else if (h->min != nullptr && !(*less)(min->val, h->min->val))
             min = h->min;
+        *h = Heap();
         sz += h->sz;
-        while ((1 << (szlog/2)) <= sz) szlog++;
+        //while ((1 << (szlog/2)) <= sz) szlog++;
     }
 
-    T & getMin() {
+    const T & getMin() {
         return min->val;
     }
 
@@ -138,7 +149,7 @@ public:
             min = g;
         g->pos = l.insert(l.end(), g);
         sz++;
-        while ((1 << (szlog/2)) <= sz) szlog++;
+        //while ((1 << (szlog/2)) <= sz) szlog++;
         return Iterator(g);
     }
 
@@ -156,17 +167,25 @@ public:
        it.pos->val = val;
        rcut(it.pos->parent);
        cut(it.pos);
-       norm();
+       if ((*less)(it.pos->val, min->val)) min = it.pos;
     }
 
     void remove(Iterator it) {
-        decreaseKey(it);
-        removeMin();
+        norm();
+        decreaseKey(it.pos);
+        l.erase(min->pos);
+        l.splice(l.end(), min->l);
+        min->l.clear();
+        delete min;
+        sz--;
+        norm();
     }
-    //TODO: fix memory leak
+    //TODO: fix memory leaks
     //fixed
     void clear() {
-        for_each(l.begin(), l.end(), [&](vert * v){delete v;});
+        for (auto i = l.begin(); i != l.end(); i++) {
+           delete *i; 
+        }
         l.clear();
         min = 0;
     }

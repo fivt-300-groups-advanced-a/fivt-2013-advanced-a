@@ -3,8 +3,8 @@ CXXFLAGS.DEBUG := -pg -g -std=c++11
 LINKER.DEBUG := -pg -g
 CXXFLAGS.RELEASE := -std=c++11 -O3
 LINKER.RELEASE := -O3
-CXXFLAGS.TEST := -std=c++11 -ggdb -pg
-LINKER.TEST := -lgtest
+CXXFLAGS.TEST := -std=c++11 -O3#-ggdb -pg
+LINKER.TEST := -lgtest 
 
 Test: clean test.o
 	$(CC) $(LINKER.TEST) ./test.o -o test

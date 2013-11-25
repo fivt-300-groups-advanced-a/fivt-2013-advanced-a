@@ -212,12 +212,25 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Bi
 		std::list<NodeType*> indexList;
 		Comparator cmp;
 
+		/**
+		 * @brief swapElementsData performs swap of two nodes without splitting a key and pointer to node
+		 * Complexity: O(1)
+		 * @param first first node
+		 * @param second second node
+		 */
 		void swapElementsData(NodeType* first, NodeType* second)
 		{
 			swap(*first->index, *second->index);
 			first->swap(*second);
 		}
 
+		/**
+		 * @brief reverseList reverses list of siblings of node (root list is stored in increasing oreder
+		 * while children list of each vertex is stored in decreasing order)
+		 * Complexity: O(log n)
+		 * @param node head of list of siblings
+		 * @return head of reversed list
+		 */
 		NodeType* reverseList(NodeType *node)
 		{
 			if (!node) return nullptr;
@@ -233,7 +246,19 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Bi
 		}
 
 		/**
+		 * @brief append appends one list to another
+		 * @param node
+		 * @param appendix
+		 */
+		void append(NodeType* &node, NodeType *appendix)
+		{
+			if (node) node->listLink = appendix;
+			else root = node = appendix;
+		}
+
+		/**
 		 * @brief mergeHeaps merges given heap to own
+		 * Complexity: O(log n)
 		 * @param node pointer to heap.root of second heap
 		 */
 		void mergeHeaps(NodeType* &node)
@@ -244,52 +269,56 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Bi
 				root = node;
 				return;
 			}
-			for (NodeType *cur = 0, *first = root, *second = node; first || second;) // merge two lists
-				if (first && (!second || first->getRank() < second->getRank())) // from high rank to low
+			NodeType *first = root, *second = node, *temp = 0, *cur = 0;
+			for (std::size_t rnk = 0; first || second; ++rnk)
+			{
+				NodeType *copyFirst = 0, *copySecond = 0;
+				if (first && first->getRank() == rnk)
 				{
-					if (cur) cur->listLink = first;
-					else root = first;
-					cur = first;
+					copyFirst = first;
 					first = first->listLink;
+					copyFirst->listLink = 0;
+				}
+				if (second && second->getRank() == rnk)
+				{
+					copySecond = second;
+					second = second->listLink;
+					copySecond->listLink = 0;
+				}
+
+				if (copyFirst && copySecond)
+				{
+					append(cur, temp);
+					if (!cmp(copyFirst->key, copySecond->key))
+						swap(copyFirst, copySecond);
+					copyFirst->merge(copySecond);
+					temp = copyFirst;
+				}
+				else if (!copyFirst && !copySecond)
+				{
+					append(cur, temp);
+					temp = 0;
 				}
 				else
 				{
-					if (cur) cur->listLink = second;
-					else root = second;
-					cur = second;
-					second = second->listLink;
-				}
-
-			for (NodeType *prev = 0, *cur = root; cur->listLink;)
-				if (cur->getRank() == cur->listLink->getRank()) // merge trees with equal rank
-				{
-					NodeType *nextNode;
-					if (cmp(cur->listLink->key, cur->key))
+					if (!copyFirst) swap(copyFirst, copySecond);
+					if (temp)
 					{
-						if (prev) prev->listLink = cur->listLink;
-						else root = cur->listLink;
-						nextNode = cur->listLink;
-						cur->listLink->merge(cur);
+						if (!cmp(copyFirst->key, temp->key)) swap(copyFirst, temp);
+						copyFirst->merge(temp);
+						temp = copyFirst;
 					}
-					else
-					{
-						NodeType *toMerge = cur->listLink;
-						cur->listLink = cur->listLink->listLink;
-						nextNode = cur;
-						cur->merge(toMerge);
-					}
-					cur = nextNode;
+					else append(cur, copyFirst);
 				}
-				else  // proceed
-				{
-					prev = cur;
-					cur = cur->listLink;
-				}
+				if (cur && cur->listLink) cur = cur->listLink;
+			}
+			append(cur, temp);
 			node = 0; // second heap is now empty
 		}
 
 		/**
 		 * @brief eraseNode erases node from heap and merges it's children to entire heap
+		 * Complexity: O(log n)
 		 * @param prev previous element
 		 * @param node element to delete
 		 */

@@ -22,8 +22,6 @@ class ExternalSorter {
         good = redirect_elements(count_of_files++, count_of_elem);
       }
       count_of_files--;
-      std::cout << "Count of elements: " << count_of_elem << "\n";
-      std::cout << "Count of files: " << count_of_files << "\n";
       merge();
       delete_temp_files();
     }
@@ -65,23 +63,42 @@ class ExternalSorter {
     void merge() {
       std::priority_queue< HeapPair > heap;
       std::vector<BinaryReader<T>> readers(count_of_files);
-      //int col[10010];
       for (int i=0;i<count_of_files;i++) {
-        //col[i] = 0;
+        readers[i].assign(temp_file_name(i));
+      }
+      
+      if (count_of_files>200) {
+        T elem;
+        /*
+        BinaryReader<T> z;
+        z.assign(temp_file_name(277));
+        z(elem);
+        std::cout << "ELEM: " << elem << "\n";
+        z.close();
+        */
+        std::cout << "good: " << readers[525](elem) << "\n";
+        std::cout << "ELEM1: " << elem << "\n";
+        exit(0);
+      }
+
+      for (int i=0;i<count_of_files;i++) {
+        T elem;
+        if (!readers[i](elem)) {
+          std::cout << "bad file: " << i << "\n";
+        }
+      }
+      if (count_of_files>200) exit(0);
+
+      for (int i=0;i<count_of_files;i++) {
         readers[i].assign(temp_file_name(i));
         T *elem = new T();
         readers[i](*elem);
         HeapPair pair(elem, i);
         heap.push(pair);
       }
-      //int sz = 0;
-      //int bad = 0;
       while (!heap.empty()) {
         HeapPair top = heap.top();
         (*writer)(*top.element);
-        //col[top.reader]++;
-        //sz++;
-        //if (top.reader==112) std::cout << (*top.element) << "\n";
         heap.pop();
         top.clear();
         T *elem = new T(); 
@@ -89,15 +106,11 @@ class ExternalSorter {
           HeapPair z(elem, top.reader);
           heap.push(z);
         }
-        //else {
-        //  if (col[top.reader]!=100) {
-        //    bad++;
-        //    std::cout << "Bad reader: " << top.reader << "\n";
-        //  }
-        //}
+        else {
+          delete elem;
+        }
       }
-      //std::cout << "Sorted: " << sz << "\n";
-      //std::cout << "Bad: " << bad << "\n";
+      std::cout << "COUNT of files:" << count_of_files << "\n";
     }
 
     Reader *reader;

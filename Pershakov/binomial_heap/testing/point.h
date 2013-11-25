@@ -8,7 +8,7 @@ class Point {
             x =  y = 0;
         }
 
-        explicit Point(int new_x, int new_y){
+        Point(int new_x, int new_y){
             x = new_x;
             y = new_y;
         }
@@ -47,7 +47,7 @@ class PointComparator {
         explicit PointComparator(Point new_o): o(new_o) {
         }
 
-        explicit PointComparator(int new_x, int new_y): o(new_x, new_y) {
+        PointComparator(int new_x, int new_y): o(new_x, new_y) {
         }
 
         bool operator() (const Point &a, const Point &b){
@@ -109,24 +109,6 @@ class RandomPointGenerator {
 
     private:
         PointComparator cmp;
-};
-
-class PointHash {
-    public:
-        size_t operator() (const Point &a) const {
-            int x = a.getX();
-            int y = a.getY();
-            size_t h1 = std::hash<int>()(x);
-            size_t h2 = std::hash<int>()(y);
-            return h1 ^ (h2 << 1);
-        }
-};
-
-class PointEqual {
-    public:
-        bool operator () (const Point &a, const Point &b) const {
-            return a.getX() == b.getX() && a.getY() == b.getY();
-        }
 };
 
 #endif
