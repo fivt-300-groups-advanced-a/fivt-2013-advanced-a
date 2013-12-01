@@ -24,7 +24,7 @@ class ValPointer
     {
       _ref = ref;
     }
-    const T& get_val()
+    const T& get_val() const
     {
       if (_ref == nullptr)
         std::cerr << "Accessing value by empty valptr" << std::endl;
@@ -32,7 +32,7 @@ class ValPointer
     }
     friend class TestAccess<ValPointer<T>,T>;
     friend bool BiTreeFunc<T>::rehang(ValPointer<T> pa, ValPointer<T> pb);
-    friend bool BiTree<T>::is_son(ValPointer<T> p);
+    friend bool BiTree<T>::is_son(ValPointer<T> p) const;
     friend bool BiTree<T>::lift(ValPointer<T> pval);
   private:
     ValHolder<T>* _ref;
@@ -47,13 +47,13 @@ class ValHolder
       _val = val;
       _pos = pos;
     }
-    const T& get_val()
+    const T& get_val() const
     {
       return _val;
     }
   friend class TestAccess<ValHolder<T>,T>;
   friend bool BiTreeFunc<T>::rehang(ValPointer<T> pa, ValPointer<T> pb);
-  friend bool BiTree<T>::is_son(ValPointer<T> p);
+  friend bool BiTree<T>::is_son(ValPointer<T> p) const;
   friend bool BiTree<T>::lift(ValPointer<T> pval);
   private:
     T _val;
@@ -88,11 +88,11 @@ class BiTree
       _level = 1;
       _pval = std::unique_ptr<ValHolder<T> > (new ValHolder<T>(val, this));
     }
-    int get_level()
+    int get_level() const
     {
       return _level;
     }
-    ValPointer<T> get_pval()
+    ValPointer<T> get_pval() const
     {
       return ValPointer<T>(_pval.get());
     }
@@ -112,7 +112,7 @@ class BiTree
       _child.back()->_parent = this;
       return 1;
     }
-    bool is_son(ValPointer<T> pval) //хм, почему же падает при дописывании const?
+    bool is_son(ValPointer<T> pval) const //хм, почему же падает при дописывании const?
     {
       if (this == nullptr)
         return 0;
@@ -240,9 +240,11 @@ class BiHeap
     {
       _forest.clear();
       _cmp = cmp;
+      _size = 0;
     }
     ValPointer<T> insert(T val)
     {
+      ++_size;
       std::unique_ptr<BiTree<T> > tree (new BiTree<T> (val));
       ValPointer<T> ans = tree->get_pval();
       std::list<std::unique_ptr<BiTree<T> > > listForTree;
@@ -256,22 +258,23 @@ class BiHeap
     void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour
     {
       std::list<std::unique_ptr<BiTree<T> > > elem;
+      _size += heap.size();
       heap.export_to_list(elem); //может это и костыль, но как ещё обходить <std::list> does not provide a call operator?
       insert_list(elem);
       improve_list();
     }
     
-    bool is_empty()
+    bool is_empty() const
     {
       return (_forest.size() == 0);
     }
 
-    ValPointer<T> get_top_ref()
+    ValPointer<T> get_top_ref() const
     {
       if (is_empty())
         return ValPointer<T>(nullptr);
       ValPointer<T> ans = (_forest.front())->get_pval();
-      typename std::list<std::unique_ptr<BiTree<T> > >::iterator it;
+      typename std::list<std::unique_ptr<BiTree<T> > >::const_iterator it;
       for (it = _forest.begin(); it != _forest.end(); ++it)
       {
         if (_cmp((*it)->get_val(), ans.get_val()))
@@ -280,7 +283,7 @@ class BiHeap
       return ans;
     }
 
-    const T& top()
+    const T& top() const
     {
       return get_top_ref().get_val(); //падает при запросе к пустой куче
     }
@@ -309,6 +312,7 @@ class BiHeap
           //std::cerr << "inserted list of children into heap" << std::endl;
           improve_list();
           //std::cerr << "improved list of children (merged trees of the same level)" << std::endl;
+          --_size;
           return 1;
         }
         ++it;
@@ -317,9 +321,15 @@ class BiHeap
     }
     bool pop()
     {
+      //pop вызывает erase, поэтому в этой ф-ии уменьшать размер не надо!
       ValPointer<T> ptop = get_top_ref();
       //std::cerr << "pop find ref to top, top value is " << ptop.get_val() << std::endl;
       return erase(ptop);
+    }
+
+    size_t size() const
+    {
+      return _size;
     }
   friend class TestAccess <BiHeap<T, Compare>,T>;
   private:
@@ -381,4 +391,5 @@ class BiHeap
     }
     Compare _cmp;
     std::list<std::unique_ptr<BiTree<T> > > _forest;
+    size_t _size;
 };
