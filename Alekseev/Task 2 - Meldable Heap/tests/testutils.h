@@ -48,7 +48,7 @@ public:
     typedef typename Heap::Height     Height;
     typedef typename Heap::Index      Index;
 
-    Asserted(const Compare& compare = Compare()): heap(compare) {}
+    explicit Asserted(const Compare& compare = Compare()): heap(compare) {}
 
     bool isEmpty()
     {
@@ -69,7 +69,7 @@ public:
         assertKeysSet(controlSet);
         return ret;
     }
-    Index emplace(const Key key)
+    Index push(const Key &key)
     {
         Index ret = heap.push(key);
         controlSet.push(key);

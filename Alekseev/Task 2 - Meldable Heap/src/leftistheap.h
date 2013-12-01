@@ -34,13 +34,32 @@ public:
         NodePtr _node;
     };
 
-    LeftistHeap(): root(nullptr), compare(Compare()) {}
-    explicit LeftistHeap(const Compare &compare): root(nullptr), compare(compare) {}
-    explicit LeftistHeap(Compare &&compare):      root(nullptr), compare(std::move(compare)) {}
+    LeftistHeap():                                _size(0), root(nullptr), compare(Compare()) {}
+    explicit LeftistHeap(const Compare &compare): _size(0), root(nullptr), compare(compare) {}
+    explicit LeftistHeap(Compare &&compare):      _size(0), root(nullptr), compare(std::move(compare)) {}
+
+    LeftistHeap(const LeftistHeap<Key, Compare>& that): _size(0), root(nullptr), compare(Compare())
+    {
+        insertCopy(that);
+    }
+    LeftistHeap(LeftistHeap<Key, Compare>&& that): _size(0), root(nullptr), compare(std::move(that.compare))
+    {
+        std::swap(_size, that._size);
+        std::swap(root, that.root);
+    }
+
+    LeftistHeap& operator =(const LeftistHeap<Key, Compare>& that)
+    {
+        if (&that == this)
+            return *this;
+        purgeTree(root);
+        insertCopy(that);
+        return *this;
+    }
 
     ~LeftistHeap()
     {
-
+        purgeTree(root);
     }
 
     bool isEmpty() const
@@ -61,6 +80,7 @@ public:
     {
         NodePtr node = new Node(key);
         merge(root, root, node, nullptr);
+        ++_size;
         return Index(node);
     }
 
@@ -69,6 +89,7 @@ public:
     {
         NodePtr node = new Node(Key(args...));
         merge(root, root, node, nullptr);
+        ++_size;
         return Index(node);
     }
 
@@ -102,21 +123,31 @@ public:
         return ret;
     }
 
-    void swap(LeftistHeap<Key, Compare> &another)
+    void swap(LeftistHeap<Key, Compare> &that)
     {
-        std::swap(root, another.root);
-        std::swap(compare, another.compare);
+        std::swap(root, that.root);
+        std::swap(compare, that.compare);
     }
 
-    void absorb(LeftistHeap<Key, Compare> &another)
+    void absorb(LeftistHeap<Key, Compare> &that)
     {
-        merge(root, root, another.root);
-        another.root = nullptr;
+        merge(root, root, that.root);
+        that.root = nullptr;
     }
 
-    Compare * comparator()
+    Compare * comparator() const
     {
         return &compare;
+    }
+
+    std::size_t size() const
+    {
+        return _size;
+    }
+
+    void insertCopy(const LeftistHeap& that)
+    {
+        // TODO: it.
     }
 
 private:
@@ -187,6 +218,7 @@ private:
     {
         unlink(node);
         delete node;
+        --_size;
     }
 
     void unlink(NodePtr node)
@@ -208,8 +240,10 @@ private:
         purgeTree(root->leftSon);
         purgeTree(root->rightSon);
         delete root;
+        --_size;
     }
 
+    std::size_t _size;
     NodePtr root;
     Compare compare;
 };
