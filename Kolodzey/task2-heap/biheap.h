@@ -212,6 +212,7 @@ class BiTreeFunc
       {
         children.push_back(nullptr);
         swap(children.back(), (tree->_child[i])); //по прямому присвоить не получится
+        children.back()->_parent = nullptr;
       }
       tree.reset();
       return 1;
@@ -286,19 +287,28 @@ class BiHeap
 
     bool erase(ValPointer<T> pval)
     {
+      //std::cerr << "entered erase" << std::endl;
       Itlist it = _forest.begin();
       while (it != _forest.end())
       {
+        //std::cerr << "looking at tree of level " << (*it)->get_level() 
+        //          << " with top value" << (*it)->get_val() << std::endl;
         if ((*it)->is_son(pval))
         {
+          //std::cerr << "found tree which holds value to delete" << std::endl;
           std::unique_ptr<BiTree<T> > tr(nullptr);
           swap(*it, tr);
           _forest.erase(it);
+          //std::cerr << "extracted tree from list" << std::endl;
           tr->lift(pval);
+          //std::cerr << "lifted value to the top of tree" << std::endl;
           std::list<std::unique_ptr<BiTree<T> > > ch;
           BiTreeFunc<T>::cutroot(tr, ch);
+          //std::cerr << "created list of children of the tree (root deleted)" << std::endl;
           insert_list(ch);
+          //std::cerr << "inserted list of children into heap" << std::endl;
           improve_list();
+          //std::cerr << "improved list of children (merged trees of the same level)" << std::endl;
           return 1;
         }
         ++it;
@@ -308,6 +318,7 @@ class BiHeap
     bool pop()
     {
       ValPointer<T> ptop = get_top_ref();
+      //std::cerr << "pop find ref to top, top value is " << ptop.get_val() << std::endl;
       return erase(ptop);
     }
   friend class TestAccess <BiHeap<T, Compare>,T>;
