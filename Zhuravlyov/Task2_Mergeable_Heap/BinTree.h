@@ -2,22 +2,27 @@
 #define BIN_TREE
 
 #include <vector>
-#include "unHeap.h"
+#include "BinHeap.h"
+
+template <class Structure >
+struct ValueReference
+{
+	Structure* node;
+};
 
 template <class Type,class Comparator>
-class BinominalyTree{
-
-typedef BinominalyTree<Type,Comparator> BinT;
-template <class Type,class Comparator> friend class BinominalyHeap;
+class BinomialTree{
 
 private:
-	std::vector<BinominalyTree<Type,Comparator>*> childs;
-	BinominalyTree<Type,Comparator>* parent;
+	typedef BinomialTree<Type,Comparator> BinT;
+	template <class Type,class Comparator> friend class BinomialHeap;
+	std::vector<BinomialTree<Type,Comparator>*> childs;
+	BinomialTree<Type,Comparator>* parent;
 	Type info;
-	unsigned char my_parent_index;
+	ValueReference<BinT>* backward_pointer;
 
 public:
-	BinominalyTree(Type element) {
+	BinomialTree(Type element) {
 		childs.resize(0);
 		parent=NULL;
 		info=element;
@@ -29,13 +34,18 @@ public:
 	template <class Type,class Comparator> friend bool check_invariants_for_trees(BinT* tree);
 	template <class Type,class Comparator> friend int quantity(BinT* tree);
 	template <class Type,class Comparator> friend void clear_tree(BinT* tree);
-	template <class Type,class Comparator> friend void replace(BinT* low,BinT* top);
+	template <class Type,class Comparator> friend void replace(BinT*& low,BinT*& top);
 	template <class Type,class Comparator> friend void refresh_parents(BinT*& pointer);
 	template <class Type,class Comparator> friend void getresult(BinT*& first,BinT*& second,BinT*& carry);
 
 	Type top()
 	{
 		return info;
+	}
+
+	~BinomialTree()
+	{
+		delete backward_pointer;
 	}
 };
 

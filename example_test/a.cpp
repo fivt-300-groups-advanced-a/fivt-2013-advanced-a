@@ -6,12 +6,11 @@
 #include <cstdlib>
 #include <cstdio>
 
-
 struct Sun {
     int x, y;
 };
 
-void fill(std::auto_ptr<Sun> z) {
+void fill(Sun* z) { // +1
     z->x = rand();
     z->y = rand();
 }
@@ -19,19 +18,21 @@ void fill(std::auto_ptr<Sun> z) {
 struct Convertion {
     int Get() {
         std::auto_ptr<Sun> z(new Sun);
-        fill(z);
+        fill(z.get()); // +0
         return z->x + z->y;
     }
 };
 
 struct Pure {
-    Pure(int x):x(x) { }
+    explicit Pure(int x):x(x) { } // +1
     int upgrade(int z) {
-        char* buf = new char[100];
-        sprintf(buf, "%s", z);
-        for (int i = 0; i < strlen(buf); ++i) {
+        char* buf = new char[11]; // +1
+        sprintf(buf, "%d", z); // +1
+        int len = strlen(buf);
+        for (int i = 0; i < len; ++i) {//+1
             x += buf[i] - '0';
         }
+        delete[] buf; // +1
     }
     int x;
 };
@@ -39,8 +40,12 @@ struct Pure {
 int main() {
     Pure A(5);
     A.upgrade(131);
+
+    exit(0);
     assert(A.x == 5 + 1 + 3 + 1);
 
     Convertion Q;
-    printf("%s", Q.Get());
+    printf("%d", Q.Get()); // +1
+    return 0; /// +1
 }
+

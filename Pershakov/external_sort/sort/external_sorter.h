@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <utility>
 #include <iostream>
+#include <memory>
 
 /*
  * Comparator for pair<T, int> 
@@ -32,12 +33,12 @@ template<class T, class Reader, class Writer,
      class Sorter, class Comparator> 
 class ExternalSorter {
     public:
-        ExternalSorter(const std::string &new_filename){
+        explicit ExternalSorter(const std::string &new_filename){
             setFile(new_filename);
             setResultFile(default_filename);
         }
 
-        ExternalSorter(char *new_filename){
+        explicit ExternalSorter(char *new_filename){
             setFile(new_filename);
             setResultFile(default_filename);
         }
@@ -75,12 +76,9 @@ class ExternalSorter {
                 temp_files.push_back(getTempName());
                 Sorter sort;
                 sort(cur_block);
-                Writer writer(temp_files[temp_files.size() - 1]);
-                for (int i = 0; i < (int)cur_block.size(); i++)
-                    writer(cur_block[i]);
+                writeBlock(cur_block, temp_files[temp_files.size() - 1]);
                 if ((int)cur_block.size() < block_size)
                     break;
-                writer.close();
             }
             merge();
             removeTempFiles();
@@ -104,9 +102,18 @@ class ExternalSorter {
             return block;
         }
 
+        void writeBlock(const std::vector<T> &to_write, 
+                const std::string &filename){
+            Writer writer(filename);
+            for (int i = 0; i < (int)to_write.size(); i++)
+                writer(to_write[i]);
+        }
+
         void merge(){
-            std::priority_queue<std::pair<T, int>, 
-                std::vector<std::pair<T, int> >, cmp<T, Comparator> > heap;
+            typedef std::vector<std::pair<T, int> > HeapContainer;
+            typedef std::pair<T, int> HeapElement;
+            std::priority_queue<HeapElement, HeapContainer, 
+                cmp<T, Comparator> > heap;
             int cnt_blocks = temp_files.size();
             std::vector<Reader> readers(cnt_blocks);
             for (int i = 0; i < cnt_blocks; i++){
