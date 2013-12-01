@@ -512,3 +512,55 @@ TEST(BiHeapTestAccess, get_all_vals)
   EXPECT_EQ(vals[6], 7);
   EXPECT_EQ(vals[7], 8);
 }
+
+//тест на присваивание куч: падает на этапе компиляции
+//во избежании проблем с присваиванием компараторов, тип получился ну просто не копируемым
+//можно, конечно, написать swap и конструктор перемещения, но не в этот раз
+/*
+TEST(BiHeap, assignment)
+{
+  BiHeap<int> heap1;
+  BiHeap<int> heap2;
+  heap1 = heap2;
+}
+*/
+
+TEST(BiHeap, size)
+{
+  BiHeap<int> heap;
+  ValPointer<int> p1 = heap.insert(1);
+  EXPECT_EQ(heap.size(), 1);
+  heap.insert(2);
+  EXPECT_EQ(heap.size(), 2);
+  heap.insert(3);
+  EXPECT_EQ(heap.size(), 3);
+  heap.insert(4);
+  EXPECT_EQ(heap.size(), 4);
+  heap.insert(5);
+  EXPECT_EQ(heap.size(), 5);
+  heap.erase(p1);
+  EXPECT_EQ(heap.size(), 4);
+  heap.pop();
+  EXPECT_EQ(heap.size(), 3);
+
+  BiHeap<int> heap2;
+  heap2.insert(6);
+  EXPECT_EQ(heap2.size(), 1);
+  heap2.insert(7);
+  EXPECT_EQ(heap2.size(), 2);
+  heap2.insert(8);
+  EXPECT_EQ(heap2.size(), 3);
+
+  heap.eat(heap2);
+  EXPECT_EQ(heap2.size(), 0);
+  EXPECT_EQ(heap.size(), 6);
+
+  heap.clear();
+  EXPECT_EQ(heap.size(), 0);
+
+  heap.pop();
+  EXPECT_EQ(heap.size(), 0);
+
+  heap.insert(5);
+  EXPECT_EQ(heap.size(), 1);
+}

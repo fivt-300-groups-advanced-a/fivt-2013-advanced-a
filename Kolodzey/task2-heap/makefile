@@ -8,7 +8,7 @@ CXXFLAGS += -O2 -g -Wall -Wextra -pthread
 #for c++11
 CXXFLAGS += -stdlib=libc++ -std=c++11
 
-all:  biheap_unittest informatics755bin
+all:  biheap_unittest informatics755bin erasetbin
 
 #building gtest
 GTEST_HEADERS = gtest-1.7.0/include/gtest/*.h \
@@ -45,4 +45,11 @@ informatics755bin: informatics755.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 informatics755.o: informatics755.cpp biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building erasetbin
+erasetbin: eraset.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+eraset.o: eraset.cpp biheap.h access.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@

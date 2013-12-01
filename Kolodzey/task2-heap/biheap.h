@@ -255,6 +255,11 @@ class BiHeap
       return ans;
     }
     
+    void clear()
+    {
+      _forest.clear();
+      _size = 0;
+    }
     void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour
     {
       std::list<std::unique_ptr<BiTree<T> > > elem;
@@ -343,9 +348,11 @@ class BiHeap
         swap(elem.back(), *it);
       }
       _forest.clear();
+      _size = 0;
     }
     void insert_list(std::list<std::unique_ptr<BiTree<T> > >& elem)
     {
+      //в этой функции не нужно считать изменение _size; ф-ии, её вызывающие, сами знают, что делать
       _forest.merge(elem, BiTreeFunc<T>::cmp_levels);
     }
     bool improve_list()

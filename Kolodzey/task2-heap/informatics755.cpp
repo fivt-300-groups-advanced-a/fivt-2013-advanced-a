@@ -46,6 +46,7 @@ TEST(informatics755, test5withCheckingWhatValuesAreHold)
     vals.clear();
     TestAccess<BiHeap<int,std::greater<int> >,int>::get_all_val(heap,vals);
     EXPECT_EQ(vals.size(),sz);
+    EXPECT_EQ(sz, heap.size());
     sort(vals.begin(), vals.end(), std::greater<int>());
     for (int j = 0; j < sz; ++j)
       EXPECT_EQ(vals[j],stupid._pv[j]);
