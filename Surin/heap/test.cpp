@@ -55,16 +55,16 @@ private:
 TEST(Simple, HeapTest) {
     std::priority_queue<int> q;
     TestHeap<int, CInvOp<int, CLess<int> > > h;
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 5; i++) {
         int tmp = rand();
-        ASSERT_NO_THROW(h.insert(tmp));
+        EXPECT_NO_THROW(h.insert(tmp));
         q.push(tmp);
         EXPECT_EQ(h.getMin(), q.top());
     }
     while (!q.empty()) {
-        ASSERT_FALSE(h.empty());
+        EXPECT_FALSE(h.empty());
         EXPECT_EQ(h.getMin(), q.top());
-        ASSERT_NO_THROW(h.removeMin());
+        EXPECT_NO_THROW(h.removeMin());
         q.pop();
     }
 }
@@ -74,17 +74,17 @@ TEST(Hard, HeapTest) {
     TestHeap<int, CInvOp<int, CLess<int> > > h;
     TestAccess<int> hh(h);
     hh.checkHeap();
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 5; i++) {
         int tmp = rand();
-        ASSERT_NO_THROW(h.insert(tmp));
+        EXPECT_NO_THROW(h.insert(tmp));
         q.push(tmp);
         EXPECT_EQ(h.getMin(), q.top());
         hh.checkHeap();
     }
     while (!q.empty()) {
-        ASSERT_FALSE(h.empty());
+        EXPECT_FALSE(h.empty());
         EXPECT_EQ(h.getMin(), q.top());
-        ASSERT_NO_THROW(h.removeMin());
+        EXPECT_NO_THROW(h.removeMin());
         q.pop();
         hh.checkHeap();
     }
@@ -169,14 +169,14 @@ TEST(Nigtmare, DecreaseKeyStress) {
             it[ll - 1] = Heap<int>::Iterator();
         }
         int cc = rand()%(n - ll  - 1) + ll + 1;
-        ASSERT_LT(cc, n);
-        ASSERT_LT(ll, cc);
+        EXPECT_LT(cc, n);
+        EXPECT_LT(ll, cc);
         h.decreaseKey(it[cc], *(it[cc]) - 1);
     }
 }
 
 int main(int argc, char ** argv) { //1231
-    srand(/*time(0)*/1212311);
+    srand(time(0));
     fib[0] = 1;
     for (int i = 1; i < 100; ++i) {
         fib[i] = 2;
