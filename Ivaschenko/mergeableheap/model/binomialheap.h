@@ -72,7 +72,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Bi
 		 * @brief BinomialHeap creates new empty heap with specified Comparator
 		 * @param nCmp comparator
 		 */
-		explicit BinomialHeap(Comparator &nCmp): root(nullptr), indexList(), cmp(nCmp) {}
+		explicit BinomialHeap(Comparator nCmp): root(nullptr), indexList(), cmp(nCmp) {}
 
 		~BinomialHeap()
 		{
