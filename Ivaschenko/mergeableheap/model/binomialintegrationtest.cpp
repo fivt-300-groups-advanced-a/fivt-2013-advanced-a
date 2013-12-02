@@ -115,7 +115,7 @@ TEST(BinomialHeapIntegration, TestMerge)
 		{2, 0}, {2, 1}, {2, 2},
 		{5, 3}, {5, 4},
 		{10, 5}, {50, 6},
-		{1000, 7}, {50000, 8}
+		{1000, 7}, {300000, 8}
 	};
 	for (auto test : tests)
 

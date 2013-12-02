@@ -29,7 +29,7 @@ class TestAccess< BinomialHeap<DataType, Comparator> >
 			std::size_t size = 0;
 			for (NodeType *current = heap.root; current; current = current->getListLink())
 			{
-				std::size_t add = traverseHeap(current, nullptr);
+				std::size_t add = traverseHeap(current, nullptr, heap);
 				ASSERT_EQ(add & (add - 1), 0);
 				ASSERT_EQ(size & add, 0);
 				size += add;
@@ -45,8 +45,9 @@ class TestAccess< BinomialHeap<DataType, Comparator> >
 			return (long long) node;
 		}
 
-		std::size_t traverseHeap(NodeType *node, NodeType *parent)
+		std::size_t traverseHeap(NodeType *node, NodeType *parent, const HeapType &heap)
 		{
+			if (parent) EXPECT_FALSE(heap.cmp(node->getKey(), parent->getKey()));
 			EXPECT_EQ(node->getParent(), parent);
 			EXPECT_EQ(visited.count(getNodeId(node)), 0);
 			visited.insert(getNodeId(node));
@@ -57,7 +58,7 @@ class TestAccess< BinomialHeap<DataType, Comparator> >
 				--sizeCount;
 				++childCount;
 				EXPECT_EQ(child->getRank(), sizeCount);
-				size += traverseHeap(child, node);
+				size += traverseHeap(child, node, heap);
 			}
 			EXPECT_EQ(childCount, node->getRank());
 			EXPECT_EQ(1 << node->getRank(), size);
