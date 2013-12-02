@@ -101,7 +101,6 @@ public:
 		_pv.erase(_pv.begin());
 	}
 
-private:
     std::vector <T> _pv;
     Compare _cmp;
 };

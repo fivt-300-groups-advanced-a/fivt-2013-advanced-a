@@ -2,81 +2,8 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "biheap.h"
+#include "access.h"
 
-template <class Value>
-class TestAccess <ValHolder<Value>, Value>
-{
-  public:
-    Value& _val()
-    {
-      return _valholder->_val;
-    }
-    BiTree<Value>*& _pos()
-    {
-      return _valholder->_pos;
-    }
-    ValHolder<Value>* _valholder;
-};
-
-template <class Value>
-class TestAccess <ValPointer<Value>, Value>
-{
-  public:
-    ValHolder<Value>*& _ref()
-    {
-      return _valpointer->_ref;
-    }
-    ValPointer<Value>*_valpointer;
-};
-
-template <class Value>
-class TestAccess <BiTree<Value>, Value>
-{
-  public:
-    std::vector <std::unique_ptr <BiTree <Value> > > & _child()
-    {
-      return _bitree->_child;
-    }
-    BiTree<Value>*& _parent()
-    {
-      return _bitree->_parent;
-    }
-    int& _level()
-    {
-      return _bitree->_level;
-    }
-    const std::unique_ptr<ValHolder<Value> > & _pval()
-    {
-      return _bitree->_pval;
-    }
-    BiTree<Value>* _bitree;
-};
-
-template<class Value, class Compare>
-class TestAccess <BiHeap<Value, Compare>, Value>
-{
-  public:
-    Compare& _cmp()
-    {
-      return _biheap->_cmp;
-    }
-    std::list<std::unique_ptr<BiTree<Value> > >& _forest()
-    {
-      return _biheap->_forest;
-    }
-    static void insert_list(BiHeap<Value, Compare>& biheap,
-                       std::list<std::unique_ptr<BiTree<Value> > >& elem)
-    {
-      biheap.insert_list(elem);
-    }
-    static bool improve_list(BiHeap<Value, Compare>& biheap)
-    {
-      bool flag = 0;
-      flag = biheap.improve_list();
-      return flag;
-    }
-    BiHeap<Value, Compare>* _biheap;
-};
 TEST(ValHolder, Constructor)
 {
   ValHolder<int> v(7);
@@ -502,9 +429,6 @@ TEST(BiHeap, get_top_ref)
 TEST(BiHeap, top)
 {
   BiHeap<int> heap;
-  ValPointer<int> ref0 = heap.get_top_ref();
-  TestAccess<ValPointer<int>,int> access_ref0;
-  access_ref0._valpointer = &ref0;
   heap.insert(5);
   EXPECT_EQ(heap.top(), 5);
   heap.insert(6);
@@ -534,4 +458,109 @@ TEST(BiHeap, erase)
   EXPECT_EQ((*it)->get_val(),3);
   ++it;
   EXPECT_EQ((*it)->get_val(),1);
+}
+
+TEST(BiHeap, top_unusualcmp)
+{
+  BiHeap<int,std::greater<int> > heap((std::greater<int>()));
+  heap.insert(5);
+  EXPECT_EQ(heap.top(), 5);
+  heap.insert(6);
+  EXPECT_EQ(heap.top(), 6);
+  heap.insert(2);
+  EXPECT_EQ(heap.top(), 6);
+}
+
+TEST(BiTreeTestAccess, dfs)
+{
+  std::unique_ptr<BiTree<int> > a (new BiTree<int> (8));
+  std::unique_ptr<BiTree<int> > b (new BiTree<int> (7));
+  std::unique_ptr<BiTree<int> > d (new BiTree<int> (9));
+  std::unique_ptr<BiTree<int> > e (new BiTree<int> (11));
+  a->eat(b);
+  d->eat(e);
+  a->eat(d);
+  std::vector<int> vals;
+  vals.clear();
+  TestAccess<BiTree<int>,int>::dfs(a, vals);
+  EXPECT_EQ(vals[0], 8);
+  EXPECT_EQ(vals[1], 7);
+  EXPECT_EQ(vals[2], 9);
+  EXPECT_EQ(vals[3], 11);
+}
+
+TEST(BiHeapTestAccess, get_all_vals)
+{
+  BiHeap<int> heap;
+  heap.insert(1);
+  heap.insert(2);
+  heap.insert(3);
+  heap.insert(4);
+  heap.insert(5);
+  heap.insert(6);
+  heap.insert(7);
+  heap.insert(8);
+  std::vector<int> vals;
+  TestAccess<BiHeap<int>,int>::get_all_val(heap,vals);
+  sort(vals.begin(),vals.end());
+  EXPECT_EQ(vals[0], 1);
+  EXPECT_EQ(vals[1], 2);
+  EXPECT_EQ(vals[2], 3);
+  EXPECT_EQ(vals[3], 4);
+  EXPECT_EQ(vals[4], 5);
+  EXPECT_EQ(vals[5], 6);
+  EXPECT_EQ(vals[6], 7);
+  EXPECT_EQ(vals[7], 8);
+}
+
+//тест на присваивание куч: падает на этапе компиляции
+//во избежании проблем с присваиванием компараторов, тип получился ну просто не копируемым
+//можно, конечно, написать swap и конструктор перемещения, но не в этот раз
+/*
+TEST(BiHeap, assignment)
+{
+  BiHeap<int> heap1;
+  BiHeap<int> heap2;
+  heap1 = heap2;
+}
+*/
+
+TEST(BiHeap, size)
+{
+  BiHeap<int> heap;
+  ValPointer<int> p1 = heap.insert(1);
+  EXPECT_EQ(heap.size(), 1);
+  heap.insert(2);
+  EXPECT_EQ(heap.size(), 2);
+  heap.insert(3);
+  EXPECT_EQ(heap.size(), 3);
+  heap.insert(4);
+  EXPECT_EQ(heap.size(), 4);
+  heap.insert(5);
+  EXPECT_EQ(heap.size(), 5);
+  heap.erase(p1);
+  EXPECT_EQ(heap.size(), 4);
+  heap.pop();
+  EXPECT_EQ(heap.size(), 3);
+
+  BiHeap<int> heap2;
+  heap2.insert(6);
+  EXPECT_EQ(heap2.size(), 1);
+  heap2.insert(7);
+  EXPECT_EQ(heap2.size(), 2);
+  heap2.insert(8);
+  EXPECT_EQ(heap2.size(), 3);
+
+  heap.eat(heap2);
+  EXPECT_EQ(heap2.size(), 0);
+  EXPECT_EQ(heap.size(), 6);
+
+  heap.clear();
+  EXPECT_EQ(heap.size(), 0);
+
+  heap.pop();
+  EXPECT_EQ(heap.size(), 0);
+
+  heap.insert(5);
+  EXPECT_EQ(heap.size(), 1);
 }

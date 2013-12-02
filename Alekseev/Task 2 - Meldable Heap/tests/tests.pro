@@ -18,4 +18,5 @@ SOURCES += gtest_main.cc \
 
 HEADERS += \
     testutils.h \
-    dijkstra.h
+    dijkstra.h \
+    sort.h
