@@ -8,7 +8,7 @@ CXXFLAGS += -O2 -g -Wall -Wextra -pthread
 #for c++11
 CXXFLAGS += -stdlib=libc++ -std=c++11
 
-all:  biheap_unittest informatics755bin erasetbin
+all:  biheap_unittest informatics755bin erasetbin cmpstate pseudomerge
 
 #building gtest
 GTEST_HEADERS = gtest-1.7.0/include/gtest/*.h \
@@ -52,4 +52,18 @@ erasetbin: eraset.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 eraset.o: eraset.cpp biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building cmpstate
+cmpstate: cmpstate.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+cmpstate.o: comparator-state.cpp biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building pseudomerge
+pseudomerge: pseudomerge.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+pseudomerge.o: pseudomerge.cpp biheap.h access.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
