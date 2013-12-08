@@ -44,7 +44,7 @@ private:
 				shove(vertex,vertex_right - vertex_left + 1);
 			int mid = (vertex_left + vertex_right) / 2;
 				return unite( get(vertex * 2, left, std::min(mid, right), vertex_left, mid),
-							  get(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right));
+					      get(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right));
 		}
 	}
 
@@ -72,14 +72,14 @@ private:
 public:
 	template <class RandomAccessIterator>
 	AdvancedSegmentTree (RandomAccessIterator first, 
-						 RandomAccessIterator last)
+			     RandomAccessIterator last)
 	{
 		int number_of_elements=last-first;
 		int number_at_tree=1;
 		while (number_at_tree < number_of_elements) 
 			number_at_tree *= 2;
 		tree.resize(2 * number_at_tree);
-		RandomAccessIterator currentPosition=first;
+		RandomAccessIterator currentPosition = first;
 		for ( int i = number_at_tree; currentPosition!=last; i++ )
 		{
 			tree[i].first = *currentPosition;
@@ -105,7 +105,7 @@ public:
 	
 	~AdvancedSegmentTree()
 	{
-		for (unsigned int i=0; i < tree.size(); i++)
+		for (unsigned int i = 0; i < tree.size(); i++)
 			if (tree[i].second) 
 				delete tree[i].second;
 	}

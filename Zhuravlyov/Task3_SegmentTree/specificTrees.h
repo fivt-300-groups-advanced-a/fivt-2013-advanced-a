@@ -38,14 +38,14 @@ template <class Type, Type neutralSumElement,
 struct SumMinMaxAssignReturnType{
 	Type sum, min, max;
 	SumMinMaxAssignReturnType(): sum(neutralSumElement),
-								 min(neutralMinElement),
-								 max(neutralMaxElement) {}
+				     min(neutralMinElement),
+				     max(neutralMaxElement) {}
 	SumMinMaxAssignReturnType(Type element): sum(element),
-											 min(element),
-											 max(element) {}
+						 min(element),
+						 max(element) {}
 	typedef SumMinMaxAssignReturnType<Type, neutralSumElement, 
-											neutralMinElement, 
-											neutralMaxElement> RT;
+						neutralMinElement, 
+						neutralMaxElement> RT;
 	typedef SumAssignMetaInformation<Type> MI;
 	void push(MI* information_to_push, int len)
 	{
@@ -65,9 +65,9 @@ struct SumMinMaxAssignReturnType{
 
 
 typedef AdvancedSegmentTree< SumAssignReturnType<int, 0>, 
-							 SumAssignMetaInformation<int> > SegmentTree_SumAssign_Int;
+			    SumAssignMetaInformation<int> > SegmentTree_SumAssign_Int;
 typedef AdvancedSegmentTree< SumMinMaxAssignReturnType<int, 0, LONG_MAX, LONG_MIN>,
-							 SumAssignMetaInformation<int> > SegmentTree_SumMinMaxAssign_Int;
+			     SumAssignMetaInformation<int> > SegmentTree_SumMinMaxAssign_Int;
 
 
 #endif
