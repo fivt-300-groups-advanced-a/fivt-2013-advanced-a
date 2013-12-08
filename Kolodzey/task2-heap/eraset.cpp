@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "biheap.h"
 #include "access.h"
+#include "checkinvariants.h"
 
 const int MAX_N_OF_INSERTIONS = 360600;
 TEST(eraseInsertBySet, test1)
@@ -93,7 +94,10 @@ TEST(eraseInsertBySet, test2)
 		//std::cerr << "Passed Request" << i << std::endl;
 		//std::cerr << "nInserted" << nInserted << std::endl;
 		if (i%5000 == 0)
+		{
+			checkAllInvariants<int,std::less<int> >(myheap);
 			std::cerr << "Passed " << i << " Requests" << std::endl;
+		}
 	}
 	std::vector<int> vals;
 	TestAccess<BiHeap<int>,int>::get_all_val(myheap,vals);
@@ -145,7 +149,10 @@ TEST(eraseInsertBySet, test3)
 		}
 				//std::cerr << "nInserted" << nInserted << std::endl;
 		if (i%5000 == 0)
+		{
+			checkAllInvariants<int,std::less<int> >(myheap);
 			std::cerr << "Passed " << i << " Requests" << std::endl;
+		}
 	}
 	std::cerr << "Passed Requests" << std::endl;
 

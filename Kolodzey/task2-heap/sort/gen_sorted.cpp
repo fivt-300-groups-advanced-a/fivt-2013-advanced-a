@@ -1,3 +1,4 @@
+//766 informatics
 #include <cstdio>
 #include <fstream>
 #include <algorithm>
