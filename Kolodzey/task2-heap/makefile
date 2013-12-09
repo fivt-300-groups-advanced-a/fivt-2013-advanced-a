@@ -8,7 +8,7 @@ CXXFLAGS += -O2 -g -Wall -Wextra -pthread
 #for c++11
 CXXFLAGS += -stdlib=libc++ -std=c++11
 
-all:  biheap_unittest informatics755bin erasetbin
+all:  biheap_unittest informatics755bin erasetbin cmpstate pseudomerge heapsortest convexhullbin stress_with_invariants
 
 #building gtest
 GTEST_HEADERS = gtest-1.7.0/include/gtest/*.h \
@@ -51,5 +51,40 @@ informatics755.o: informatics755.cpp biheap.h access.h $(GTEST_HEADERS)
 erasetbin: eraset.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-eraset.o: eraset.cpp biheap.h access.h $(GTEST_HEADERS)
+eraset.o: eraset.cpp biheap.h access.h checkinvariants.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building cmpstate
+cmpstate: cmpstate.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+cmpstate.o: comparator-state.cpp biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building pseudomerge
+pseudomerge: pseudomerge.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+pseudomerge.o: pseudomerge.cpp biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building heapsortest
+heapsortest: heapsortest.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+heapsortest.o: heapsortest.cpp heapsort.h biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building convexhullbin
+convexhullbin: convexhull.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+convexhull.o: convex_hull.cpp heapsort.h biheap.h access.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+#building stress_with_invariants
+stress_with_invariants: stress_with_invariants.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+stress_with_invariants.o: stress_with_invariants.cpp heapsort.h biheap.h access.h checkinvariants.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
