@@ -14,7 +14,8 @@ LIBS += -L$$GTEST/lib -lgtest
 INCLUDEPATH += $$GTEST/include/
 
 SOURCES += gtest_main.cc \
-    leftistheap-integration-stress-test.cpp
+    leftistheap-integration-stress-test.cpp \
+    leftistheap-melding-test.cpp
 
 HEADERS += \
     testutils.h \
