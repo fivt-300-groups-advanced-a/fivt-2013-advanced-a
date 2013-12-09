@@ -1,34 +1,17 @@
+#include <iostream>
+#include <fstream>
 
 template< typename T, typename Cmp>
 class Heap {
-
   private:
-    template< typename U, typename Comp > friend class HeapTest;
-
-    class Vertex {
-      friend class Heap;
-      template< typename U, typename Comp > friend class HeapTest;
-
-      private:
-        Vertex(T val):key(val), parent(NULL), child(NULL), sibling(NULL), degree(0) { }
-        T key;
-        Vertex *parent, *child, *sibling;
-        unsigned short degree;
+    struct Vertex {
+      Vertex(T val):key(val), parent(NULL), child(NULL), sibling(NULL), degree(0) { }
+      T key;
+      Vertex *parent, *child, *sibling;
+      unsigned short degree;
     };
-    
+
   public:
-    /*  
-    class Reference {
-      friend class Heap; 
-      
-      public:
-        Reference() {}
-      
-      private:
-        explicit Reference(Vertex *get):ref(get) {}
-        Vertex **ref;
-    };
-    */
     /* Debug
     void puts_list(Vertex *head) {
       for (;head;head = head->sibling) std::cout << head->degree << " ";
@@ -77,7 +60,7 @@ class Heap {
         Vertex *sec = fir->sibling;
         Vertex* next = sec->sibling; 
         if (fir->degree == sec->degree && (!next || sec->degree!=next->degree)) {
-          if (!cmp(fir->key, sec->key)) std::swap(fir, sec);
+          if (!Cmp()(fir->key, sec->key)) std::swap(fir, sec);
           sec->sibling = fir->child;
           fir->child = sec;
           sec->parent = fir;
@@ -93,11 +76,9 @@ class Heap {
       delete new_head;
     }
 
-    /*  Reference */ void insert(T val) {
+    void insert(T val) {
       Heap<T, Cmp> nw = Heap(val);
-      //Reference result(nw.head);
       merge(nw);
-      //return result;
     }
 
     void extract_min() {
@@ -105,7 +86,7 @@ class Heap {
       T minkey = head->key;
       unsigned short minkeydeg = head->degree; 
       for( Vertex* cur = head; cur; cur = cur->sibling ) {
-        if (cmp(cur->key, minkey)) {
+        if (Cmp()(cur->key, minkey)) {
           minkey = cur->key;
           minkeydeg = cur->degree;
         }
@@ -137,31 +118,24 @@ class Heap {
       merge(heap);
     }
 
-    bool empty() {
-      return (head==NULL);
-    }
-
-
 
     T find_min() {
       Vertex* cur = head;
       T min = cur->key;
       while (cur) {
-        if (cmp(cur->key, min)) min = cur->key;
+        if (Cmp()(cur->key, min)) min = cur->key;
         cur = cur->sibling;
       }
       return min;
     }
 
 
-    Heap(T val, Cmp comp = Cmp()) {
+    Heap(T val) {
       head = new Vertex(val);
-      cmp = comp;
     }
 
-    Heap(Cmp comp = Cmp()) {
+    Heap() {
       head = NULL;
-      cmp = comp;
     }
 
   private:
@@ -172,10 +146,31 @@ class Heap {
     }
     
     Vertex* head;
-    Cmp cmp;
 };
 
 template< typename T, typename Cmp = std::less<T> >
 Heap<T, Cmp> MakeHeap(Cmp cmp = Cmp()) {
-  return Heap<T, Cmp>(cmp);
+  return Heap<T, Cmp>();
+}
+
+int main() {
+  std::ifstream in;
+  std::ofstream out;
+  in.open ("input.txt");
+  out.open ("output.txt");
+  std::ios_base::sync_with_stdio(0);
+  auto heap = MakeHeap<int, std::greater<int>>();
+  int n; in >> n;
+  for (int i=0;i<n;i++) {
+    int t; in >> t;
+    if (t==0) {
+      int a; in >> a; heap.insert(a);
+    }
+    else {
+      out << heap.find_min() << " ";
+      heap.extract_min();
+    }
+  }
+  out << "\n";
+  return 0;
 }
