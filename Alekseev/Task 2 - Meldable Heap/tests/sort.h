@@ -9,20 +9,19 @@
 #include "gtest/gtest.h"
 
 template<class Heap>
-class HeapSort
+class HeapSortChecker
 {
 public:
-    typedef typename Heap::KeyType Value;
+    typedef typename Heap::Key Value;
 
-    HeapSort(Heap &&heap = Heap()): heap(heap) {}
+    HeapSortChecker(Heap &&heap = Heap()): heap(std::move(heap)) {}
 
-    void sort(std::vector<Value> vals)
+    void check(std::vector<Value> vals)
     {
         for (Value v : vals)
             heap.push(v);
 
-        std::vector<Value> sorted;
-        std::sort(vals.begin(), vals.end(), heap.comparator());
+        std::sort(vals.begin(), vals.end(), *heap.comparator());
         for (Value expected : vals)
             ASSERT_EQ(expected, heap.takeTop());
         ASSERT_TRUE(heap.isEmpty());

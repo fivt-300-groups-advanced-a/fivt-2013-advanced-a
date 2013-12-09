@@ -449,6 +449,10 @@ TEST(BiHeap, erase)
   heap.insert(7);
   heap.insert(8);
   heap.erase(p6);
+  BiHeap<int> heap2;
+  ValPointer<int> p11 = heap2.insert(11);
+  EXPECT_EQ(heap.erase(ValPointer<int>()), 0);
+  EXPECT_EQ(heap.erase(p11), 0);
   TestAccess<BiHeap<int,std::less<int> >,int> access_heap;
   access_heap._biheap = &heap;
   EXPECT_EQ(access_heap._forest().size(), 3);

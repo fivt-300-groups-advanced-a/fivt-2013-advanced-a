@@ -38,23 +38,10 @@ public:
     explicit LeftistHeap(const Compare &compare): _size(0), root(nullptr), compare(compare) {}
     explicit LeftistHeap(Compare &&compare):      _size(0), root(nullptr), compare(std::move(compare)) {}
 
-    LeftistHeap(const LeftistHeap<Key, Compare>& that): _size(0), root(nullptr), compare(Compare())
-    {
-        insertCopy(that);
-    }
     LeftistHeap(LeftistHeap<Key, Compare>&& that): _size(0), root(nullptr), compare(std::move(that.compare))
     {
         std::swap(_size, that._size);
         std::swap(root, that.root);
-    }
-
-    LeftistHeap& operator =(const LeftistHeap<Key, Compare>& that)
-    {
-        if (&that == this)
-            return *this;
-        purgeTree(root);
-        insertCopy(that);
-        return *this;
     }
 
     ~LeftistHeap()
@@ -131,11 +118,12 @@ public:
 
     void absorb(LeftistHeap<Key, Compare> &that)
     {
-        merge(root, root, that.root);
+        merge(root, root, that.root, nullptr);
+        that._size = 0;
         that.root = nullptr;
     }
 
-    Compare * comparator() const
+    Compare * comparator()
     {
         return &compare;
     }
@@ -143,11 +131,6 @@ public:
     std::size_t size() const
     {
         return _size;
-    }
-
-    void insertCopy(const LeftistHeap& that)
-    {
-        // TODO: it.
     }
 
 private:
@@ -165,7 +148,6 @@ private:
         Key key;
         Height minHeight;
     };
-//    typedef struct LeftistHeap<Key, Compare>::Node * NodePtr;
     typedef Node * NodePtr;
 
     Height minHeight(NodePtr node)

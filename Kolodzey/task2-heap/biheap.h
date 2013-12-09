@@ -20,7 +20,7 @@ class ValPointer
     {
       _ref = nullptr;
     }
-    ValPointer(ValHolder<T>* ref)
+    explicit ValPointer(ValHolder<T>* ref)
     {
       _ref = ref;
     }
@@ -112,12 +112,19 @@ class BiTree
       _child.back()->_parent = this;
       return 1;
     }
-    bool is_son(ValPointer<T> pval) const //хм, почему же падает при дописывании const?
+    bool is_son(ValPointer<T> pval) const //попытка узнать что-то про невалидный указатель ведёт к краху :(
     {
+      //std::cerr << "entered is son" << std::endl;
       if (this == nullptr)
+      {
+      //  std::cerr << "null tree" << std::endl;
         return 0;
+      }
       if (pval._ref == nullptr)
+      {
+      //  std::cerr << "looking for nullptr value" << std::endl;
         return 0;
+      }
       BiTree<T>* pvertex = pval._ref->_pos;
       while (pvertex != nullptr)
       {
@@ -260,7 +267,7 @@ class BiHeap
       _forest.clear();
       _size = 0;
     }
-    void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour
+    void eat(BiHeap<T,Compare>& heap) //попытка сожрать кучу с другим компаратором(точнее с компаратором в другом состоянии) вызывает undefined behaviour; попытка съесть саму себя ни к чему хорошему не приводит (баги получаются)
     {
       std::list<std::unique_ptr<BiTree<T> > > elem;
       _size += heap.size();

@@ -1,8 +1,11 @@
+include(gtest.pri)
+
 QMAKE_CXXFLAGS += -std=gnu++0x -lgtest -pthread
 QMAKE_LIBS += /usr/local/lib/libgtest.a
 
-SOURCES += main.cpp
+SOURCES +=
 
 HEADERS += \
-    model/generalsegmenttree.h
+    model/generalsegmenttree.h \
+    model/segmentadditiontree.h
 
