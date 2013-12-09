@@ -13,6 +13,7 @@
  * of update information.
  * Briefly, tree requires a structure/class for meta update information which can be applied
  * at any moment to any element of a tree and can be combined (that means a composition of two updates)
+ * Both of the methods (update & merge) can depend on a left and right bound of segment of node which they are applied to
  *
  * In addition tree requires an identity value, i.e. a value E such as function of any element x and E is x, vice versa
  * f(x, E) = f(E, x) = x
@@ -27,10 +28,12 @@
  *							Should have ReturnType operator(ReturnType, ReturnType)
  *
  *	 - MetaUpdater			Functor which will be used to update a value in a tree with update information
- *							Should have ReturnType operator() (ReturnType, MetaInformation)
+ *							Should have void operator() (ReturnType &, MetaInformation, std::size_t, std::size_t)
+ *							Where two last parameters are bounds of segment where value is updated
  *
  *	 - MetaMerger			Functor which will be used to calculate composition of two modifications
- *							Should have MetaInformation operator() (MetaInformation, MetaInformation)
+ *							Should have void operator() (MetaInformation &, const MetaInformation &)
+ *							Where two last parameters are bounds of segment where information is updated
  */
 
 template<typename ReturnType, typename MetaInformation,
@@ -91,7 +94,7 @@ class GeneralSegmentTree
 		ReturnType get(std::size_t left, std::size_t right)
 		{
 			assert(left <= right && right < n);
-			return internalGet(0, 0, tree.size() >> 1, left, right + 1);
+			return internalGet(0, 0, (tree.size() >> 1) + 1, left, right + 1);
 		}
 
 		/**
@@ -104,7 +107,7 @@ class GeneralSegmentTree
 		void update(std::size_t left, std::size_t right, const MetaInformation &info)
 		{
 			assert(left <= right && right < n);
-			internalUpdate(0, 0, tree.size() >> 1, left, right + 1, info);
+			internalUpdate(0, 0, (tree.size() >> 1) + 1, left, right + 1, info);
 		}
 
 		/**
@@ -135,11 +138,12 @@ class GeneralSegmentTree
 		template<typename DataType> void buildTree(const std::vector<DataType> &data)
 		{
 			n = data.size();
-			assert(n >= 0); // data should be non-empty
+			assert(n > 0); // data should be non-empty
 			std::size_t size = 1;
 			while (size < data.size()) size <<= 1; // size of tree is power of 2
 
 			tree.assign((size << 1) - 1, identity);
+			toPush.resize(tree.size());
 			std::copy(data.begin(), data.end(), tree.begin() + size - 1);
 
 			for (std::size_t v = size - 2; ~v; --v) // from size - 2 to 0 (internal verticies)
@@ -147,35 +151,25 @@ class GeneralSegmentTree
 		}
 
 		/**
-		 * @brief getValue returns actual value in vertex
+		 * @brief push propagates update information to the sons of vertex
 		 * Complexity: O(1)
 		 * @param v id of vertex
-		 * @return value in vertex
 		 */
-		ReturnType getValue(std::size_t v) const
-		{
-			return updater(tree[v], toPush[v]);
-		}
-
-		/**
-		 * @brief push propagates update information to the sons of vertex
-		 * Comlexity: O(1)
-		 * @param v id of vertex
-		 */
-		void push(std::size_t v)
+		void push(std::size_t v, std::size_t tleft, std::size_t tright)
 		{
 			if ((v << 1) + 2 < tree.size())
 			{
-				toPush[(v << 1) + 1] = merger(toPush[(v << 1) + 1], toPush[v]);
-				toPush[(v << 1) + 2] = merger(toPush[(v << 1) + 2], toPush[v]);
+				std::size_t middle = (tleft + tright) >> 1;
+				merger(toPush[(v << 1) + 1], toPush[v], tleft, middle - 1);
+				merger(toPush[(v << 1) + 2], toPush[v], middle, tright - 1);
 			}
-			tree[v] = updater(tree[v], toPush[v]);
+			updater(tree[v], toPush[v], tleft, tright - 1);
 			toPush[v] = MetaInformation();
 		}
 
 		/**
 		 * @brief internalGet query to a tree
-		 * Comlexity: O(log n)
+		 * Complexity: O(log n)
 		 * @param v vertex
 		 * @param tleft leftest son of v
 		 * @param tright rightest son of v
@@ -186,7 +180,7 @@ class GeneralSegmentTree
 		ReturnType internalGet(std::size_t v, std::size_t tleft, std::size_t tright,
 							   std::size_t left, std::size_t right)
 		{
-			push(v);
+			push(v, tleft, tright);
 			if (tleft == left && tright == right)
 				return tree[v];
 			std::size_t middle = (tleft + tright) >> 1;
@@ -211,10 +205,10 @@ class GeneralSegmentTree
 		void internalUpdate(std::size_t v, std::size_t tleft, std::size_t tright,
 							std::size_t left, std::size_t right, const MetaInformation &info)
 		{
-			push(v);
+			push(v, tleft, tright);
 			if (tleft == left && tright == right)
 			{
-				toPush[v] = merger(toPush[v], info);
+				merger(toPush[v], info, tleft, tright - 1);
 				return;
 			}
 			std::size_t middle = (tleft + tright) >> 1;
@@ -227,7 +221,9 @@ class GeneralSegmentTree
 				internalUpdate((v << 1) + 1, tleft, middle, left, middle, info);
 				internalUpdate((v << 1) + 2, middle, tright, middle, right, info);
 			}
-			tree[v] = functor(getValue((v << 1) + 1), getValue((v << 1) + 2));
+			push((v << 1) + 1, tleft, middle);
+			push((v << 1) + 2, middle, tright);
+			tree[v] = functor(tree[(v << 1) + 1], tree[(v << 1) + 2]);
 		}
 };
 
