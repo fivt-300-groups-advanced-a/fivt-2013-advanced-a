@@ -72,7 +72,7 @@ public:
     Index push(const Key &key)
     {
         Index ret = heap.push(key);
-        controlSet.push(key);
+        controlSet.insert(key);
         assertInvariants();
         assertKeysSet(controlSet);
         return ret;
@@ -93,6 +93,18 @@ public:
         assertInvariants();
         assertKeysSet(controlSet);
         return ret;
+    }
+    void absorb(Asserted<Heap> &that)
+    {
+        controlSet.insert(that.controlSet.begin(), that.controlSet.end());
+        heap.absorb(that.heap);
+        that.controlSet.clear();
+
+        assertInvariants();
+        assertKeysSet(controlSet);
+
+        that.assertInvariants();
+        that.assertKeysSet(that.controlSet);
     }
 
     void assertKeysSet(std::multiset<Key, Compare> keys)
@@ -132,12 +144,12 @@ private:
         if (root->leftSon)
         {
             ASSERT_EQ(root, root->leftSon->parent) << error("bad parent", root->leftSon);
-            ASSERT_TRUE(heap.compare(root->key, root->leftSon->key)) << error("less than parent", root->leftSon);
+            ASSERT_FALSE(heap.compare(root->leftSon->key, root->key)) << error("less than parent", root->leftSon);
         }
         if (root->rightSon)
         {
             ASSERT_EQ(root, root->rightSon->parent) << error("bad parent", root->rightSon);
-            ASSERT_TRUE(heap.compare(root->key, root->rightSon->key)) << error("less than parent", root->rightSon);
+            ASSERT_FALSE(heap.compare(root->rightSon->key, root->key)) << error("less than parent", root->rightSon);
         }
         Height leftH = root->leftSon ? root->leftSon->minHeight : 0;
         Height rightH = root->rightSon ? root->rightSon->minHeight : 0;
