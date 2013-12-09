@@ -25,6 +25,10 @@ struct tripleCmp
     }
 };
 
+tripleCmp cmp;
+Heap <triple, tripleCmp> * H1;
+Heap <triple, tripleCmp> * H2;
+
 TEST(generate_big_heap, generate_big_heap)
 {
 	tripleCmp cmp;
@@ -55,6 +59,7 @@ TEST(generate_big_heap, generate_big_heap)
 		prevMin = newMin;
 		ASSERT_TRUE(checker.checkDegreeInvariant(H, 17));
 	}
+	H1 = H;
 }
 
 
@@ -113,6 +118,7 @@ TEST(int_less_test, int_less_test)
 			myset.insert(r);
 		}
 	}
+	
 }
 
 TEST(triple_test, triple_test)
@@ -173,8 +179,22 @@ TEST(triple_test, triple_test)
 			myset.insert(r);
 		}
 	}
+	H2 = H;
 }
 
+TEST(merge_test, merge_test)
+{
+	HeapChecker <triple, tripleCmp> checker;
+	Heap <triple, tripleCmp> * H;
+	for (int it = 0; it <= 10000; it++)
+	{
+		if (it % 2 == 0)
+			H = H1->merge(H2);	
+		else H = H2->merge(H1);
+		ASSERT_TRUE(checker.checkDegreeInvariant(H, 20));
+		ASSERT_EQ(H->getSize(), H1->getSize() + H2->getSize());
+	}
+}
 
 int main(int argc, char ** argv)
 {
