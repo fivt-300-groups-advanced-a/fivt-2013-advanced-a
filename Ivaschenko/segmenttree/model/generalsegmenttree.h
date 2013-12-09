@@ -5,16 +5,16 @@
 #include <vector>
 
 /**
- * Class, representing a segment tree - a data structure which maintain an array of certain type,
+ * Class, representing a segment tree - a data structure which maintains an array of certain type,
  * can answer queries to get an user-defined associative operation on a semgent of array [left..right]
  * and can perform used-defined modification on any segment.
  *
  * To use this class it it worth to have an idea on internal structure of a tree, mainly about lazy propagation
  * of update information.
- * Briefly, tree requires a structure/class for meta update information wich can be applied
+ * Briefly, tree requires a structure/class for meta update information which can be applied
  * at any moment to any element of a tree and can be combined (that means a composition of two updates)
  *
- * In addition tree requires an identity value, e.g. a value E such as function of any element x and E is x, vice versa
+ * In addition tree requires an identity value, i.e. a value E such as function of any element x and E is x, vice versa
  * f(x, E) = f(E, x) = x
  *
  * Template parameters:
@@ -41,10 +41,11 @@ class GeneralSegmentTree
 	public:
 		/**
 		 * @brief Creates segment tree of specified size, identity and functors for performing operations.
-		 * All elements are identities be default.
+		 * All elements are identities by default.
+		 * Complexity: O(n)
 		 * @param size size of tree
 		 * @param nIdentity identity element (such as f(E, x) = f(x, E) = x for any x)
-		 * @param nFunctor functor to calculate
+		 * @param nFunctor functor to calculate desired f(x, y)
 		 * @param nUpdater functor to update elements with meta infomations
 		 * @param nMerger functor to calculate composition of two updates
 		 */
@@ -54,13 +55,14 @@ class GeneralSegmentTree
 								const Function nFunctor = Function(),
 								const MetaUpdater nUpdater = MetaUpdater(),
 								const MetaMerger nMerger = MetaMerger()):
-			n(size), identity(nIdentity), functor(nFunctor), updater(nUpdater), merger(nMerger)
+			identity(nIdentity), functor(nFunctor), updater(nUpdater), merger(nMerger)
 		{
-			buildTree(std::vector<DataType>(n, nIdentity));
+			buildTree(std::vector<DataType>(size, nIdentity));
 		}
 
 		/**
 		 * @brief Creates segment tree from array with specified identity and functors for performing operations.
+		 * Complexity: O(n)
 		 * @param start iterator to the begin of data
 		 * @param end iterator to the end of data
 		 * @param nIdentity identity element (such as f(E, x) = f(x, E) = x for any x)
@@ -74,25 +76,27 @@ class GeneralSegmentTree
 								const Function nFunctor = Function(),
 								const MetaUpdater nUpdater = MetaUpdater(),
 								const MetaMerger nMerger = MetaMerger()):
-			n(size), identity(nIdentity), functor(nFunctor), updater(nUpdater), merger(nMerger)
+			identity(nIdentity), functor(nFunctor), updater(nUpdater), merger(nMerger)
 		{
 			buildTree(std::vector<DataType>(start, end));
 		}
 
 		/**
 		 * @brief get Retunrs funtion on a segment, e.g. f(data[left], data[left + 1], ..., data[right])
+		 * Complexity: O(log n)
 		 * @param left left bound of segment
 		 * @param right right bound of segment
-		 * @return desired value
+		 * @return desired value of function on a segment
 		 */
-		const ReturnType& get(std::size_t left, std::size_t right)
+		ReturnType get(std::size_t left, std::size_t right)
 		{
 			assert(left <= right && right < n);
-			return identity;
+			return internalGet(0, 0, tree.size() >> 1, left, right + 1);
 		}
 
 		/**
 		 * @brief update Applies modification on a segment, e.g. data[i] = update(data, info) for all i, left <= i <= right
+		 * Complexity: O(log n)
 		 * @param left left bound of segment
 		 * @param right right bound of segment
 		 * @param info update information
@@ -100,10 +104,12 @@ class GeneralSegmentTree
 		void update(std::size_t left, std::size_t right, const MetaInformation &info)
 		{
 			assert(left <= right && right < n);
+			internalUpdate(0, 0, tree.size() >> 1, left, right + 1, info);
 		}
 
 		/**
 		 * @brief size returns size of tree
+		 * Complexity: O(1)
 		 * @return size of tree
 		 */
 		std::size_t size() const
@@ -123,18 +129,26 @@ class GeneralSegmentTree
 
 		/**
 		 * @brief Builds a tree from array
+		 * Complexity: O(n)
 		 * @param data initial array
 		 */
 		template<typename DataType> void buildTree(const std::vector<DataType> &data)
 		{
+			n = data.size();
+			assert(n >= 0); // data should be non-empty
 			std::size_t size = 1;
-			while (size < data.size()) size <<= 1;
-			tree.assign(2 * size - 1, identity);
+			while (size < data.size()) size <<= 1; // size of tree is power of 2
+
+			tree.assign((size << 1) - 1, identity);
 			std::copy(data.begin(), data.end(), tree.begin() + size - 1);
+
+			for (std::size_t v = size - 2; ~v; --v) // from size - 2 to 0 (internal verticies)
+				tree[v] = functor(tree[(v << 1) + 1], tree[(v << 1) + 2]);
 		}
 
 		/**
 		 * @brief getValue returns actual value in vertex
+		 * Complexity: O(1)
 		 * @param v id of vertex
 		 * @return value in vertex
 		 */
@@ -144,16 +158,24 @@ class GeneralSegmentTree
 		}
 
 		/**
-		 * @brief push
-		 * @param v
+		 * @brief push propagates update information to the sons of vertex
+		 * Comlexity: O(1)
+		 * @param v id of vertex
 		 */
 		void push(std::size_t v)
 		{
-
+			if ((v << 1) + 2 < tree.size())
+			{
+				toPush[(v << 1) + 1] = merger(toPush[(v << 1) + 1], toPush[v]);
+				toPush[(v << 1) + 2] = merger(toPush[(v << 1) + 2], toPush[v]);
+			}
+			tree[v] = updater(tree[v], toPush[v]);
+			toPush[v] = MetaInformation();
 		}
 
 		/**
 		 * @brief internalGet query to a tree
+		 * Comlexity: O(log n)
 		 * @param v vertex
 		 * @param tleft leftest son of v
 		 * @param tright rightest son of v
@@ -178,6 +200,7 @@ class GeneralSegmentTree
 
 		/**
 		 * @brief internalUpdate modification query
+		 * Complexity: O(log n)
 		 * @param v vertex
 		 * @param tleft leftest son of v
 		 * @param tright rightest son of v
