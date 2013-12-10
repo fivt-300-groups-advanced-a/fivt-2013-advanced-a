@@ -3,35 +3,48 @@
 #define ADVANCED_SEGMENT_TREE_H
 
 #include <vector>
+#include <algorithm>
+#include <cassert>
 
-template <class Type, class UpdInfo> class SegmentTree {
+template <class TreeNode, class UpdInfo> class SegmentTree {
     public:
-        explicit SegmentTree(vector<Type> &base){
+
+        SegmentTree(){
+            sz = 0;
+        }
+
+        explicit SegmentTree(std::vector<TreeNode> &base) {
             sz = base.size();
             int power = getPower(sz) * 2;
             tree.resize(power);
-            update_tree.resize(power, NULL);
+            update_tree.resize(power);
+            changed.resize(power, false);
             build(1, 0, sz - 1, base);
         }
 
-        explicit SegmentTree(int new_size){
+        explicit SegmentTree(int new_size) {
+            assert(new_size >= 0);
             sz = new_size;
             int power = getPower(sz) * 2;
             tree.resize(power);
-            update_tree.resize(power, NULL);
+            update_tree.resize(power);
+            changed.resize(power, false);
         }
 
-        Type get(int l, int r){
+        TreeNode get(int l, int r) {
+            assert(0 <= l && l <= r && r < sz);
             return get(1, 0, sz - 1, l, r);
         }
         
-        void update(int l, int r, UpdInfo &upd){
+        void update(int l, int r, UpdInfo &upd) {
+            assert(0 <= l && l <= r && r < sz);
             update(1, 0, sz - 1, l, r, upd);
         }
 
     private:
-        std::vector<Type> tree;
-        std::vector<UpdInfo*> update_tree;
+        std::vector<TreeNode> tree;
+        std::vector<UpdInfo> update_tree;
+        std::vector<bool> changed;
         int sz;
 
         int getPower(int sz){
@@ -41,55 +54,61 @@ template <class Type, class UpdInfo> class SegmentTree {
             return power;
         }
 
-        void build(int v, int vl, int vr, vector<Type> &base){
-            if (vl == vr){
+        void build(int v, int vl, int vr, std::vector<TreeNode> &base) {
+            if (vl == vr) {
                 tree[v] = base[vl];
                 return;
             }
-            int d = (vl + vr) / 2;
-            build(v * 2, vl, d);
-            build(v * 2 + 1, d + 1, vr);
+            int mid = (vl + vr) / 2;
+            build(v * 2, vl, mid, base);
+            build(v * 2 + 1, mid + 1, vr, base);
             tree[v].merge(tree[v * 2], tree[v * 2 + 1]);
         }
 
-        void push(int v, int vl, int vr){
-            int mid = (vl + vr ) / 2;
-            if (v * 2 < sz){
-                update_tree[v * 2]->push(*update_tree[v], vl, mid);
+        void push(int v, int vl, int vr) {
+            int mid = (vl + vr) / 2;
+            if (vl != vr) {
+                update_tree[v * 2].push(update_tree[v], vl, mid);
                 tree[v * 2].addUpdate(update_tree[v], vl, mid);
-            }
-            if (v * 2 + 1 < sz){
-                update_tree[v * 2 + 1]->push(*update_tree[v], mid + 1, vr);
+                changed[v * 2] = true;
+                update_tree[v * 2 + 1].push(update_tree[v], mid + 1, vr);
                 tree[v * 2 + 1].addUpdate(update_tree[v], mid + 1, vr);
+                changed[v * 2 + 1] = true;
             }
+            changed[v] = false;
+            update_tree[v] = UpdInfo();
         }
 
-        Type get(int v, int vl, int vr, int l, int r){
+        TreeNode get(int v, int vl, int vr, int l, int r) {
             if (l > r)
-                return T();
-            if (update_tree[v])
+                return TreeNode();
+            if (changed[v])
                 push(v, vl, vr);
             if (vl == l && vr == r)
                 return tree[v];
             int mid = (vl + vr) / 2;
-            get(v * 2, vl, mid, l, min(r, mid));
-            get(v * 2 + 1, mid + 1, vr, max(l, mid + 1), r);
-            tree[v].merge(tree[v * 2], tree[v * 2 + 1]);
+            TreeNode left_res = get(v * 2, vl, mid, l, std::min(r, mid)),
+                     right_res = 
+                         get(v * 2 + 1, mid + 1, vr, std::max(l, mid + 1), r);
+            TreeNode res;
+            res.merge(left_res, right_res);
+            return res;
         }
 
-        void update(int v, int vl, int vr, int l, int r, UpdInfo &upd){
+        void update(int v, int vl, int vr, int l, int r, UpdInfo &upd) {
             if (l > r)
                 return;
-            if (update_tree[v])
+            if (changed[v])
                 push(v, vl, vr);
-            if (vl == l && vr == r){
+            if (vl == l && vr == r) {
+                changed[v] = true;
                 update_tree[v] = upd;
                 tree[v].addUpdate(upd, vl, vr);
                 return;
             }
             int mid = (vl + vr) / 2;
-            update(v * 2, vl, mid, l, min(r, mid), upd);
-            update(v * 2 + 1, mid + 1, vr, max(mid + 1, l), r, upd);
+            update(v * 2, vl, mid, l, std::min(r, mid), upd);
+            update(v * 2 + 1, mid + 1, vr, std::max(l, mid + 1), r, upd);
             tree[v].merge(tree[v * 2], tree[v * 2 + 1]);
         }
 };
