@@ -2,29 +2,32 @@
 #define ADVANCED
 
 #include <vector>
-#include "specificTrees.h"
 
-template <class ReturnType, class MetaInformation>
+template <class ReturnType, class MetaInformation, 
+			class Push, class Merge, class Unite>
 class AdvancedSegmentTree
 {
 private:
 	typedef std::pair<ReturnType, MetaInformation*> internal_data;
 	std::vector<internal_data> tree;
+	Push pusher;
+	Merge merger;
+	Unite unifier;
 
 	void merge_information(MetaInformation*& old_info, MetaInformation& new_info)
 	{
 		if (old_info) 
-			old_info->merge(&new_info);
+			merger(old_info, &new_info);
 		else 
 			old_info=new MetaInformation(new_info);
 	}
 
-	void shove(const unsigned int& vertex,const int& len)
+	void shove(unsigned int vertex, unsigned int len)
 	{
 		if (vertex < tree.size() / 2)
 		{
-			push(tree[vertex * 2].first, tree[vertex].second, len/2);
-			push(tree[vertex * 2 + 1].first, tree[vertex].second, len/2);
+			pusher(tree[vertex * 2].first, tree[vertex].second, len/2);
+			pusher(tree[vertex * 2 + 1].first, tree[vertex].second, len/2);
 			merge_information( tree[vertex * 2].second, *tree[vertex].second );
 			merge_information( tree[vertex * 2 + 1].second, *tree[vertex].second );
 		}
@@ -43,8 +46,8 @@ private:
 			if (tree[vertex].second) 
 				shove(vertex,vertex_right - vertex_left + 1);
 			unsigned int mid = (vertex_left + vertex_right) / 2;
-				return unite( get(vertex * 2, left, std::min(mid, right), vertex_left, mid),
-							  get(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right));
+				return unifier( get(vertex * 2, left, std::min(mid, right), vertex_left, mid),
+							    get(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right));
 		}
 	}
 
@@ -55,7 +58,7 @@ private:
 			return;
 		if (left == vertex_left && right == vertex_right) 
 		{
-			push(tree[vertex].first, &new_change, vertex_right - vertex_left + 1);
+			pusher(tree[vertex].first, &new_change, vertex_right - vertex_left + 1);
 			merge_information(tree[vertex].second, new_change);
 		} 
   		else 
@@ -65,14 +68,14 @@ private:
 			unsigned int mid = (vertex_left + vertex_right) / 2;
 			change(vertex * 2, left, std::min(mid, right), vertex_left, mid, new_change);
 			change(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right, new_change);
-			tree[vertex].first = unite(tree[vertex * 2].first, tree[vertex * 2 + 1].first);
+			tree[vertex].first = unifier(tree[vertex * 2].first, tree[vertex * 2 + 1].first);
 		}
 	}
 
 public:
 	template <class RandomAccessIterator>
 	AdvancedSegmentTree (RandomAccessIterator first, 
-						 RandomAccessIterator last)
+						 RandomAccessIterator last): pusher(Push()), merger(Merge()), unifier(Unite())
 	{
 		int number_of_elements=last-first;
 		int number_at_tree=1;
@@ -88,7 +91,7 @@ public:
 		}
 		for (int i = number_at_tree - 1; i >= 1; i--)
 		{
-			tree[i].first = unite(tree[i * 2].first, tree[i * 2 + 1].first);
+			tree[i].first = unifier(tree[i * 2].first, tree[i * 2 + 1].first);
 			tree[i].second = NULL;
 		}
 	}
@@ -98,7 +101,7 @@ public:
 		return get(1, left, right, 1, tree.size() / 2);
 	}
 
-	void change(unsigned int left, unsigned int right, MetaInformation changes) 
+	void change(unsigned int left, unsigned int right, MetaInformation& changes) 
 	{
 		change(1, left, right, 1, tree.size() / 2, changes);
 	}

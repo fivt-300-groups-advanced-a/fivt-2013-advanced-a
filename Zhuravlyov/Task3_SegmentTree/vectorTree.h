@@ -44,13 +44,13 @@ public:
 		return get_operation(left, right, std::max<Type>);
 	}
 
-	void change_increase(unsigned int left,unsigned int right,int increasion)
+	void increase(unsigned int left,unsigned int right,int increasion)
 	{
 		for (unsigned int i=left; i <= right; i++)
 			data[i] += increasion;
 	}
 
-	void change_assign(unsigned int left, unsigned int right, int assigment)
+	void assign(unsigned int left, unsigned int right, int assigment)
 	{
 		for (unsigned int i=left; i <= right; i++)
 			data[i] = assigment;
