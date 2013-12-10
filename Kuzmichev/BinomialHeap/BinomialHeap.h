@@ -42,12 +42,6 @@ public:
 	}
 };
 
-
-//template <class T>
-
-
-
-
 template <class T, class Comparator>
 class Heap
 {
@@ -56,7 +50,7 @@ protected:
 	vector <Vertex <T> *> list;
 	Comparator cmp;
 	public:
-	Heap(Comparator _cmp)
+	explicit Heap(Comparator _cmp)
 	{
 		list.clear();
 		cmp = _cmp;
@@ -83,11 +77,7 @@ protected:
 				
 			}
 		}
-		//int curResult = 0;
-		//vector <Vertex <T> * > resultList;
-		//list.clear();
 		
-		//while(curResult < new_list.size() - 1)
 		Heap <T, Comparator> * resultHeap;
 		if (flagInplace)
 			list.clear();
@@ -98,7 +88,7 @@ protected:
 			{
 				Vertex <T> * A = new_list[curResult];
 				Vertex <T> * B = new_list[curResult + 1];
-				//Vertex <T> * tmp = curResult->next->next;
+				
 				if (!cmp(A->key, B->key))
 				{
 					swap(A, B);
@@ -111,9 +101,8 @@ protected:
 				A->degree++;
 				if (curResult + 2 < new_list.size() && new_list[curResult + 2]->degree < new_list[curResult + 1]->degree)
 					swap(new_list[curResult +1], new_list[curResult + 2]);
-				
 			}
-			//else resultList.pb(new_list[curResult]);
+			
 			else if (flagInplace)
 			{
 				list.pb(new_list[curResult]);
@@ -141,7 +130,7 @@ protected:
 		innerMerge(secondHeap, true);
 	}
 
-	//pointer <T> insert(T newElem)
+	
 	void insert(T newElem)
 	{
 		Heap <T, Comparator> * H2 = new Heap(cmp);
@@ -149,10 +138,7 @@ protected:
 		
 		H2->list.pb(v);
 		inplaceMerge(H2);
-		//printf("v = %d &v = %d\n", v, &v);
 		
-		//pointer <T> ret = new pointer <T> (&v);
-		//return pointer <T> (v);
 	}
 	T getMin()
 	{
