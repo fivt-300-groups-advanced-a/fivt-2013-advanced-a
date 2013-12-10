@@ -1,6 +1,8 @@
 #ifndef INCREASE_TREE
 #define INCREASE_TREE
 
+#include "advancedTree.h"
+
 template <class Type, Type neutralSumElement, 
 	Type neutralMinElement, Type neutralMaxElement>
 class SumMinMaxIncreaseTree

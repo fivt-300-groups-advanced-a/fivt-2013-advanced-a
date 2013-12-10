@@ -8,6 +8,8 @@ template <class ReturnType, class MetaInformation,
 class AdvancedSegmentTree
 {
 private:
+	friend struct fakeTree;
+
 	typedef std::pair<ReturnType, MetaInformation*> internal_data;
 	std::vector<internal_data> tree;
 	Push pusher;
@@ -74,8 +76,8 @@ private:
 
 public:
 	template <class RandomAccessIterator>
-	AdvancedSegmentTree (RandomAccessIterator first, 
-						 RandomAccessIterator last): pusher(Push()), merger(Merge()), unifier(Unite())
+	AdvancedSegmentTree (RandomAccessIterator first, RandomAccessIterator last)
+		: pusher(Push()), merger(Merge()), unifier(Unite()) 
 	{
 		int number_of_elements=last-first;
 		int number_at_tree=1;

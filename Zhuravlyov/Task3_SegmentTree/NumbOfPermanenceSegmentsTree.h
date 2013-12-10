@@ -1,34 +1,35 @@
-#ifndef ASSIGN_INCREASE_TREE
-#define ASSIGN_INCREASE_TREE
+#ifndef PERFOMANCE_SEGMENTS_TREE
+#define PERFOMANCE_SEGMENTS_TREE
 
 #include "advancedTree.h"
 
-template <class Type, Type neutralSumElement, 
-	Type neutralMinElement, Type neutralMaxElement>
-class SumMinMaxIncreaseAssignTree
+template <class Type>
+class NumberOfPermanenceSegmentsTree
 {
 public:
 
 	template <class RandomAccessIterator>
-	SumMinMaxIncreaseAssignTree(RandomAccessIterator first, RandomAccessIterator last)
+	NumberOfPermanenceSegmentsTree(RandomAccessIterator first, RandomAccessIterator last)
 		:   tree(first, last)
 	{}
 
-	struct ReturnType
-	{
-		ReturnType(): min(neutralMinElement), max(neutralMaxElement), sum(neutralSumElement)
+	struct ReturnType{
+		ReturnType(): neutral(true) 
 		{}
-		ReturnType(const Type& element): min(element), max(element), sum(element)
+		ReturnType(Type element): neutral(false), number(1), left(element), right(element) 
 		{}
-		ReturnType(const Type& sum, const Type& min, const Type& max)
-		: sum(sum), min(min), max(max)
+		ReturnType(Type left, Type right, unsigned int number)
+			: neutral(false), number(number), left(left), right(right) 
 		{}
-		Type sum, min, max;
+
+		unsigned int number;
+		bool neutral;
+		Type left, right;
 	};
 
-	ReturnType get(unsigned int left,unsigned int right)
+	unsigned int getNumber(unsigned int left, unsigned int right)
 	{
-		return tree.get(left, right);
+		return tree.get(left, right).number;
 	}
 
 	void increase(unsigned int left, unsigned int right, const Type& change_value)
@@ -39,10 +40,9 @@ public:
 	void assign(unsigned int left, unsigned int right, const Type& change_value)
 	{
 		tree.change(left, right, MetaInformation(0, change_value));
-	}
+	}	
 
 private:
-
 	struct MetaInformation
 	{
 		bool operation; // 0 - assign, 1- increase
@@ -58,19 +58,17 @@ private:
 		{
 			if (changes->operation) // increase 
 			{
-				value_to_change.sum += changes->changed * len;
-				value_to_change.max += changes->changed;
-				value_to_change.min += changes->changed;
+				value_to_change.left += changes->changed;
+				value_to_change.right += changes->changed;
 			}
 			else //assign
 			{
-				value_to_change.sum = changes->changed * len;
-				value_to_change.max = changes->changed;
-				value_to_change.min = changes->changed;
+				value_to_change.left = value_to_change.right = changes->changed;
+				value_to_change.number = 1;
 			}
 		}
 	};
-	
+
 	struct Merge
 	{
 		void operator()(MetaInformation* old_changes, MetaInformation* new_changes)
@@ -105,10 +103,17 @@ private:
 	{
 		ReturnType operator()(const ReturnType& first, const ReturnType& second)
 		{
-			return ReturnType( first.sum + second.sum, std::min(first.min, second.min),
-								std::max(first.max, second.max) );
+			if (first.neutral) 
+				return second;
+			else if (second.neutral)
+				return first;
+			else if (first.right == second.left) 
+				return ReturnType(first.left, second.right, first.number + second.number - 1);
+			else 
+				return ReturnType(first.left, second.right, first.number + second.number);
 		}
 	};
+
 
 	AdvancedSegmentTree< ReturnType, MetaInformation, Push, Merge, Unite > tree;
 };

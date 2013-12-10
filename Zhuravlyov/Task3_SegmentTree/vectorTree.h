@@ -2,7 +2,7 @@
 #define VECTOR_TREE
 #include <vector>
 
-template <class Type>
+template <class Type, Type neutralSumElement>
 class vectorTree
 {
 private:
@@ -44,13 +44,35 @@ public:
 		return get_operation(left, right, std::max<Type>);
 	}
 
-	void increase(unsigned int left,unsigned int right,int increasion)
+	unsigned int NumberOfPermSegments(unsigned int left, unsigned int right)
+	{
+		unsigned int k = 1;
+		for (int i = left + 1; i <= right; i++)
+			if (data[i] != data[i-1]) 
+				k++;
+		return k;
+	}
+
+	Type maxSubSum(unsigned int left, unsigned int right)
+	{
+		Type sum = data[left];
+		Type max = data[left];
+		for (unsigned int i = left + 1; i <= right; i++)
+		{
+			sum += data[i];
+			max = std::max(sum, max);
+			sum = std::max(sum, neutralSumElement);
+		}
+		return max;
+	}
+
+	void increase(unsigned int left,unsigned int right,Type increasion)
 	{
 		for (unsigned int i=left; i <= right; i++)
 			data[i] += increasion;
 	}
 
-	void assign(unsigned int left, unsigned int right, int assigment)
+	void assign(unsigned int left, unsigned int right, Type assigment)
 	{
 		for (unsigned int i=left; i <= right; i++)
 			data[i] = assigment;
