@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <algorithm>
 
 template< typename T, typename Cmp>
 class Heap {
