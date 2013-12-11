@@ -1,29 +1,34 @@
 #ifndef FAKETREE
 #define FAKETREE
 
-//Fake segment tree for inner state testing - not ready yet
+//Fake segment tree for inner state testing
 
 #include "advancedTree.h"
 #include <vector>
 
+
+int metaQuantity, number_of_pushes, number_of_merges, number_of_unions;
+bool correct_push, correct_merge, correct_union, correct_build;
+
 struct fakeTree
 {
-	int metaQuantity, number_of_pushes, number_of_merges, number_of_unions;
-	bool correct_push, correct_merge, correct_union, correct_build;
 
 	template <class Iterator>
 	fakeTree(Iterator begin, Iterator end): tree(begin, end) 
 	{
 		metaQuantity = number_of_pushes	= number_of_merges = 0;
 		correct_push = correct_merge = correct_union = correct_build = true;
-		for (unsigned int i=1; i <= tree.tree.size(); i++)
-			if (i != tree.tree[i].first.value) 
+		// unite functor makes tree with it's indexes in elements of array, and -1 where RT doesn't exist
+		// so here we check if build is correct
+		for (unsigned int i=1; i < tree.tree.size(); i++)
+			if (i != tree.tree[i].first.value && tree.tree[i].first.value != -1) 
 				correct_build = false;
 	}
 
 	struct ReturnType
 	{
 		int value;
+		// neutral Return Type is -1 value
 		ReturnType(): value(-1)
 		{}
 		ReturnType(int number): value(number)
@@ -32,12 +37,18 @@ struct fakeTree
 
 	struct MetaInformation
 	{
+		MetaInformation(const MetaInformation& a)
+		{
+			metaQuantity++;
+		}
+
 		MetaInformation() 
 		{
 			metaQuantity++;
 		}
 
-		~MetaInformation() {
+		~MetaInformation() 
+		{
 			metaQuantity--;
 		}
 	};
@@ -48,7 +59,7 @@ struct fakeTree
 		{
 			number_of_pushes++;
 			if (!changes) 
-				fakeTree::correct_push = false;
+				correct_push = false;
 		}
 	};
 
@@ -56,9 +67,9 @@ struct fakeTree
 	{
 		void operator()(MetaInformation* old_changes, MetaInformation* new_changes)
 		{
-			fakeTree::number_of_merges++;
+			number_of_merges++;
 			if (!old_changes || !new_changes)
-				fakeTree::correct_merge = false;
+				correct_merge = false;
 		}
 	};
 
@@ -67,8 +78,13 @@ struct fakeTree
 		ReturnType operator()(const ReturnType& first, const ReturnType& second)
 		{
 			number_of_unions++;
-			if (first.value == -1 || second.value -1) 
+			if (first.value == -1 && second.value -1) 
 				return ReturnType(-1);
+			if (first.value == -1) 
+				return ReturnType(second.value / 2);
+			if (second.value == -1) 
+				return ReturnType(first.value / 2);
+			// here we check we don't unite wrong elements
 			if (first.value / 2 != second.value / 2) 
 				correct_union = false;
 			return ReturnType(first.value/2);

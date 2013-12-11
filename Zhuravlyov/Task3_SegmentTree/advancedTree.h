@@ -26,10 +26,10 @@ private:
 
 	void shove(unsigned int vertex, unsigned int len)
 	{
-		if (vertex < tree.size() / 2)
-		{
-			pusher(tree[vertex * 2].first, tree[vertex].second, len/2);
-			pusher(tree[vertex * 2 + 1].first, tree[vertex].second, len/2);
+		pusher(tree[vertex * 2].first, tree[vertex].second, len/2);
+		pusher(tree[vertex * 2 + 1].first, tree[vertex].second, len/2);
+		if (len > 2) // we don't put MI to leafes, it already pushed there
+		{ 
 			merge_information( tree[vertex * 2].second, *tree[vertex].second );
 			merge_information( tree[vertex * 2 + 1].second, *tree[vertex].second );
 		}
@@ -46,7 +46,7 @@ private:
 			return tree[vertex].first;
 		else {
 			if (tree[vertex].second) 
-				shove(vertex,vertex_right - vertex_left + 1);
+				shove(vertex, vertex_right - vertex_left + 1);
 			unsigned int mid = (vertex_left + vertex_right) / 2;
 				return unifier( get(vertex * 2, left, std::min(mid, right), vertex_left, mid),
 							    get(vertex * 2 + 1, std::max(left, mid + 1), right, mid + 1, vertex_right));
@@ -61,7 +61,8 @@ private:
 		if (left == vertex_left && right == vertex_right) 
 		{
 			pusher(tree[vertex].first, &new_change, vertex_right - vertex_left + 1);
-			merge_information(tree[vertex].second, new_change);
+			if (right - left > 0) // don't put MI to leaf
+				merge_information(tree[vertex].second, new_change);
 		} 
   		else 
 		{
@@ -79,8 +80,8 @@ public:
 	AdvancedSegmentTree (RandomAccessIterator first, RandomAccessIterator last)
 		: pusher(Push()), merger(Merge()), unifier(Unite()) 
 	{
-		int number_of_elements=last-first;
-		int number_at_tree=1;
+		int number_of_elements = last - first;
+		int number_at_tree = 1;
 		while (number_at_tree < number_of_elements) 
 			number_at_tree *= 2;
 		tree.resize(2 * number_at_tree);
@@ -98,7 +99,7 @@ public:
 		}
 	}
 
-	ReturnType get(unsigned int left,unsigned int right) 
+	ReturnType get(unsigned int left, unsigned int right) 
 	{
 		return get(1, left, right, 1, tree.size() / 2);
 	}

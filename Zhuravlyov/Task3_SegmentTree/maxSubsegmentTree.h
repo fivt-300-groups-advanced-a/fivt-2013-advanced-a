@@ -4,11 +4,12 @@
 #include "advancedTree.h"
 
 template <class Type, Type neutralSumElement, Type neutralMaxElement>
-class maxSubsegmentTree{
+class MaxSubsegmentTree
+{
 public:
 
 	template <class RandomAccessIterator>
-	maxSubsegmentTree(RandomAccessIterator first, RandomAccessIterator last)
+	MaxSubsegmentTree(RandomAccessIterator first, RandomAccessIterator last)
 		:   tree(first, last)
 	{}
 
