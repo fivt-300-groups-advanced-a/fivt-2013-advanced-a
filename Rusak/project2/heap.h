@@ -36,7 +36,7 @@ class Heap {
       if (!other.head) return;
 
       //create fictive vertex
-      Vertex* new_head = new Vertex(-1);
+      Vertex* new_head = new Vertex(T());
       
       //merge lists of vertexes
       Vertex *curh = new_head, *curh1 = head, *curh2 = other.head;
@@ -72,7 +72,7 @@ class Heap {
     }
 
     /*  Reference */ void insert(T val) {
-      Heap<T, Cmp> nw = Heap(val);
+      Heap<T, Cmp> nw = Heap(val, cmp);
       //Reference result(nw.head);
       merge(nw);
       //return result;
@@ -102,7 +102,7 @@ class Heap {
         cur->sibling = del->sibling;
       }
       //create heap of childs and merge
-      Heap<T, Cmp> heap = Heap();
+      Heap<T, Cmp> heap = Heap(cmp);
       Vertex* fir = del->child;
       delete del;
       while (fir) {
