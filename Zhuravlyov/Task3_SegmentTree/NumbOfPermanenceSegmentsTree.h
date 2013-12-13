@@ -8,6 +8,8 @@ class NumberOfPermanenceSegmentsTree
 {
 public:
 
+	friend struct NumberOfPermanenceSegmentsTreeTestFriend;
+
 	template <class RandomAccessIterator>
 	NumberOfPermanenceSegmentsTree(RandomAccessIterator first, RandomAccessIterator last)
 		:   tree(first, last)

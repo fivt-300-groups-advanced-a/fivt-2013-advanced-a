@@ -9,6 +9,8 @@ class SumMinMaxIncreaseAssignTree
 {
 public:
 
+	friend struct SumMinMaxIncreaseAssignTreeTestFriend;
+
 	template <class RandomAccessIterator>
 	SumMinMaxIncreaseAssignTree(RandomAccessIterator first, RandomAccessIterator last)
 		:   tree(first, last)

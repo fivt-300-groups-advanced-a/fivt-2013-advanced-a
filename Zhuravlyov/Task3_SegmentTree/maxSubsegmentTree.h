@@ -8,6 +8,8 @@ class MaxSubsegmentTree
 {
 public:
 
+	friend struct MaxSubsegmentTreeTestFriend;
+
 	template <class RandomAccessIterator>
 	MaxSubsegmentTree(RandomAccessIterator first, RandomAccessIterator last)
 		:   tree(first, last)

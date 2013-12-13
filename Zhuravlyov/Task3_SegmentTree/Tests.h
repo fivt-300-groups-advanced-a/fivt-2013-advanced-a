@@ -8,6 +8,7 @@
 #include "maxSubsegmentTree.h"
 #include "vectorTree.h"
 #include "fakeTree.h"
+#include "friendly_structures.h"
 
 
 TEST(InnerStateTesing, TestAdvancedTree)
@@ -88,20 +89,191 @@ TEST(InnerStateTesing, TestAdvancedTree)
 	EXPECT_TRUE(correct_union);
 }
 
-
-TEST(FunctorTesing, SumMinMaxAssign_Increase_AssignIncreaseFunctors)
+TEST(FunctorTesting, SumMinMaxAssignTreeFunctors)
 {
-	//to do
+	typedef SumMinMaxAssignTreeTestFriend::ReturnType ReturnType;
+	typedef SumMinMaxAssignTreeTestFriend::MetaInformation MetaInformation;
+	SumMinMaxAssignTreeTestFriend::Unite unifier;
+	SumMinMaxAssignTreeTestFriend::Merge merger;
+	SumMinMaxAssignTreeTestFriend::Push pusher;
+	ReturnType first(10, 20, 30);
+	ReturnType second(-5);
+	// Test unifier with neutral
+	first = unifier(first, ReturnType());
+	EXPECT_EQ(first.sum, 10);
+	EXPECT_EQ(first.min, 20);
+	EXPECT_EQ(first.max, 30);
+	second = unifier(ReturnType(), second);
+	EXPECT_EQ(second.sum, -5);
+	EXPECT_EQ(second.min, -5);
+	EXPECT_EQ(second.max, -5);
+	// Test unifier
+	ReturnType third = unifier(first, second);
+	EXPECT_EQ(third.sum, 5);
+	EXPECT_EQ(third.min, -5);
+	EXPECT_EQ(third.max, 30);
+	// Test merge
+	auto metaFirstPointer = new MetaInformation(3);
+	auto metaSecondPointer = new MetaInformation(5);
+	merger(metaFirstPointer, metaSecondPointer);
+	EXPECT_EQ( metaFirstPointer->assigned, 5);
+	merger(metaSecondPointer, &MetaInformation(4) );
+	EXPECT_EQ( metaSecondPointer->assigned, 4);
+	// Test push
+	pusher(first, metaFirstPointer, 3);
+	EXPECT_EQ(first.sum, 15);
+	EXPECT_EQ(first.min, 5);
+	EXPECT_EQ(first.max, 5);
+}
+
+TEST(FunctorTesting, SumMinMaxIncreaseTreeFunctors)
+{
+	typedef SumMinMaxIncreaseTreeTestFriend::ReturnType ReturnType;
+	typedef SumMinMaxIncreaseTreeTestFriend::MetaInformation MetaInformation;
+	SumMinMaxIncreaseTreeTestFriend::Merge merger;
+	SumMinMaxIncreaseTreeTestFriend::Push pusher;
+	// unifier is already tested in previous tree, it's the same here
+	// test merger
+	auto metaFirst = new MetaInformation(3);
+	auto metaSecond = new MetaInformation(-6);
+	merger(metaFirst, metaSecond);
+	EXPECT_EQ(metaFirst->increased, -3);
+	// test pusher
+	ReturnType first(3, 0, -6);
+	pusher(first, metaFirst, 1000);
+	EXPECT_EQ(first.sum, 3 - 1000 * 3);
+	EXPECT_EQ(first.min, -3);
+	EXPECT_EQ(first.max, -9);
+}
+
+TEST(FunctorTesting, SumMinMaxIncreaseAssignTreeFunctors)
+{
+	typedef SumMinMaxIncreaseAssignTreeTestFriend::ReturnType ReturnType;
+	typedef SumMinMaxIncreaseAssignTreeTestFriend::MetaInformation MetaInformation;
+	SumMinMaxIncreaseAssignTreeTestFriend::Merge merger;
+	SumMinMaxIncreaseAssignTreeTestFriend::Push pusher;
+	// unifier is still the same
+	// test merger
+	auto MetaFirst = new MetaInformation(false, 3); // assign 3
+	auto MetaSecond = new MetaInformation(true, 5); // increase 5
+	auto MetaThird = new MetaInformation(false, 6); // assign 6
+	auto MetaFourth = new MetaInformation(true, -3); // decrease 3
+	merger(MetaFirst, MetaThird); // merge 1 and 3
+	EXPECT_EQ(MetaFirst->operation, false);
+	EXPECT_EQ(MetaFirst->changed, 6); // got assign 6
+	merger(MetaSecond, MetaFourth); // merge 2 and 4
+	EXPECT_EQ(MetaSecond->operation, true);
+	EXPECT_EQ(MetaSecond->changed, 2); // got increase 2
+	merger(MetaFirst, MetaSecond); // merge increase 2 to assign 6
+	EXPECT_EQ(MetaFirst->operation, false);
+	EXPECT_EQ(MetaFirst->changed, 8); // got assign 8
+	merger(MetaSecond, MetaFirst); // merge assign 8 to increase 2
+	EXPECT_EQ(MetaSecond->operation, false);
+	EXPECT_EQ(MetaSecond->changed, 8); // got assign 8
+	// test pusher
+	ReturnType first(5, 6, 7);
+	pusher(first, MetaFourth, 5); // decrease 3
+	EXPECT_EQ(first.sum, -10);
+	EXPECT_EQ(first.min, 3);
+	EXPECT_EQ(first.max, 4);
+	pusher(first, MetaFirst, 2); // assign 8
+	EXPECT_EQ(first.sum, 16);
+	EXPECT_EQ(first.min, 8);
+	EXPECT_EQ(first.max, 8);
 }
 
 TEST(FunctorTesting, NumberOfPermanenceSegmentsFunctors)
 {
-	//to do
+	typedef NumberOfPermanenceSegmentsTreeTestFriend::ReturnType ReturnType;
+	typedef NumberOfPermanenceSegmentsTreeTestFriend::MetaInformation MetaInformation;
+	NumberOfPermanenceSegmentsTreeTestFriend::Unite unifier;
+	NumberOfPermanenceSegmentsTreeTestFriend::Push pusher;
+	// test unifier
+	ReturnType first(1, 3, 6);
+	ReturnType second(3, 1, 2);
+	first = unifier(first, ReturnType());
+	EXPECT_EQ(first.left, 1);
+	EXPECT_EQ(first.right, 3);
+	EXPECT_EQ(first.number, 6);
+	second = unifier(ReturnType(), second);
+	EXPECT_EQ(second.left, 3);
+	EXPECT_EQ(second.right, 1);
+	EXPECT_EQ(second.number, 2);
+	ReturnType third = unifier(first, second);
+	EXPECT_EQ(third.left, 1);
+	EXPECT_EQ(third.right, 1);
+	EXPECT_EQ(third.number, 7);
+	third = unifier(first, third);
+	EXPECT_EQ(third.left, 1);
+	EXPECT_EQ(third.right, 1);
+	EXPECT_EQ(third.number, 13);
+	//merge is same as SumMinMaxIncreaseAssignTree, no need to test it
+	// test push
+	auto metaFirst = new MetaInformation(false, 2); // assign 2
+	auto metaSecond = new MetaInformation(true, 3); // increase 3
+	pusher(third, metaFirst, 10);
+	EXPECT_EQ(third.left, 2);
+	EXPECT_EQ(third.right, 2);
+	EXPECT_EQ(third.number, 1);
+	pusher(first, metaSecond, 10);
+	EXPECT_EQ(first.left, 4);
+	EXPECT_EQ(first.right, 6);
+	EXPECT_EQ(first.number, 6);
 }
 
-TEST(FunctorTesing, MaxSubsegmentFunctors)
+TEST(FunctorTesting, MaxSubsegmentFunctors)
 {
-	//to do
+	typedef MaxSubsegmentTreeTestFriend::ReturnType ReturnType;
+	typedef MaxSubsegmentTreeTestFriend::MetaInformation MetaInformation;
+	MaxSubsegmentTreeTestFriend::Unite unifier;
+	MaxSubsegmentTreeTestFriend::Push pusher;
+	// test unifier
+	ReturnType first(3, 2, 4, -8); 
+	// max_prefix, max_suffix, max_subsum, sum
+	ReturnType second(3, 4, 2, -9);
+	first = unifier(first, ReturnType());
+	second = unifier(ReturnType(), second);
+	EXPECT_EQ(first.max_prefix, 3);
+	EXPECT_EQ(first.max_suffix, 2);
+	EXPECT_EQ(first.max_subsum, 4);
+	EXPECT_EQ(first.sum, -8);
+	EXPECT_EQ(second.max_prefix, 3);
+	EXPECT_EQ(second.max_suffix, 4);
+	EXPECT_EQ(second.max_subsum, 2);
+	EXPECT_EQ(second.sum, -9);
+	ReturnType third = unifier(first, second);
+	EXPECT_EQ(third.max_prefix, 3);
+	EXPECT_EQ(third.max_suffix, 4);
+	EXPECT_EQ(third.max_subsum, 5);
+	EXPECT_EQ(third.sum, -17);
+	ReturnType fourth(-1, -1, -1, -8);
+	ReturnType fifth(8 , -1 , 9, -3);
+	ReturnType sixth = unifier(fourth, fifth);
+	EXPECT_EQ(sixth.max_prefix, 0);
+	EXPECT_EQ(sixth.max_suffix, -1);
+	EXPECT_EQ(sixth.max_subsum, 9);
+	EXPECT_EQ(sixth.sum, -11);
+	ReturnType seventh(1, 4, 9, -12);
+	ReturnType eighth(7, -5, 5, -5);
+	ReturnType ninth = unifier(seventh, eighth);
+	EXPECT_EQ(ninth.max_prefix, 1);
+	EXPECT_EQ(ninth.max_suffix, -1);
+	EXPECT_EQ(ninth.max_subsum, 11);
+	EXPECT_EQ(ninth.sum, -17);
+	// merge is already tested in SumMinMaxAssignTree
+	// test push
+	auto metaFirst = new MetaInformation(5);
+	pusher(ninth, metaFirst, 10);
+	EXPECT_EQ(ninth.max_prefix, 50);
+	EXPECT_EQ(ninth.max_suffix, 50);
+	EXPECT_EQ(ninth.max_subsum, 50);
+	EXPECT_EQ(ninth.sum, 50);
+	auto metaSecond = new MetaInformation(-1);
+	pusher(first, metaSecond, 5);
+	EXPECT_EQ(first.max_prefix, -1);
+	EXPECT_EQ(first.max_suffix, -1);
+	EXPECT_EQ(first.max_subsum, -1);
+	EXPECT_EQ(first.sum, -5);
 }
 
 TEST(ManualTests, SumMinMaxAssignTree)
@@ -285,7 +457,7 @@ TEST(IntergationTests, MaxSubsegmentTree)
 	//to do
 }
 
-const int number_of_operations = 100000;
+const int number_of_operations = 1000;
 const int size_of_data = 1000;
 const int max_random_number = 100000;
 
