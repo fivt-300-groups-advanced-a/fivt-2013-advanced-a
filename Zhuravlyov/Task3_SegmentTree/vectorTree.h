@@ -47,7 +47,7 @@ public:
 	unsigned int NumberOfPermSegments(unsigned int left, unsigned int right)
 	{
 		unsigned int k = 1;
-		for (int i = left + 1; i <= right; i++)
+		for (unsigned int i = left + 1; i <= right; i++)
 			if (data[i] != data[i-1]) 
 				k++;
 		return k;

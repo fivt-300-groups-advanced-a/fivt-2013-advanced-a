@@ -9,6 +9,7 @@
 #include "vectorTree.h"
 #include "fakeTree.h"
 #include "friendly_structures.h"
+#include "File_IO.h"
 
 
 TEST(InnerStateTesing, TestAdvancedTree)
@@ -432,40 +433,322 @@ TEST(ManualTests, MaxSubsegmentTree)
 	EXPECT_EQ(tree.getMaxSubSum(5, 10), 2);
 }
 
+enum tree_operations { increase, assign, sum, min, max, maxSubSum, PermSegm };
+
+void get_random_borders(int& left, int& right, int max_size)
+{
+	right = rand() % max_size + 1;
+	left = rand() % right + 1;
+}
+
+void generate_input_data(const std::string& filename, int data_size, int operations_number,
+							int max_value, const std::vector<int>& operations)
+{
+	BinaryFileWriter write(filename);
+	write(data_size);
+	for (int i=0; i<data_size; i++)
+		write(rand() % max_value);
+	write(operations_number);
+	for (int i = 0; i < operations_number; i++)
+	{
+		int left, right;
+		get_random_borders(left, right, data_size);
+		int operation = operations[rand() % operations.size()]; // random operation
+		write( operation ); 
+		write(left); write(right); // random segment
+		if (operation == increase || operation == assign) 
+			write(rand()%1000); // additional data if it's modify operation
+	}
+	write.close();
+}
+
+void generate_output_data(const std::string& input_filename, const std::string& output_filename)
+{
+	BinaryFileReader read(input_filename);
+	BinaryFileWriter write(output_filename);
+	int number_of_elements;
+	read(number_of_elements);
+	std::vector<int> start_data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		read(start_data[i]);
+	vectorTree<int, 0> slow_tree(start_data.begin(), start_data.end());
+	int number_of_operations;
+	read(number_of_operations);
+	for (int i = 0; i< number_of_operations; i++)
+	{
+		int operation, left, right, change;
+		read(operation);
+		read(left); read(right);
+		if (operation == increase)
+		{
+			read(change);
+			slow_tree.increase(left, right, change);
+		} 
+		else if (operation == assign)
+		{
+			read(change);
+			slow_tree.assign(left, right, change);
+		}
+		else if (operation == sum) 
+		{
+			write(slow_tree.getSum(left, right));
+		} 
+		else if (operation == min)
+		{
+			write(slow_tree.getMin(left, right));
+		}
+		else if (operation == max) 
+		{
+			write(slow_tree.getMax(left, right));
+		}
+		else if (operation == maxSubSum)
+		{
+			write(slow_tree.maxSubSum(left, right));
+		}
+		else if (operation == PermSegm) // number of permanence segments
+		{
+			write(slow_tree.NumberOfPermSegments(left, right));
+		}
+	}
+	read.close();
+	write.close();
+}
+
+void initializate_files(const std::string& input_filename, const std::string& output_filename,
+						const std::vector<int>& operations)
+{
+	const int tests_size_of_data = 1000000;
+	const int tests_operations_number = 100000;
+	const int max_value = 2000;
+	if (!FileIsExist(input_filename)) 
+	{
+		generate_input_data(input_filename, tests_size_of_data, 
+							tests_operations_number, max_value, operations);
+	}
+	if (!FileIsExist(output_filename)) 
+	{
+		generate_output_data(input_filename, output_filename);
+	}
+}
+
 TEST(IntergationTests, SumMinMaxAssignTree)
 {
-	//to do
+	std::vector<int> operations(4);
+	operations[0] = sum; operations[1] = min;
+	operations[2] = max; operations[3] = assign;
+	initializate_files("SumMinMaxAssignTree.dat", "SumMinMaxAssignTree.sol", operations);
+	BinaryFileReader input("SumMinMaxAssignTree.dat");
+	BinaryFileReader output("SumMinMaxAssignTree.sol");
+	int number_of_elements;
+	input(number_of_elements);
+	std::vector<int> data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		input(data[i]);
+	SumMinMaxAssignTree<int, 0, LONG_MAX, LONG_MIN> tree(data.begin(), data.end());
+
+	int number_of_operations;
+	input(number_of_operations);
+	for (int i = 0; i < number_of_operations; i++)
+	{
+		int operation_type, left, right, change;
+		input(operation_type);
+		input(left); input(right);
+		if (operation_type == assign) 
+		{
+			input(change);
+			tree.assign(left, right, change);
+		}
+		else
+		{
+			int expected;
+			output(expected);
+			if (operation_type == sum)
+				EXPECT_EQ(tree.get(left, right).sum, expected);
+			else if (operation_type == min)
+				EXPECT_EQ(tree.get(left, right).min, expected);
+			else if (operation_type == max)
+				EXPECT_EQ(tree.get(left, right).max, expected);
+		}
+	}
+	input.close();
+	output.close();
 }
 
 TEST(IntergationTests, SumMinMaxIncreaseTree)
 {
-	//to do
+	std::vector<int> operations(4);
+	operations[0] = sum; operations[1] = min;
+	operations[2] = max; operations[3] = increase;
+	initializate_files("SumMinMaxIncreaseTree.dat", "SumMinMaxIncreaseTree.sol", operations);
+	BinaryFileReader input("SumMinMaxIncreaseTree.dat");
+	BinaryFileReader output("SumMinMaxIncreaseTree.sol");
+	int number_of_elements;
+	input(number_of_elements);
+	std::vector<int> data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		input(data[i]);
+	SumMinMaxIncreaseTree<int, 0, LONG_MAX, LONG_MIN> tree(data.begin(), data.end());
+
+	int number_of_operations;
+	input(number_of_operations);
+	for (int i = 0; i < number_of_operations; i++)
+	{
+		int operation_type, left, right, change;
+		input(operation_type);
+		input(left); input(right);
+		if (operation_type == increase) 
+		{
+			input(change);
+			tree.increase(left, right, change);
+		}
+		else
+		{
+			int expected;
+			output(expected);
+			if (operation_type == sum)
+				EXPECT_EQ(tree.get(left, right).sum, expected);
+			else if (operation_type == min)
+				EXPECT_EQ(tree.get(left, right).min, expected);
+			else if (operation_type == max)
+				EXPECT_EQ(tree.get(left, right).max, expected);
+		}
+	}
+	input.close();
+	output.close();
 }
 
 TEST(IntergationTests, SumMinMaxIncreaseAssignTree)
 {
-	//to do
+	std::vector<int> operations(4);
+	operations[0] = sum; operations[1] = min;
+	operations[2] = max; operations[3] = increase;
+	initializate_files("SumMinMaxIncreaseAssignTree.dat", "SumMinMaxIncreaseAssignTree.sol", operations);
+	BinaryFileReader input("SumMinMaxIncreaseAssignTree.dat");
+	BinaryFileReader output("SumMinMaxIncreaseAssignTree.sol");
+	int number_of_elements;
+	input(number_of_elements);
+	std::vector<int> data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		input(data[i]);
+	SumMinMaxIncreaseAssignTree<int, 0, LONG_MAX, LONG_MIN> tree(data.begin(), data.end());
+
+	int number_of_operations;
+	input(number_of_operations);
+	for (int i = 0; i < number_of_operations; i++)
+	{
+		int operation_type, left, right, change;
+		input(operation_type);
+		input(left); input(right);
+		if (operation_type == increase) 
+		{
+			input(change);
+			tree.increase(left, right, change);
+		}
+		else if (operation_type == assign)
+		{
+			input(change);
+			tree.assign(left, right, change);
+		}
+		else
+		{
+			int expected;
+			output(expected);
+			if (operation_type == sum)
+				EXPECT_EQ(tree.get(left, right).sum, expected);
+			else if (operation_type == min)
+				EXPECT_EQ(tree.get(left, right).min, expected);
+			else if (operation_type == max)
+				EXPECT_EQ(tree.get(left, right).max, expected);
+		}
+	}
+	input.close();
+	output.close();
 }
 
 TEST(IntergationTests, NumberOfPermanenceSegmentsTree)
 {
-	//to do
+	std::vector<int> operations(3);
+	operations[0] = increase; operations[1] = assign;
+	operations[2] = PermSegm;
+	initializate_files("NumberOfPermanenceSegmentsTree.dat", "NumberOfPermanenceSegmentsTree.sol", operations);
+	BinaryFileReader input("NumberOfPermanenceSegmentsTree.dat");
+	BinaryFileReader output("NumberOfPermanenceSegmentsTree.sol");
+	int number_of_elements;
+	input(number_of_elements);
+	std::vector<int> data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		input(data[i]);
+	NumberOfPermanenceSegmentsTree<int> tree(data.begin(), data.end());
+
+	int number_of_operations;
+	input(number_of_operations);
+	for (int i = 0; i < number_of_operations; i++)
+	{
+		int operation_type, left, right, change;
+		input(operation_type);
+		input(left); input(right);
+		if (operation_type == increase) 
+		{
+			input(change);
+			tree.increase(left, right, change);
+		}
+		else if (operation_type == assign)
+		{
+			input(change);
+			tree.assign(left, right, change);
+		}
+		else
+		{
+			int expected;
+			output(expected);
+			EXPECT_EQ(tree.getNumber(left, right), expected);
+		}
+	}
+	input.close();
+	output.close();
 }
 
 TEST(IntergationTests, MaxSubsegmentTree)
 {
-	//to do
+	std::vector<int> operations(2);
+	operations[0] = assign;
+	operations[1] = maxSubSum;
+	initializate_files("MaxSubsegmentTree.dat", "MaxSubsegmentTree.sol", operations);
+	BinaryFileReader input("MaxSubsegmentTree.dat");
+	BinaryFileReader output("MaxSubsegmentTree.sol");
+	int number_of_elements;
+	input(number_of_elements);
+	std::vector<int> data(number_of_elements);
+	for (int i = 0; i < number_of_elements; i++)
+		input(data[i]);
+	MaxSubsegmentTree<int, 0, LONG_MIN> tree(data.begin(), data.end());
+
+	int number_of_operations;
+	input(number_of_operations);
+	for (int i = 0; i < number_of_operations; i++)
+	{
+		int operation_type, left, right, change;
+		input(operation_type);
+		input(left); input(right);
+		if (operation_type == assign)
+		{
+			input(change);
+			tree.assign(left, right, change);
+		}
+		else
+		{
+			int expected;
+			output(expected);
+			EXPECT_EQ(tree.getMaxSubSum(left, right), expected);
+		}
+	}
+	input.close();
+	output.close();
 }
 
-const int number_of_operations = 1000;
-const int size_of_data = 1000;
-const int max_random_number = 100000;
-
-void get_random_borders(int& left, int& right)
-{
-	right = rand() % size_of_data + 1;
-	left = rand() % right + 1;
-}
+const int number_of_operations = 100000;
+const int size_of_data = 100000;
+const int max_random_number = 20000;
 
 TEST(StressTest,SumMinMaxAssignIncreaseTree_vs_Vector)
 {
@@ -481,7 +764,7 @@ TEST(StressTest,SumMinMaxAssignIncreaseTree_vs_Vector)
 	{
 		int operation = rand() % 5;
 		int change = rand() % max_random_number;
-		get_random_borders(left, right);
+		get_random_borders(left, right, size_of_data);
 		if (operation==0) // increasing
 		{
 			fast_tree.increase(left, right, change);
