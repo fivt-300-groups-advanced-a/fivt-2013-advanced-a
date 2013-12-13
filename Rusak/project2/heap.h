@@ -5,14 +5,14 @@ template< typename T, typename Cmp>
 class Heap {
 
   private:
-    template< typename U, typename Comp > friend class HeapTest;
+    template <class U, class Z> friend class HeapTest;
 
     class Vertex {
-      friend class Heap;
-      template< typename U, typename Comp > friend class HeapTest;
-
       private:
-        Vertex(T val):key(val), parent(NULL), child(NULL), sibling(NULL), degree(0) { }
+        friend class Heap;
+        template <class U, class Z> friend class HeapTest;
+
+        Vertex(T val):key(val), parent(0), child(0), sibling(0), degree(0) { }
         T key;
         Vertex *parent, *child, *sibling;
         unsigned short degree;
@@ -31,36 +31,9 @@ class Heap {
         Vertex **ref;
     };
     */
-    /* Debug
-    void puts_list(Vertex *head) {
-      for (;head;head = head->sibling) std::cout << head->degree << " ";
-      std::cout << "\n";
-    }
-
-    bool check_list(Vertex *head) {
-      if (!head) return true;
-      Vertex* cur = head;
-      bool ok = true;
-      for (;cur->sibling;cur = cur->sibling) {
-        if (cur->degree > cur->sibling->degree) ok = false;
-      }
-      return ok;
-    }
-
-    void print_tree() {
-      print(head);
-    }
-
-    void print(Vertex* head) {
-      if (!head) return;
-      std::cout << "Val " << head->key << "\n";
-      print(head->child);
-      print(head->sibling);
-    }
-    */
 
     void merge(Heap<T, Cmp> &other) {
-      if (other.head == NULL) return;
+      if (!other.head) return;
 
       //create fictive vertex
       Vertex* new_head = new Vertex(-1);
@@ -93,6 +66,9 @@ class Heap {
       }
       head = new_head->sibling;
       delete new_head;
+
+      //clean second heap
+      other.head = 0;
     }
 
     /*  Reference */ void insert(T val) {
@@ -132,7 +108,7 @@ class Heap {
       while (fir) {
         Vertex* next = fir->sibling;
         fir->sibling = heap.head;
-        fir->parent = NULL;
+        fir->parent = 0;
         heap.head = fir;
         fir = next;
       }
@@ -140,7 +116,7 @@ class Heap {
     }
 
     bool empty() {
-      return (head==NULL);
+      return (!head);
     }
 
 
@@ -162,7 +138,7 @@ class Heap {
     }
 
     Heap(Cmp comp = Cmp()) {
-      head = NULL;
+      head = 0;
       cmp = comp;
     }
 
