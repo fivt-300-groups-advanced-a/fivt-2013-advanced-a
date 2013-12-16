@@ -1,21 +1,25 @@
 #ifndef SEGMENTADDITIONTREE_H
 #define SEGMENTADDITIONTREE_H
 
+#include <functional>
 #include <cstddef>
 
 #include "model/generalsegmenttree.h"
 
-template<typename DataType> class SegmentAdditionTree
+// TODO: documentation
+template<typename DataType, typename Comparator = std::less<DataType> > class SegmentAdditionTree
 {
 	public:
 		SegmentAdditionTree(std::size_t size,
-							const DataType &negInf, const DataType &posInf, const DataType &zero):
-			tree(size, ReturnType(posInf, negInf, zero)) {}
+							const DataType &negInf, const DataType &posInf, const DataType &zero,
+							Comparator cmp = std::less<DataType>()):
+			tree(size, ReturnType(posInf, negInf, zero, Function(cmp))) {}
 
 		template<typename ForwardIterator>
 		SegmentAdditionTree(ForwardIterator begin, ForwardIterator end,
-							const DataType &negInf, const DataType &posInf, const DataType &zero):
-			tree(begin, end, ReturnType(posInf, negInf, zero)) {}
+							const DataType &negInf, const DataType &posInf, const DataType &zero,
+							Comparator cmp = std::less<DataType>()):
+			tree(begin, end, ReturnType(posInf, negInf, zero), Function(cmp)) {}
 
 		struct ReturnType
 		{
@@ -41,10 +45,15 @@ template<typename DataType> class SegmentAdditionTree
 		struct Function
 		{
 			public:
+				Function(const Comparator nCmp): cmp(nCmp) {}
+
 				ReturnType operator () (const ReturnType &a, const ReturnType &b)
 				{
-					return ReturnType(min(a.min, b.min), max(a.max, b.max), a.sum + b.sum);
+					return ReturnType(std::min(a.min, b.min, cmp), std::max(a.max, b.max, cmp), a.sum + b.sum);
 				}
+
+			private:
+				Comparator cmp;
 		};
 
 		struct MetaInformation
