@@ -213,12 +213,12 @@ template<class T, class Comparator> class BinomialHeap {
             }
             int old_sz = sz - 1;
             BinomialHeap<T, Comparator> new_heap(*cur_node);
-            delete cur_node;
             for (Iterator it = roots.begin(); it != roots.end(); it++)
                 if (*it == cur_node){
                     roots.erase(it);
                     break;
                 }
+            delete cur_node;
             merge(new_heap);
             sz = old_sz;
         }
