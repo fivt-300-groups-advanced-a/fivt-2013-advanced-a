@@ -1,10 +1,10 @@
 #include "return_types.h"
 
-struct MetaPlusSumMinMax
+struct MetaPlus
 {
 	int plusedValue;
-	MetaPlusSumMinMax(int _plusedValue) : plusedValue(_plusedValue) {}
-	MetaPlusSumMinMax()
+	explicit MetaPlus(int _plusedValue) : plusedValue(_plusedValue) {}
+	MetaPlus()
 	{
 		plusedValue = 0;
 	}
@@ -23,7 +23,7 @@ public:
 		//printf("merge (%d %d)  (%d %d)\n", L.first, L.second, R.first, R.second);
 		return StructSumMinMax(L.sum + R.sum, min(L.min, R.min), max(L.max, R.max));
 	}
-	void apply(MetaPlusSumMinMax & m, StructSumMinMax & p, Seg s)
+	void apply(MetaPlus & m, StructSumMinMax & p, Seg s)
 	{
 		//s: [L; R)
 		if (m.plusedValue == 0)
@@ -35,7 +35,7 @@ public:
 		//if (DEBUG2) printf("apply assVal = %d p = (%d %d)\n", m.assignedValue, p.first, p.second);
 	}
 	//void push(MetaAssignSumMin & m, pair <int, int> & p, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta, int L, int R)
-	void push(MetaPlusSumMinMax & m, MetaPlusSumMinMax & leftMeta, MetaPlusSumMinMax & rightMeta)
+	void push(MetaPlus & m, MetaPlus & leftMeta, MetaPlus & rightMeta)
 	{
 		//apply(m, p, L, R);
 		

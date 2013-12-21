@@ -18,4 +18,17 @@ struct StructSumMinMax
 	}
 };
 
+struct StructConstancySegments
+{
+	int answer;
+	int leftest;
+	int rightest;
+	StructConstancySegments()
+	{
+		answer = 1;
+		leftest = rightest = 0;
+	}
+	StructConstancySegments(int _answer, int _leftest, int _rightest) : answer(_answer), leftest(_leftest), rightest(_rightest) {}
+};
+
 #endif

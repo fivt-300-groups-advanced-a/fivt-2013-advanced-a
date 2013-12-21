@@ -22,50 +22,9 @@ class MetaMaxSubarray
 };
 
 
-/*class MethodsPlusAssignSumMinMax
-{
-public:
-	StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
-	{
-		//printf("merge (%d %d)  (%d %d)\n", L.first, L.second, R.first, R.second);
-		return StructSumMinMax(L.sum + R.sum, min(L.min, R.min), max(L.max, R.max));
-	}
-	void apply(MetaPlusAssignSumMinMax & m, StructSumMinMax & p, Seg s)
-	{
-		//s: [L; R)
-		ASSERT_FALSE((m.plusedValue != 0) && m.assigned);
-		if (m.plusedValue != 0)
-		{
-			p.sum += m.plusedValue * s.getLength();
-			p.min += m.plusedValue;
-			p.max += m.plusedValue;
-		}
-		else if (m.assigned)
-		{
-			p.sum = m.assignedValue * s.getLength();
-			p.min = p.max = m.assignedValue = m.assignedValue;
-		}
-	}
-	//void push(MetaAssignSumMin & m, pair <int, int> & p, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta, int L, int R)
-	void push(MetaPlusSumMinMax & m, MetaPlusSumMinMax & leftMeta, MetaPlusSumMinMax & rightMeta)
-	{
-		//apply(m, p, L, R);
-		ASSERT_FALSE((m.plusedValue != 0) && m.assigned);
-		if (m.plusedValue != 0)
-		{
-			leftMeta.plusedValue += m.plusedValue;
-			rightMeta.plusedValue += m.plusedValue;
-			//if (DEBUG2) printf("push (%d) -> (%d) (%d)\n", m.assignedValue, leftMeta.assignedValue, rightMeta.assignedValue);	
-		}
-		else if (m.assigned)
-		{
-			leftMeta = rightMeta = MetaPlusAssignSumMin(true, m.assignedValue);
-		}
-		//MetaAssignSumMin.clear();
-	}
-};*/
 
-class Methods
+
+/*class Methods
 {
 public:
 	pair <int, int> merge(pair <int, int> L, pair <int, int> R)
@@ -74,7 +33,7 @@ public:
 	}
 	void apply(MetaAssignSumMin & m, pair <int, int> & p, Seg s){}
 	void push(MetaAssignSumMin & m, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta){}
-};
+};*/
 
 
 
