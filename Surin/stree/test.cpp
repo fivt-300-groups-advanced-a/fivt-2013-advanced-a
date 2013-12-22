@@ -267,7 +267,38 @@ TEST(Algorithm, EqSegms) {
     }
 }
 
+TEST(HandMade, MaxSegm) {
+    MaxSegmSum s(0, 10);
+    s.set(0, 10, 0);
+    s.set(0, 4, 1);
+    s.set(4, 10, -1);
+    EXPECT_EQ(s.get(0, 10), 4);
+}
 
+TEST(Algorithm, MaxSegm) {
+    std::vector<int> v(30, 0);
+    MaxSegmSum s(0, v.size());
+    for (int i = 0; i < 80; i++) {
+        int l = rand() % (v.size() - 1);
+        int r = rand()%(v.size() - 1 - l) + l + 1;
+        int ss = rand()%20;
+        if (i % 2 == 0) {
+            s.set(l, r, ss);
+            for (int i = l; i < r; i++)
+                v[i] = ss;
+        } else {
+            int ans = 0;
+            for (int i = l; i < r; i++) {
+                int sum = 0;
+                for (int j = i; j < r; j++) {
+                    sum += v[j];
+                    ans = std::max(ans, sum);
+                }
+            }
+            EXPECT_EQ(ans, s.get(l, r));
+        }
+    }
+}
 
 int main(int argc, char ** argv) { //1231
     testing::InitGoogleTest(&argc, argv);

@@ -86,5 +86,80 @@ public:
     }
 };
 
+class MaxSegmSum {
+private:
+    struct Segm{
+        int l, r;
+        bool zero;
+        int maxsf, maxpr, segm;
+        int all;
+    };    
+    struct Init {
+        static void init(Segm & x, int p) {
+            x.l = p; x.r = p + 1;
+            x.maxsf = 0;
+            x.maxpr = 0;
+            x.segm = 0; 
+            x.all = 0;
+            x.zero = false;
+        }
+    };
+    struct Push {
+        Push(int l, int r) {
+            idd = true;
+        }
+        Push(int z): l(l), r(r), z(z), idd(false) {
+        }
+        Push(int l, int r, int z): l(l), r(r), z(z), idd(false){
+        }
+        Segm apply(Segm x) {
+            if (idd) return x;
+            Segm y;
+            y.l = x.l; y.r = x.r;
+            y.segm = y.maxsf = y.maxpr = std::max(0, z * (y.r - y.l));
+            y.all = z * (y.r - y.l);
+            y.zero = false;
+            return y;
+        }
+        Push mergeWith(Push x) {
+            if (idd) return x;
+            return *this;
+        }
+    private:
+        bool idd;
+        int z;
+        int l, r;
+    };
+    struct Op {
+        Segm zero() {
+            Segm x;
+            x.zero = true;
+            return x;
+        }
+        Segm operator () (Segm a, Segm b) {
+            if (a.zero) return b;
+            if (b.zero) return a;
+            Segm res;
+            res.l = a.l;
+            res.r = b.r;
+            res.maxpr = std::max(a.maxpr, b.maxpr + a.all);
+            res.maxsf = std::max(b.maxsf, a.maxsf + b.all);
+            res.segm = std::max(a.segm, std::max(b.segm, a.maxsf + b.maxpr));
+            res.all = a.all + b.all;
+            res.zero = false;
+            return res;
+        }
+    };
+    SegmentTree<Segm, Op, Push, Init> s;
+public:
+    MaxSegmSum(int l, int r): s(l, r) {
+    }
+    void set(int l, int r, int c) {
+        s.push(l, r, c);
+    }
+    int get(int l, int r) {
+        return s.fold(l, r).segm;
+    }
+};
 
 #endif
