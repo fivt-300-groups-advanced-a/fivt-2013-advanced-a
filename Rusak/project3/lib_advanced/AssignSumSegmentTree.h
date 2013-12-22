@@ -1,5 +1,3 @@
-#include "GeneralSegmentTree.h"
-
 template<typename T, T NeutralSum>
 class AssignSumSegmentTree {
   private:
@@ -16,13 +14,13 @@ class AssignSumSegmentTree {
     };
 
     struct MergeMeta {
-      void operator()(MetaInformation &to, const MetaInformation &add_meta, long long l, long long r) {
-        to.assign = add_meta.assign;
+      void operator()(MetaInformation &to, bool is_meta, const MetaInformation &add_meta, long long l, long long r) {
+        to = add_meta;
       }
     };
 
     struct MergeReturn {
-      ReturnType operator()(const ReturnType &fir, const ReturnType &sec, long long l, long long r) {
+      ReturnType operator()(const ReturnType &fir, const ReturnType &sec) {
         return ReturnType(fir.sum + sec.sum);
       }
     };
