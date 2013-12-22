@@ -16,6 +16,16 @@ struct MetaAssign
 		assigned = false;
 		assignedValue = 0;
 	}
+	void push(MetaAssign & leftMeta, MetaAssign & rightMeta)
+	{
+		//apply(m, p, L, R);
+		//ASSERT_FALSE((m.plusedValue != 0) && m.assigned);
+		if (assigned)
+		{
+			leftMeta = rightMeta = MetaAssign(true, assignedValue);
+			//if (DEBUG2) printf("push (%d) -> (%d) (%d)\n", m.assignedValue, leftMeta.assignedValue, rightMeta.assignedValue);	
+		}
+	}
 };
 
 #endif
