@@ -56,6 +56,5 @@ public:
     return _ptr_to_GTree->_data;
   }
 
-private:
   GeneralTree* _ptr_to_GTree;
 };
