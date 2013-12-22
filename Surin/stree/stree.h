@@ -12,7 +12,14 @@ Push interface :
 */
 //#include "operations.h"
 
-template<class IType, class Operation, class Push>
+template<class IType>
+class SimpleInitializer{
+public:
+    static void init(IType & x, int p) {
+    }
+};
+
+template<class IType, class Operation, class Push, class Initializer=SimpleInitializer<IType> >
 class SegmentTree {
 private:
     Operation op;
@@ -25,11 +32,6 @@ private:
         Push adtn;
         void norm() {
             if (this == 0) return; //valid because iVert and SegmentTree are not virtual
-            if (r - l > 1) {
-                int m = (l + r) / 2;
-                if (lt == 0) lt = new iVert(l, m, owner);
-                if (rt == 0) rt = new iVert(m, r, owner);
-            }
             val = adtn.apply(val);
             if (lt != 0) lt->adtn = adtn.mergeWith(lt->adtn);
             if (rt != 0) rt->adtn = adtn.mergeWith(rt->adtn);
@@ -45,6 +47,20 @@ private:
             delete lt; delete rt;
         }
     };
+    iVert * make(int l, int r) {
+        iVert * ths = new iVert(l, r, this);
+        if (r - l > 1) {
+            int m = (l + r) / 2;
+            ths->lt = make(l, m);
+            ths->rt = make(m, r);
+            ths->recalc();
+        }
+        if (r == l + 1) {
+            ths->val = op.zero();
+            Initializer::init(ths->val, l);
+        }
+        return ths;
+    }
     iVert * root;
     IType fold(iVert * root, int l, int r) {
         root->norm(); //-> norm
@@ -72,10 +88,10 @@ private:
 public:
     //all intervals l inclusive and r exclusive
     SegmentTree(int l, int r, Operation op): op(op) {
-        root = new iVert(l, r, this);
+        root = make(l, r);
     }
     SegmentTree(int l, int r): op() {
-        root = new iVert(l, r, this);
+        root = make(l, r);
     }
     IType fold(int l, int r) {
         return fold(root, l, r);
@@ -87,5 +103,6 @@ public:
         delete root;
     }
 };
+
 
 #endif

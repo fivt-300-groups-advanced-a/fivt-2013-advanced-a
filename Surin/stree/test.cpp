@@ -20,7 +20,6 @@ TEST(HandMade, AssMinTree) {
     s.push(2, 4, 8);
     s.push(3, 4, 9);
     EXPECT_EQ(s.fold(2, 4), 8);
-    std::cerr << "-----\n";
     s.push(0, 1, 7);
     EXPECT_EQ(s.fold(0, 1), 7);
 }
@@ -114,7 +113,7 @@ TEST(Stress, AddMaxTree) {
     s.push(0, 10, RAND_MAX);
     for (int i = 0; i < 40; i++) {
         int l = rand() % (v.size() - 1);
-        int r = rand()%(9 - l) + l + 1;
+        int r = rand()%(v.size() - 1 - l) + l + 1;
         int ss = rand()%20;
         if (i % 2 == 0) {
             s.push(l, r, ss);
@@ -134,7 +133,7 @@ TEST(Stress, AddSumTree) {
     AddSumTree<int, 0> s(0, 10);
     for (int i = 0; i < 40; i++) {
         int l = rand() % (v.size() - 1);
-        int r = rand()%(9 - l) + l + 1;
+        int r = rand()%(v.size() - 1 - l) + l + 1;
         int ss = rand()%20;
         if (i % 2 == 0) {
             s.push(l, r, ss);
@@ -149,10 +148,126 @@ TEST(Stress, AddSumTree) {
     }
 }
 
+class DebugType{
+public:
+    int ptime;
+    int l, r;
+    bool zero;
+    DebugType(int time, int l, int r): ptime(time), l(l), r(r), zero(false) {
+    }
+};
+
+class DebugInit {
+public:
+    static void init(DebugType & x, int p) {
+        x.l = p;
+        x.r = p + 1;
+        x.ptime = 0;
+        x.zero = false;
+    }
+};
+
+class DebugPush{
+public:
+    int ptime;
+    bool id;
+    int l, r;
+    DebugPush(int l, int r): l(l), r(r) {
+        id = true;
+    }
+    DebugPush(int l, int r, int ptime) : l(l), r(r), ptime(ptime) {
+        id = false;
+    }
+    DebugType apply(DebugType t) {
+        if (id) return t;
+        EXPECT_LT(t.ptime, ptime);
+        EXPECT_EQ(l, t.l);
+        EXPECT_EQ(r, t.r);
+        return DebugType(ptime, t.l, t.r);
+    }
+    DebugPush mergeWith(DebugPush p) {
+        if (id) return p;
+        if (!p.id)
+            EXPECT_LT(p.ptime, ptime);
+        return DebugPush(p.l, p.r, ptime);
+    }
+};
+
+class DebugOp{
+public:
+    DebugType zero() {
+        DebugType s(0, 0, 0);
+        s.zero = true;
+        return s;
+    }
+    DebugType operator () (DebugType a, DebugType b) {
+        if (a.zero) return b;
+        if (b.zero) return a;
+        EXPECT_EQ(a.r, b.l);
+        return DebugType(std::max(a.ptime, b.ptime), a.l, b.r);
+    }
+};
 
 TEST(Stress, Internal) {
-    
+    std::vector<int> dtimes(20, 0);
+    SegmentTree<DebugType, DebugOp, DebugPush, DebugInit> debugtree(0, dtimes.size(), DebugOp());
+    int T = 0;
+    for (int i = 0; i < 40; i++) {
+        T++;
+        int l = rand() % (dtimes.size() - 1);
+        int r = rand()%(dtimes.size() - 1 - l) + l + 1;
+        if (i % 2 == 0) {
+            debugtree.push(l, r, DebugPush(l, r, T));
+            for (int i = l; i < r; i++) {
+                dtimes[i] = T;
+            }
+        } else {
+            DebugType s = debugtree.fold(l, r);
+            EXPECT_EQ(s.l, l);
+            EXPECT_EQ(s.r, r);
+            int mx = 0;
+            for (int i = l; i < r; i++)
+                mx = std::max(mx, dtimes[i]);
+            EXPECT_EQ(mx, s.ptime);
+        }
+    }
 }
+
+TEST(HandMade, EqSegms) {
+    EqSegms s(0, 4);
+    s.set(0, 4, 0);
+    EXPECT_EQ(1, s.get(0, 2));
+    s.set(0, 2, 3);
+    EXPECT_EQ(2,  s.get(1, 3));
+    s.add(1, 3, 1);
+    EXPECT_EQ(4, s.get(0, 4));
+}
+
+TEST(Algorithm, EqSegms) {
+    std::vector<int> v(20, 0);
+    EqSegms s(0, v.size());
+    for (int i = 0; i < 40; i++) {
+        int l = rand() % (v.size() - 1);
+        int r = rand()%(v.size() - 1 - l) + l + 1;
+        int ss = rand()%20;
+        if (i % 3 == 0) {
+            s.set(l, r, ss);
+            for (int i = l; i < r; i++)
+                v[i] = ss;
+        } else if (i % 3 == 1) {
+            s.add(l, r, ss);
+            for (int i = l; i < r; i++)
+                v[i] += ss;
+        } else {
+            int ans = 0;
+            for (int i = l; i < r - 1; i++)
+                ans += v[i] != v[i + 1];
+            EXPECT_EQ(ans + 1, s.get(l, r));
+        }
+    }
+}
+
+
 
 int main(int argc, char ** argv) { //1231
     testing::InitGoogleTest(&argc, argv);
