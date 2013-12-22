@@ -136,6 +136,7 @@ protected:
 			return;
 		if (DEBUG2)
 			printf("segOperation i = %d query = (%d %d)\n", i, queryL, queryR);
+		completePush(i);
 		if (segments[i].L == queryL && segments[i].R == queryR)
 		{
 			metaInfo[i] = segOperationMeta;
@@ -145,7 +146,6 @@ protected:
 			return;
 		}
 		int m = segments[i].getM();
-		completePush(i);
 		innerSegOperation(i * 2, queryL, min(m, queryR), segOperationMeta);
 		innerSegOperation(i * 2 + 1, max(m, queryL), queryR, segOperationMeta);
 		tree[i] = methods.merge(tree[i * 2], tree[i * 2 + 1]);

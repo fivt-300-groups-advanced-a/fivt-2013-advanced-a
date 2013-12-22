@@ -1,16 +1,28 @@
 #include "return_types.h"
 
-struct MetaPlusSumMinMax
+struct MetaPlus
 {
 	int plusedValue;
-	MetaPlusSumMinMax(int _plusedValue) : plusedValue(_plusedValue) {}
-	MetaPlusSumMinMax()
+	explicit MetaPlus(int _plusedValue) : plusedValue(_plusedValue) {}
+	MetaPlus()
 	{
 		plusedValue = 0;
 	}
 	void clear()
 	{
 		plusedValue = 0;
+	}
+	void push(MetaPlus & leftMeta, MetaPlus & rightMeta)
+	{
+		//apply(m, p, L, R);
+		
+		if (plusedValue != 0)
+		{
+			leftMeta.plusedValue += plusedValue;
+			rightMeta.plusedValue += plusedValue;
+			//if (DEBUG2) printf("push (%d) -> (%d) (%d)\n", m.assignedValue, leftMeta.assignedValue, rightMeta.assignedValue);	
+		}
+		//MetaAssignSumMin.clear();
 	}
 };
 
@@ -20,10 +32,9 @@ class MethodsPlusSumMinMax
 public:
 	StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
 	{
-		//printf("merge (%d %d)  (%d %d)\n", L.first, L.second, R.first, R.second);
-		return StructSumMinMax(L.sum + R.sum, min(L.min, R.min), max(L.max, R.max));
+		return L.merge(L, R);
 	}
-	void apply(MetaPlusSumMinMax & m, StructSumMinMax & p, Seg s)
+	void apply(MetaPlus & m, StructSumMinMax & p, Seg s)
 	{
 		//s: [L; R)
 		if (m.plusedValue == 0)
@@ -34,17 +45,9 @@ public:
 		//p = mp(m.assignedValue * s.getLength(), m.assignedValue);
 		//if (DEBUG2) printf("apply assVal = %d p = (%d %d)\n", m.assignedValue, p.first, p.second);
 	}
-	//void push(MetaAssignSumMin & m, pair <int, int> & p, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta, int L, int R)
-	void push(MetaPlusSumMinMax & m, MetaPlusSumMinMax & leftMeta, MetaPlusSumMinMax & rightMeta)
+
+	void push(MetaPlus & m, MetaPlus & leftMeta, MetaPlus & rightMeta)
 	{
-		//apply(m, p, L, R);
-		
-		if (m.plusedValue != 0)
-		{
-			leftMeta.plusedValue += m.plusedValue;
-			rightMeta.plusedValue += m.plusedValue;
-			//if (DEBUG2) printf("push (%d) -> (%d) (%d)\n", m.assignedValue, leftMeta.assignedValue, rightMeta.assignedValue);	
-		}
-		//MetaAssignSumMin.clear();
-	}
+		m.push(leftMeta, rightMeta);
+	}	
 };

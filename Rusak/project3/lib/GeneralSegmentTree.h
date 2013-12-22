@@ -79,16 +79,14 @@ class GeneralSegmentTree {
       inside_change(head, global_left, global_right, l, r, to_change);
     }
     
-    GeneralSegmentTree<ReturnType, MetaInformation, MergeMeta, MergeReturn, MergeMetaReturn> (long long l, long long r) {
+    GeneralSegmentTree(long long l, long long r) {
       global_left = l;
       global_right = r;
       head = new Vertex();
     }
-/*  
-    ~GeneralSegmentTree<ReturnType, MetaInformation, MergeMeta, MergeReturn, MergeMetaReturn> {
+    ~GeneralSegmentTree() {
       clean(head);
     }
-*/
 
   private:
     Vertex* head = NULL;
