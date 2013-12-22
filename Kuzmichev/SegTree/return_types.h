@@ -19,7 +19,7 @@ struct StructSumMinMax
 		min = inf;
 		max = -inf;
 	}
-	static StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
+	static StructSumMinMax merge(const StructSumMinMax L, const StructSumMinMax R)
 	{
 		return StructSumMinMax(L.sum + R.sum, std::min(L.min, R.min), std::max(L.max, R.max));
 	}
@@ -40,7 +40,7 @@ struct StructConstancySegments
 		leftest = rightest = 0;
 	}
 	StructConstancySegments(int _answer, int _leftest, int _rightest) : answer(_answer), leftest(_leftest), rightest(_rightest) {}
-	static StructConstancySegments merge(StructConstancySegments L, StructConstancySegments R)
+	static StructConstancySegments merge(const StructConstancySegments L, const StructConstancySegments R)
 	{
 		//printf("merge (%d %d)  (%d %d)\n", L.first, L.second, R.first, R.second);
 		int newAnswer = L.answer + R.answer;
@@ -67,7 +67,7 @@ struct StructMaxSubarray
 	{
 		maxSubarray = maxPrefix = maxSuffix = sum = 0;
 	}
-	static StructMaxSubarray merge(StructMaxSubarray L, StructMaxSubarray R)
+	static StructMaxSubarray merge(const StructMaxSubarray L, const StructMaxSubarray R)
 	{
 		int newMaxSubarray = max(L.maxSubarray, max(R.maxSubarray, L.maxSuffix + R.maxPrefix));
 		int newMaxPrefix = max(L.maxPrefix, L.sum + R.maxPrefix);

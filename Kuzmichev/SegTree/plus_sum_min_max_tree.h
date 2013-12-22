@@ -30,13 +30,19 @@ struct MetaPlus
 class MethodsPlusSumMinMax
 {
 public:
-	StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
+	int applyCnt;
+	/*StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
 	{
 		return L.merge(L, R);
+	}*/
+	MethodsPlusSumMinMax()
+	{
+		applyCnt = 0;
 	}
 	void apply(MetaPlus & m, StructSumMinMax & p, Seg s)
 	{
 		//s: [L; R)
+		applyCnt++;
 		if (m.plusedValue == 0)
 			return;
 		p.sum += m.plusedValue * s.getLength();
@@ -46,8 +52,8 @@ public:
 		//if (DEBUG2) printf("apply assVal = %d p = (%d %d)\n", m.assignedValue, p.first, p.second);
 	}
 
-	void push(MetaPlus & m, MetaPlus & leftMeta, MetaPlus & rightMeta)
+	/*void push(MetaPlus & m, MetaPlus & leftMeta, MetaPlus & rightMeta)
 	{
 		m.push(leftMeta, rightMeta);
-	}	
+	}*/	
 };
