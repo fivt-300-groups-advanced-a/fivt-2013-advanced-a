@@ -4,7 +4,7 @@
 #include <iostream>
 #include <ctime>
 
-#include "AssignSumSegmentTree.h"
+#include "lib_advanced/AssignSumSegmentTree.h"
 
 TEST(PrepareForTests, GenerateRand) {
   srand(time(NULL));
