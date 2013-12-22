@@ -8,36 +8,39 @@
 
 #include "model/segmentadditiontree.h"
 
-template<typename DataType> class DummyStructure
+namespace
 {
-	public:
-		DummyStructure(std::size_t size): data(size) {}
-		template<typename ForwardIterator> DummyStructure(ForwardIterator begin, ForwardIterator end): data(begin, end) {}
+	template<typename DataType> class DummyStructure
+	{
+		public:
+			DummyStructure(std::size_t size): data(size) {}
+			template<typename ForwardIterator> DummyStructure(ForwardIterator begin, ForwardIterator end): data(begin, end) {}
 
-		DataType getMin(std::size_t left, std::size_t right)
-		{
-			return *std::min_element(data.begin() + left, data.begin() + right + 1);
-		}
+			DataType getMin(std::size_t left, std::size_t right)
+			{
+				return *std::min_element(data.begin() + left, data.begin() + right + 1);
+			}
 
-		DataType getMax(std::size_t left, std::size_t right)
-		{
-			return *std::max_element(data.begin() + left, data.begin() + right + 1);
-		}
+			DataType getMax(std::size_t left, std::size_t right)
+			{
+				return *std::max_element(data.begin() + left, data.begin() + right + 1);
+			}
 
-		DataType getSum(std::size_t left, std::size_t right)
-		{
-			return std::accumulate(data.begin() + left, data.begin() + right + 1, 0);
-		}
+			DataType getSum(std::size_t left, std::size_t right)
+			{
+				return std::accumulate(data.begin() + left, data.begin() + right + 1, 0);
+			}
 
-		void update(std::size_t left, std::size_t right, const DataType &value)
-		{
-			for (size_t i = left; i <= right; ++i)
-				data[i] += value;
-		}
+			void update(std::size_t left, std::size_t right, const DataType &value)
+			{
+				for (size_t i = left; i <= right; ++i)
+					data[i] += value;
+			}
 
-	private:
-		std::vector<DataType> data;
-};
+		private:
+			std::vector<DataType> data;
+	};
+}
 
 struct TestCase
 {
@@ -61,7 +64,8 @@ TEST(SegmentAdditionTree, Stress)
 		std::generate(data.begin(), data.end(), [&generator] () { return generator() % 100; });
 
 		DummyStructure<int> dummy(data.begin(), data.end());
-		SegmentAdditionTree<int> tree(data.begin(), data.end(), std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), 0);
+		SegmentAdditionTree<int> tree(data.begin(), data.end(),
+									  std::numeric_limits<int>::min(), std::numeric_limits<int>::max(), 0);
 
 		for (size_t i = 0; i < test.queries; ++i)
 		{
