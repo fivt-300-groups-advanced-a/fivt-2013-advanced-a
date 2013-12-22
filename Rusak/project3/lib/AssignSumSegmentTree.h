@@ -1,5 +1,3 @@
-#include "GeneralSegmentTree.h"
-
 template<typename T, T NeutralSum>
 class AssignSumSegmentTree {
   private:
