@@ -36,31 +36,43 @@ bool operator == (point a, point b)
 
 TEST(Integration_test, INT)
 {
-	int size = 0;
+	int size[10000];
 	Cheap<int, less<int> > h[10000];
 	multiset<int> st[10000];
+	vector< Cheap<int, less<int> >::index > v[10000];
 	int k = 0;
-	for(int i = 0; i < 100000; i++)
+	for(int i = 0; i < 1000000; i++)
 	{
-		if (size == 0)
+		if (size[k] == 0)
 		{
 			int t = rand();
-			h[k].insert(t);
+			v[k].push_back(h[k].insert(t));
 			st[k].insert(t);
+			size[k]++;
 		} else {
 			int c = rand() % 10;
+			//cout << i << " "  < c << endl;
 			if (c < 3) {
 				int t = rand();
-				h[k].insert(t);
+				v[k].push_back(h[k].insert(t));
 				st[k].insert(t);
+				size[k]++;
 			} else {
 				if (c < 5) {
 					EXPECT_EQ(h[k].get_min(), (*st[k].begin()));
 				} else {
 					if (c < 7) {
 						EXPECT_EQ(h[k].get_min(), (*st[k].begin()));
-						h[k].extract_min();
+						Cheap<int, less<int> >::index it = h[k].extract_min();
+						int mini, ans = 2147000000;
 						st[k].erase(st[k].begin());
+						for(int i = 0; i < v[k].size(); i++) {
+							if (it -> get_value() < ans) {
+								mini = i;
+								break;
+							}
+						}
+						size[k]--;
 					} else {
 						if (c == 7) {
 							k++;
@@ -72,8 +84,12 @@ TEST(Integration_test, INT)
 									st[k].insert((*it));
 								}
 								st[k + 1].clear();
+								size[k] += size[k + 1];
+								size[k + 1] = 0;
 							} else {
 								h[k].clear();
+								st[k].clear();
+								size[k] = 0;
 							}
 						}
 					}

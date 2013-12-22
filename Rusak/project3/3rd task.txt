@@ -1,0 +1,62 @@
+ДО (или ДД?). С групповыми операциями.
+0) Абстракции: AdvancedSegmentTree
+	template arguments:
+		1) T
+		2) ReturnType (+UpdateResult(ReturnType &a, ReturnType T &b)) (+ResultType -> constructor (T))
+		3) MetaInformation (+Merge(MetaInformation &a, const MetaInformation &b))
+		4) + Apply(ReturnType &a, MetaInformation &b, SegmentInfo - ???)
+		5) + Нейтральный элемент (default constructor of ResultType или передать что-то)
+	Примеры:
+		I. Min, sum. *=, +=
+
+		RT = (min, sum)
+		MI = (k, b) // x' = k * x + b
+
+		Merge(was, update):
+			was.k *= update.k
+			was.b = was.b * update.h + update.b
+
+		Apply(r, info, seginfo):
+			r.min = min(r, info.k * r.x + info.b)
+			r.sum += k * r.sum + b * seginfo.len
+			info.reset()
+
+		Update(res, value):
+			res.min = min(res.min, value.min)
+			res.sum += value.sum
+
+		II. Min, sum. += , =
+
+		RT = (min, sum)
+		MI = (ass, add, fl)
+		
+		Merge(was, update):
+			if (update.fl):
+				was.ass = update.ass
+				was.add = 0
+			else:
+				was.add += update.ass
+			
+		Apply(r, info, seginfo):
+			if (update.fl):
+				r.min = min(r.min, info.ass)
+				r.sum = info.ass * seginfo.len			
+			else:
+				r.min += info.add
+				r.sum += info.add * seginfo.len
+				
+		Update(res, value):
+			res.min = min(res.min, value.min)
+			res.sum += value.sum
+			
+Задание:
+	1) (min, max, sum, +), (min, max, sum, =), (min, max, sum, +, =) - как минимум
+	2) AdvancedSegmentTree в общем виде
+	3) а) Stress-test с вектором, к примеру
+	   b) manual тесты
+	   с) можно inner-state тесты (мануально можно проверить, какие функции вызваны)
+	   d) integration test
+	4) Задача о количестве различных на отрезке + set(idx, value) (+ некий stress) // не решается
+	4*) Подотрезок с максимальной суммой на отрезке + add(l, r, val)
+	5) Задача о количестве отрезков постоянности на отрезке (= на отрезке) (+ некий stress)
+Deadline: конец семестра
