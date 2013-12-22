@@ -4,4 +4,5 @@ SOURCES += \
     generaltreeunit.cpp \
     segmentadditiontest.cpp \
     segmentassigntest.cpp \
-    segmentaddassigntest.cpp
+    segmentaddassigntest.cpp \
+    maximalsumsubsegment.cpp
