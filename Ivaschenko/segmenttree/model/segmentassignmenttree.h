@@ -47,7 +47,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			public:
 				Function(const Comparator nCmp): cmp(nCmp) {}
 
-				ReturnType operator () (const ReturnType &a, const ReturnType &b)
+				ReturnType operator () (const ReturnType &a, const ReturnType &b) const
 				{
 					return ReturnType(std::min(a.min, b.min, cmp), std::max(a.max, b.max, cmp), a.sum + b.sum);
 				}
@@ -69,7 +69,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 		class MetaUpdater
 		{
 			public:
-				void operator () (ReturnType &value, const MetaInformation &info, std::size_t left, std::size_t right)
+				void operator () (ReturnType &value, const MetaInformation &info, std::size_t left, std::size_t right) const
 				{
 					if (!info.assigned) return;
 					value.min = info.assignValue;
@@ -81,7 +81,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 		class MetaMerger
 		{
 			public:
-				void operator () (MetaInformation &first, const MetaInformation &second, std::size_t, std::size_t)
+				void operator () (MetaInformation &first, const MetaInformation &second, std::size_t, std::size_t) const
 				{
 					if (second.assigned) first = second;
 				}

@@ -58,7 +58,7 @@ namespace
 	};
 }
 
-TEST(MaximalSumSubSegmentTree, Integration)
+TEST(MaximalSumSubSegmentTree, Stress)
 {
 	class Query
 	{

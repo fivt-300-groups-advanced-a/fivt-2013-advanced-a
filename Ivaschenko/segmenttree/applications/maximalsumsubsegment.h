@@ -106,7 +106,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Ma
 			public:
 				Function(Comparator nCmp): cmp(nCmp) {}
 
-				ReturnType operator () (const ReturnType &a, const ReturnType &b)
+				ReturnType operator () (const ReturnType &a, const ReturnType &b) const
 				{
 					ReturnType result = a;
 					result.maxSuffix = b.maxSuffix;
@@ -152,7 +152,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Ma
 				MetaUpdater(Comparator nCmp, const DataType &nIdentity): cmp(nCmp), identity(nIdentity) {}
 
 				void operator () (ReturnType &value, const MetaInformation &info,
-								  std::size_t left, std::size_t right)
+								  std::size_t left, std::size_t right) const
 				{
 					if (!info.assigned) return;
 					value.sum = (right - left + 1) * info.value;
@@ -179,7 +179,7 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Ma
 		struct MetaMerger
 		{
 			public:
-				void operator() (MetaInformation &a, const MetaInformation &b, std::size_t, std::size_t)
+				void operator() (MetaInformation &a, const MetaInformation &b, std::size_t, std::size_t) const
 				{
 					if (b.assigned) a = b;
 				}
