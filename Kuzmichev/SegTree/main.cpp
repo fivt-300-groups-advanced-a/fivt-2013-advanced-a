@@ -39,6 +39,42 @@ inline void getLR(int & L, int & R, int sz)
 		swap(L, R);
 }
 
+TEST (parts_tests, push_test)
+{
+	MethodsPlusAssignSumMinMax M;
+	int sz = 4;
+	SegTree <StructSumMinMax, MetaPlusAssign, MethodsPlusAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
+	SegTreeChecker <StructSumMinMax, MetaPlusAssign, MethodsPlusAssignSumMinMax> checker(&T);
+	T.segOperation(1, 2, MetaPlusAssign(true, 5, 0));
+	T.segOperation(1, 3, MetaPlusAssign(false, 0, 7));
+	checker.checkTreeElem(1, StructSumMinMax(31, 0, 12));
+	checker.checkTreeElem(2, StructSumMinMax(12, 0, 12));
+	checker.checkTreeElem(3, StructSumMinMax(19, 7, 12));
+	checker.checkTreeElem(4, StructSumMinMax(0, 0, 0));
+	checker.checkTreeElem(5, StructSumMinMax(12, 12, 12));
+	checker.checkTreeElem(6, StructSumMinMax(5, 5, 5));
+	checker.checkTreeElem(7, StructSumMinMax(0, 0, 0));
+
+	checker.checkMeta(1, MetaPlusAssign(false, 0, 0));
+	checker.checkMeta(2, MetaPlusAssign(false, 0, 0));
+	checker.checkMeta(3, MetaPlusAssign(false, 0, 0));
+	checker.checkMeta(4, MetaPlusAssign(false, 0, 0));
+	checker.checkMeta(5, MetaPlusAssign(false, 0, 0));
+	checker.checkMeta(6, MetaPlusAssign(false, 0, 7));
+	checker.checkMeta(7, MetaPlusAssign(false, 0, 7));
+}
+
+TEST (parts_tests, merge_test)
+{
+	StructMaxSubarray L(100, 99, 98, 95);
+	StructMaxSubarray R(120, 100, 110, 99);
+	StructMaxSubarray res = L.merge(L, R);
+	ASSERT_EQ(res.sum, 95 + 99);
+	ASSERT_EQ(res.maxPrefix, 195);
+	ASSERT_EQ(res.maxSuffix, 197);
+	ASSERT_EQ(res.maxSubarray, 198);
+}
+
 
 
 TEST (manual_tests, manual_test_3)
@@ -62,14 +98,18 @@ TEST(stresses, stress_assign)
 	vector <int> a;
 	a.resize(sz + 5);
 	MethodsAssignSumMinMax M;
+	int op_cnt = 10000;
+	int assign_cnt = 0;
+	int get_cnt = 0;
 	SegTree <StructSumMinMax, MetaAssign , MethodsAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
-	for (int it = 0; it < 10000; it++)
+	for (int it = 0; it < op_cnt; it++)
 	{
 		int L, R;
 		int typ = rand() % 2;
 		
 		if (typ == 0)
 		{
+			assign_cnt++;
 			getLR(L, R, sz);
 			int val = rand() % delta;
 			if (DEBUG) printf("assign %d %d %d\n", L, R, val);
@@ -79,6 +119,7 @@ TEST(stresses, stress_assign)
 		}
 		else if (typ == 1)
 		{		
+			get_cnt++;
 			getLR(L, R, sz);
 			if (DEBUG) printf("get %d %d\n", L, R);
 			
@@ -92,7 +133,34 @@ TEST(stresses, stress_assign)
 			ASSERT_EQ(right_ans, tree_res);
 		}
 	}
+	printf("total operations %d (assign %d get %d)\n", op_cnt, assign_cnt, get_cnt);
+	T.printCounters(op_cnt);
 }
+
+TEST(parts_tests, build_test)
+{
+	int sz = 1000;
+	int delta = 1000;
+	vector <int> a;
+	a.resize(sz + 5);
+	MethodsAssignSumMinMax M;
+	int op_cnt = 10000;
+	SegTree <StructSumMinMax, MetaAssign , MethodsAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
+	for (int it = 0; it < op_cnt; it++)
+	{
+		int L, R;
+		getLR(L, R, sz);
+		StructSumMinMax right_ans;
+		for (int i = L; i <= R; i++)
+		{
+			right_ans = StructSumMinMax(right_ans.sum + a[i], min(right_ans.min, a[i]), max(right_ans.max, a[i]));
+		}
+		StructSumMinMax tree_res = T.get(L, R);
+		ASSERT_EQ(right_ans, tree_res);
+	}
+	T.printCounters(op_cnt);
+}
+
 
 TEST (manual_tests, manual_test_4)
 {
@@ -113,9 +181,11 @@ TEST(stresses, stress_plus)
 	vector <int> a;
 	a.resize(sz + 5);
 	MethodsPlusSumMinMax M;
-	
+	int plus_cnt = 0;
+	int get_cnt = 0;
 	SegTree <StructSumMinMax, MetaPlus, MethodsPlusSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
-	for (int it = 0; it < 10000; it++)
+	int op_cnt = 10000;
+	for (int it = 0; it < op_cnt; it++)
 	{
 		if (DEBUG3) printf("it = %d\n", it);
 		int L, R;
@@ -123,6 +193,7 @@ TEST(stresses, stress_plus)
 		
 		if (typ == 0)
 		{
+			plus_cnt++;
 			getLR(L, R, sz);
 			int val = rand() % delta - delta / 2;
 			if (DEBUG3) printf("plus %d %d %d\n", L, R, val);
@@ -132,6 +203,7 @@ TEST(stresses, stress_plus)
 		}
 		else if (typ == 1)
 		{		
+			get_cnt++;
 			getLR(L, R, sz);
 			if (DEBUG3) printf("get %d %d\n", L, R);
 			StructSumMinMax tree_res = T.get(L, R);
@@ -147,18 +219,25 @@ TEST(stresses, stress_plus)
 			
 		}
 	}
+	printf("total operations %d (plus %d get %d)\n", op_cnt, plus_cnt, get_cnt);
+	T.printCounters(op_cnt);
 }
 
 TEST(stresses, stress_assign_and_plus)
 {
 	int sz = 100;	
 	int delta = 100;
-	vector <int> a;
-	a.resize(sz + 5);
+	vector <int> a(sz);
+	vector <StructSumMinMax> init(sz);
+	forn(j, sz)
+		a[j] = init[j].sum = init[j].max = init[j].min = rand() % delta - delta * 2 / 3;
 	MethodsPlusAssignSumMinMax M;
-	
-	SegTree <StructSumMinMax, MetaPlusAssign, MethodsPlusAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
-	for (int it = 0; it < 10000; it++)
+	int op_cnt = 100000;
+	int get_cnt = 0;
+	int assign_cnt = 0;
+	int plus_cnt = 0;
+	SegTree <StructSumMinMax, MetaPlusAssign, MethodsPlusAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0), init);
+	for (int it = 0; it < op_cnt; it++)
 	{
 		if (DEBUG3) printf("it = %d\n", it);
 		int L, R;
@@ -166,6 +245,7 @@ TEST(stresses, stress_assign_and_plus)
 		getLR(L, R, sz);
 		if (typ == 0)
 		{
+			plus_cnt++;
 			int val = rand() % delta - delta / 2;
 			if (DEBUG3) printf("plus %d %d %d\n", L, R, val);
 			fore(pos, L, R)
@@ -174,6 +254,7 @@ TEST(stresses, stress_assign_and_plus)
 		}
 		else if (typ == 1)
 		{
+			assign_cnt++;
 			int val = rand() % delta - delta / 2;
 			if (DEBUG3) printf("assign %d %d %d\n", L, R, val);
 			fore(pos, L, R)
@@ -182,6 +263,7 @@ TEST(stresses, stress_assign_and_plus)
 		}
 		else if (typ == 2)
 		{		
+			get_cnt++;
 			if (DEBUG3) printf("get %d %d\n", L, R);
 			StructSumMinMax tree_res = T.get(L, R);
 			StructSumMinMax right_res = StructSumMinMax(0, inf, -inf); 
@@ -195,6 +277,45 @@ TEST(stresses, stress_assign_and_plus)
 			ASSERT_EQ(right_res.max, tree_res.max);
 		}
 	}
+	printf("total operations %d (plus %d get %d)\n", op_cnt, plus_cnt, get_cnt);
+	T.printCounters(op_cnt);
+}
+
+TEST(TL_test, tl_test_assign_and_plus)
+{
+	int sz = 10000;	
+	int delta = 100;
+	MethodsPlusAssignSumMinMax M;
+	
+	SegTree <StructSumMinMax, MetaPlusAssign, MethodsPlusAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
+	int op_cnt = 100000;
+	for (int it = 0; it < op_cnt; it++)
+	{
+		if (DEBUG3) printf("it = %d\n", it);
+		int L, R;
+		int typ = rand() % 3;
+		getLR(L, R, sz);
+		if (typ == 0)
+		{
+			int val = rand() % delta - delta / 2;
+			if (DEBUG3) printf("plus %d %d %d\n", L, R, val);
+			T.segOperation(L, R, MetaPlusAssign(false, 0, val));
+		}
+		else if (typ == 1)
+		{
+			int val = rand() % delta - delta / 2;
+			if (DEBUG3) printf("assign %d %d %d\n", L, R, val);
+			
+			T.segOperation(L, R, MetaPlusAssign(true, val, 0));
+		}
+		else if (typ == 2)
+		{		
+			if (DEBUG3) printf("get %d %d\n", L, R);
+			StructSumMinMax tree_res = T.get(L, R);
+		}
+	}
+	printf("total operations %d\n", op_cnt);
+	T.printCounters(op_cnt);
 }
 
 TEST(stresses, stress_constancy_segments)
@@ -204,9 +325,9 @@ TEST(stresses, stress_constancy_segments)
 	vector <int> a;
 	a.resize(sz + 5);
 	MethodsConstancySegments M;
-	
+	int op_cnt = 10000;
 	SegTree <StructConstancySegments, MetaPlusAssign, MethodsConstancySegments> T(M, sz, StructConstancySegments(1, 0, 0));
-	for (int it = 0; it < 10000; it++)
+	for (int it = 0; it < op_cnt; it++)
 	{
 		if (DEBUG3) printf("it = %d\n", it);
 		int L, R;
@@ -247,6 +368,8 @@ TEST(stresses, stress_constancy_segments)
 			ASSERT_EQ(a[R], tree_res.rightest);
 		}
 	}
+	printf("total operations %d\n", op_cnt);
+	T.printCounters(op_cnt);
 }
 
 
@@ -317,11 +440,13 @@ TEST (manual_tests, manual_test_2)
 	int sz = 3;
 	MethodsAssignSumMinMax M;
 	SegTree <StructSumMinMax, MetaAssign , MethodsAssignSumMinMax> T(M, sz, StructSumMinMax(0, 0, 0));
+	SegTreeChecker <StructSumMinMax, MetaAssign , MethodsAssignSumMinMax> checker(&T);
 	T.segOperation(0, 0, MetaAssign(true, 1));
+	checker.checkAll(3, 0, 5, 3);
 	T.segOperation(0, 2, MetaAssign(true, 8));
-	
+	checker.checkAll(7, 0, 10, 7);
 	StructSumMinMax getResult = T.get(0, 0);
-	
+	checker.checkAll(9, 3, 10, 7);
 	ASSERT_EQ(getResult, StructSumMinMax(8, 8, 8));
 }
 

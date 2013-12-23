@@ -19,8 +19,8 @@ public:
 		else p.maxSuffix = p.maxPrefix = p.maxSubarray = 0;
 	}
 	
-	void push(MetaAssign & m, MetaAssign & leftMeta, MetaAssign & rightMeta)
+	/*void push(MetaAssign & m, MetaAssign & leftMeta, MetaAssign & rightMeta)
 	{
 		m.push(leftMeta, rightMeta);	
-	}
+	}*/
 };

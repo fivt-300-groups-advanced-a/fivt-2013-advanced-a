@@ -3,13 +3,19 @@
 class MethodsPlusAssignSumMinMax
 {
 public:
-	StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
+	/*StructSumMinMax merge(StructSumMinMax L, StructSumMinMax R)
 	{
 		return L.merge(L, R);
+	}*/
+	int applyCnt;
+	MethodsPlusAssignSumMinMax()
+	{
+		applyCnt = 0;
 	}
 	void apply(MetaPlusAssign & m, StructSumMinMax & p, Seg s)
 	{
 		//s: [L; R)
+		applyCnt++;
 		if (m.assigned)
 		{
 			p.sum = m.assignedValue * s.getLength();
@@ -23,8 +29,8 @@ public:
 		}
 	}
 	//void push(MetaAssignSumMin & m, pair <int, int> & p, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta, int L, int R)
-	void push(MetaPlusAssign & m, MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta)
+	/*void push(MetaPlusAssign & m, MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta)
 	{
 		m.push(leftMeta, rightMeta);
-	}
+	}*/
 };

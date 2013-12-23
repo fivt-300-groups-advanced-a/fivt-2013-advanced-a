@@ -2,6 +2,7 @@
 #define DEBUG2 false
 #define DEBUG3 false
 #include <vector>
+#include "gtest/gtest.h"
 
 using namespace std;
 
@@ -33,18 +34,24 @@ protected:
 	int n;
 	int treeSize;
 	ReturnType neutral;
-	void build(int i, int l, int r)
+	int pushCnt;
+	int getCnt;
+	int segOperationCnt;
+	int nonEmptySegOperationCnt;
+	vector <ReturnType> initVector;
+	void build(int i, int l, int r, bool flagInitFromVector)
 	{
 		segments[i] = Seg(l, r);
 		if (l + 1 == r)
 		{
-			tree[i] = neutral;
+			if (!flagInitFromVector) tree[i] = neutral;
+			else tree[i] = initVector[l];
 			return;
 		}
 		int m = (l + r) / 2;
-		build(i * 2, l, m);
-		build(i * 2 + 1, m, r);
-		tree[i] = methods.merge(tree[i], tree[i * 2]);
+		build(i * 2, l, m, flagInitFromVector);
+		build(i * 2 + 1, m, r, flagInitFromVector);
+		tree[i] = tree[i].merge(tree[i * 2], tree[i * 2 + 1]);
 	}
 	
 	
@@ -64,42 +71,22 @@ protected:
 		methods.apply(metaInfo[i], tree[i], segments[i]);
 	}*/
 
-	inline void safePush(int i)
+	inline void completePush(int i)
 	{
-		if (i >= treeSize)
-			return;
+		
 		methods.apply(metaInfo[i], tree[i], segments[i]);
 		if (segments[i].L + 1 != segments[i].R)
 		{
-			methods.push(metaInfo[i], metaInfo[i * 2], metaInfo[i * 2 + 1]);
+			pushCnt++;
+			metaInfo[i].push(metaInfo[i * 2], metaInfo[i * 2 + 1]);
 		}
 		metaInfo[i].clear();
 	}
 
-	//void completePush(int i, Meta & m, ReturnType & p, Meta & leftMeta, Meta & rightMeta)
-	void completePush(int i)
-	{
-		if (DEBUG2)
-			printf("complete push i = %d\n", i);
-		safePush(i);
-		safePush(i * 2);
-		safePush(i * 2 + 1);
-		//critical change!
-		/*safeApply(i * 2);
-		safeApply(i * 2 + 1);*/
-
-	}
-
-	/*void applyAndPush()
-	{
-		methods.push(metaInfo[i], metaInfo[i * 2], metaInfo[i * 2 + 1]);
-	}*/
-
 	ReturnType innerGet(int i, int queryL, int queryR)
 	{
-		
-		if (queryL >= queryR)
-			return neutral;
+		getCnt++;
+		EXPECT_TRUE(queryL < queryR);
 		if (DEBUG2)
 			printf("get i = %d\n", i);
 		completePush(i);
@@ -114,10 +101,11 @@ protected:
 			return innerGet(i * 2 + 1, queryL, queryR);
 		ReturnType leftResult = innerGet(i * 2,queryL, min(m, queryR));
 		ReturnType rightResult = innerGet(i * 2 + 1, max(m, queryL), queryR);
-		return methods.merge(leftResult, rightResult);
+		return leftResult.merge(leftResult, rightResult);
 	}
-	void innerUpdateInPosition(int i,  int pos, ReturnType & newValue)
+	/*void innerUpdateInPosition(int i,  int pos, ReturnType & newValue)
 	{
+		methods.push(i);
 		if (segments[i].L == pos && segments[i].R == pos + 1)
 		{
 			tree[i] = newValue;
@@ -128,15 +116,17 @@ protected:
 			innerUpdateInPosition(i * 2, pos, newValue);
 		else innerUpdateInPosition(i * 2 + 1, pos, newValue);
 		tree[i] = methods.merge(tree[i * 2], tree[i * 2 + 1]);
-	}
+	}*/
 	void innerSegOperation(int i, int queryL, int queryR, Meta segOperationMeta)
 	{
-		
+		segOperationCnt++;
+		completePush(i);
 		if (queryL >= queryR)
 			return;
+		nonEmptySegOperationCnt++;
 		if (DEBUG2)
 			printf("segOperation i = %d query = (%d %d)\n", i, queryL, queryR);
-		completePush(i);
+		
 		if (segments[i].L == queryL && segments[i].R == queryR)
 		{
 			metaInfo[i] = segOperationMeta;
@@ -148,35 +138,111 @@ protected:
 		int m = segments[i].getM();
 		innerSegOperation(i * 2, queryL, min(m, queryR), segOperationMeta);
 		innerSegOperation(i * 2 + 1, max(m, queryL), queryR, segOperationMeta);
-		tree[i] = methods.merge(tree[i * 2], tree[i * 2 + 1]);
+		tree[i] = tree[i * 2].merge(tree[i * 2], tree[i * 2 + 1]);
 	}
-public:
-	SegTree(Methods _methods, int _n, ReturnType _neutral) : methods(_methods), n(_n), neutral(_neutral)
+	void init()
 	{
+		pushCnt = getCnt = segOperationCnt = nonEmptySegOperationCnt = 0;
 		int tmp = 1;
 		while(tmp < n)
 			tmp *= 2;
 		n = tmp;
 		
 		treeSize = n * 2;
-		if (DEBUG2)
-			printf("n = %d treeSize = %d\n", n, treeSize);
 		tree.resize(treeSize);
 		segments.resize(treeSize);
 		metaInfo.resize(treeSize);
-		build(1, 0, n);
+		
+	}
+public:
+	SegTree(Methods _methods, int _n, ReturnType _neutral) : methods(_methods), n(_n), neutral(_neutral)
+	{
+		init();
+		build(1, 0, n, false);
+	}
+	SegTree(Methods _methods, int _n, ReturnType _neutral, vector<ReturnType> & _initVector) : methods(_methods), n(_n), neutral(_neutral), initVector(_initVector)
+	{
+		init();
+		for (int j = initVector.size(); j < treeSize; j++)
+			initVector.push_back(neutral);
+		build(1, 0, n, true);
 	}
 	ReturnType get(int l, int r)
 	{
 		return innerGet(1, l, r + 1);
 	}
-	void updateInPosition(int position, ReturnType newValue)
+	/*void updateInPosition(int position, ReturnType newValue)
 	{
 		innerUpdateInPosition(1, position, newValue);
-	}
+	}*/
 	void segOperation(int l, int r, Meta segOperationMeta)
 	{
 		innerSegOperation(1, l, r + 1, segOperationMeta);
 	}
+	void printCounters(int opNumber)
+	{
+		printf("tree size = %d\n", treeSize);
+		int depth = 1;
+		while((1 << depth) != treeSize)
+		{
+			depth++;
+		}
+		printf("depth %d\n", depth);
+		printf("applyCnt = %d\n", methods.applyCnt);
+		ASSERT_LE(methods.applyCnt, depth * 4 * opNumber);
+		printf("pushCnt = %d\n", pushCnt);
+		ASSERT_LE(pushCnt, depth * 4 * opNumber);
+		printf("getCnt = %d\n", getCnt);
+		ASSERT_LE(getCnt, depth * 3 * opNumber);
+		printf("segOperationCnt = %d (non-empty %d)\n", segOperationCnt, nonEmptySegOperationCnt);
+		ASSERT_LE(segOperationCnt, depth * 3 * opNumber);
+	}
 
+	template <class ReturnType, class Meta, class Methods>
+	friend class SegTreeChecker;
+
+};
+
+template <class ReturnType, class Meta, class Methods>
+class SegTreeChecker
+{
+private:
+	SegTree <ReturnType, Meta, Methods> * segTree;
+public:
+	SegTreeChecker(SegTree <ReturnType, Meta, Methods> * _segTree) : segTree(_segTree) {}
+	/*void checkApplyCnt(int rightVal)
+	{
+		ASSERT_EQ(segTree->applyCnt, rightVal);
+	}*/
+	void checkPushCnt(int rightVal)
+	{
+		ASSERT_EQ(segTree->pushCnt, rightVal);
+	}
+	void checkGetCnt(int rightVal)
+	{
+		ASSERT_EQ(segTree->getCnt, rightVal);
+	}
+	void checkSegOperationCnt(int rightVal)
+	{
+		ASSERT_EQ(segTree->segOperationCnt, rightVal);
+	}
+	void checkNonEmptyCnt(int rightVal)
+	{
+		ASSERT_EQ(segTree->nonEmptySegOperationCnt, rightVal);
+	}
+	void checkAll(int push, int get, int segOp, int nonEmpty)
+	{
+		checkPushCnt(push);
+		checkGetCnt(get);
+		checkSegOperationCnt(segOp);
+		checkNonEmptyCnt(nonEmpty);
+	}
+	void checkTreeElem(int number, ReturnType rightVal)
+	{
+		ASSERT_EQ(segTree->tree[number], rightVal);
+	}
+	void checkMeta(int number, Meta rightVal)
+	{
+		ASSERT_EQ(segTree->metaInfo[number], rightVal);
+	}
 };

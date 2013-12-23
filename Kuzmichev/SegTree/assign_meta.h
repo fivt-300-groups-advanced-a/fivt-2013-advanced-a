@@ -16,7 +16,7 @@ struct MetaAssign
 		assigned = false;
 		assignedValue = 0;
 	}
-	void push(MetaAssign & leftMeta, MetaAssign & rightMeta)
+	void push(MetaAssign & leftMeta, MetaAssign & rightMeta) const
 	{
 		//apply(m, p, L, R);
 		//ASSERT_FALSE((m.plusedValue != 0) && m.assigned);

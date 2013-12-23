@@ -17,7 +17,7 @@ struct MetaPlusAssign
 		assigned = false;
 		assignedValue = plusedValue = 0;
 	}
-	void push(MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta)
+	void push(MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta) const
 	{
 		//apply(m, p, L, R);
 		//ASSERT_FALSE((m.plusedValue != 0) && m.assigned);
@@ -31,6 +31,10 @@ struct MetaPlusAssign
 			rightMeta.plusedValue += plusedValue;
 			//if (DEBUG2) printf("push (%d) -> (%d) (%d)\n", m.assignedValue, leftMeta.assignedValue, rightMeta.assignedValue);	
 		}
+	}
+	bool operator == (MetaPlusAssign an ) const
+	{
+		return assigned == an.assigned && assignedValue == an.assignedValue && plusedValue == an.plusedValue;
 	}
 };
 

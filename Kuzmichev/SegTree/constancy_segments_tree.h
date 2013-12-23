@@ -4,13 +4,20 @@
 class MethodsConstancySegments
 {
 public:
-	StructConstancySegments merge(StructConstancySegments L, StructConstancySegments R)
+	/*StructConstancySegments merge(StructConstancySegments L, StructConstancySegments R)
 	{
 		return L.merge(L, R);
+	}*/
+	
+	int applyCnt;
+	MethodsConstancySegments()
+	{
+		applyCnt = 0;
 	}
 	void apply(MetaPlusAssign & m, StructConstancySegments & p, Seg s)
 	{
 		//s: [L; R)
+		applyCnt++;
 		if (m.assigned)
 		{
 			p.answer = 1;
@@ -23,8 +30,8 @@ public:
 		}
 	}
 	//void push(MetaAssignSumMin & m, pair <int, int> & p, MetaAssignSumMin & leftMeta, MetaAssignSumMin & rightMeta, int L, int R)
-	void push(MetaPlusAssign & m, MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta)
+	/*void push(MetaPlusAssign & m, MetaPlusAssign & leftMeta, MetaPlusAssign & rightMeta)
 	{
 		m.push(leftMeta, rightMeta);
-	}
+	}*/
 };
