@@ -1,5 +1,5 @@
-#ifndef SEGMENTADDITIONTREE_H
-#define SEGMENTADDITIONTREE_H
+#ifndef SEGMENTASSIGNMENTTREE_H
+#define SEGMENTASSIGNMENTTREE_H
 
 #include <functional>
 #include <cstddef>
@@ -7,16 +7,16 @@
 #include "model/generalsegmenttree.h"
 
 // TODO: documentation
-template<typename DataType, typename Comparator = std::less<DataType> > class SegmentAdditionTree
+template<typename DataType, typename Comparator = std::less<DataType> > class SegmentAssignmentTree
 {
 	public:
-		SegmentAdditionTree(std::size_t size,
+		SegmentAssignmentTree(std::size_t size,
 							const DataType &negInf, const DataType &posInf, const DataType &zero,
 							Comparator cmp = std::less<DataType>()):
-			tree(size, ReturnType(posInf, negInf, zero), Function(cmp)) {}
+			tree(size, ReturnType(posInf, negInf, zero, Function(cmp))) {}
 
 		template<typename ForwardIterator>
-		SegmentAdditionTree(ForwardIterator begin, ForwardIterator end,
+		SegmentAssignmentTree(ForwardIterator begin, ForwardIterator end,
 							const DataType &negInf, const DataType &posInf, const DataType &zero,
 							Comparator cmp = std::less<DataType>()):
 			tree(begin, end, ReturnType(posInf, negInf, zero), Function(cmp)) {}
@@ -59,10 +59,11 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 		struct MetaInformation
 		{
 			public:
-				MetaInformation(): addValue(0) {}
-				MetaInformation(const DataType &nValue): addValue(nValue) {}
+				MetaInformation(): assignValue(0), assigned(false) {}
+				MetaInformation(const DataType &nValue): assignValue(nValue), assigned(true) {}
 
-				DataType addValue;
+				DataType assignValue;
+				bool assigned;
 		};
 
 		class MetaUpdater
@@ -70,9 +71,10 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			public:
 				void operator () (ReturnType &value, const MetaInformation &info, std::size_t left, std::size_t right) const
 				{
-					value.min += info.addValue;
-					value.max += info.addValue;
-					value.sum += info.addValue * (right - left + 1);
+					if (!info.assigned) return;
+					value.min = info.assignValue;
+					value.max = info.assignValue;
+					value.sum = info.assignValue * (right - left + 1);
 				}
 		};
 
@@ -81,11 +83,11 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			public:
 				void operator () (MetaInformation &first, const MetaInformation &second, std::size_t, std::size_t) const
 				{
-					first.addValue += second.addValue;
+					if (second.assigned) first = second;
 				}
 		};
 
 		GeneralSegmentTree<ReturnType, MetaInformation, Function, MetaUpdater, MetaMerger> tree;
 };
 
-#endif // SEGMENTADDITIONTREE_H
+#endif // SEGMENTASSIGNMENTTREE_H

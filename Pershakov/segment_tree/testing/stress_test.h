@@ -4,91 +4,91 @@
 
 #include <vector>
 #include <algorithm>
+#include <functional>
+#include <climits>
 
-#include "../sum_segment_tree.h"
-#include "../min_segment_tree.h"
-#include "../max_segment_tree.h"
 #include "testing_utilities.h"
+#include "../cnt_equality_segments_tree.h"
+#include "../min_max_sum_tree.h"
+#include "../max_sum_segment_tree.h"
 
-TEST(StressTest, SumTreeAddWithVector) {
-    typedef SumTreeAdd Tree;
-    typedef SumSegmentTreeAdd::TreeNode TreeNode;
-    typedef SumSegmentTreeAdd::UpdInfo UpdInfo;
-    
-    testing_utilities::testAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Sum>();
-}
-
-TEST(StressTest, SumTreeAssignmentWithVector) {
-    typedef SumTreeAssignment Tree;
-    typedef SumSegmentTreeAssignment::TreeNode TreeNode;
-    typedef SumSegmentTreeAssignment::UpdInfo UpdInfo;
-
-    testing_utilities::testAssignmentTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Sum>();
-}
-
-TEST(StressTest, SumTreeAssignmentAddWithVector) {
-    typedef SumTreeAssignmentAdd Tree;
-    typedef SumSegmentTreeAssignmentAdd::TreeNode TreeNode;
-    typedef SumSegmentTreeAssignmentAdd::UpdInfo UpdInfo;
+TEST(StressTest, CntEqualitySegments) {
+    typedef CntEqualitySegmentsTree<int, std::less<int>, std::plus<int>, 0> Tree;
 
     testing_utilities::testAssignmentAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Sum>();
+        <Tree, testing_utilities::GetCntEqualitySegments>();
 }
 
-TEST(StressTest, MinTreeAddWithVector) {
-    typedef MinTreeAdd Tree;
-    typedef MinSegmentTreeAdd::TreeNode TreeNode;
-    typedef MinSegmentTreeAdd::UpdInfo UpdInfo;
-    
-    testing_utilities::testAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Min>();
-}
+TEST(StressTest, MinMaxSumAssignmentAdd) {
+    typedef MinMaxSumAssignmentAddTree<int, std::less<int>, std::plus<int>, 
+            std::multiplies<int>, INT_MAX, INT_MIN, 0>
+                Tree;
 
-TEST(StressTest, MinTreeAssignmentWithVector) {
-    typedef MinTreeAssignment Tree;
-    typedef MinSegmentTreeAssignment::TreeNode TreeNode;
-    typedef MinSegmentTreeAssignment::UpdInfo UpdInfo;
-    
-    testing_utilities::testAssignmentTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Min>();
-}
-
-TEST(StressTest, MinTreeAssignmentAddWithVector) {
-    typedef MinTreeAssignmentAdd Tree;
-    typedef MinSegmentTreeAssignmentAdd::TreeNode TreeNode;
-    typedef MinSegmentTreeAssignmentAdd::UpdInfo UpdInfo;
-    
     testing_utilities::testAssignmentAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Min>();
+        <Tree, testing_utilities::GetMinMaxSum>();
 }
 
-TEST(StressTest, MaxTreeAddWithVector) {
-    typedef MaxTreeAdd Tree;
-    typedef MaxSegmentTreeAdd::TreeNode TreeNode;
-    typedef MaxSegmentTreeAdd::UpdInfo UpdInfo;
-    
-    testing_utilities::testAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Max>();
-}
+TEST(StressTest, MinMaxSumAssignment) {
+    typedef MinMaxSumAssignmentTree<int, std::less<int>, std::plus<int>, 
+            std::multiplies<int>, INT_MAX, INT_MIN, 0>
+                Tree;
 
-TEST(StressTest, MaxTreeAssignmentWithVector) {
-    typedef MaxTreeAssignment Tree;
-    typedef MaxSegmentTreeAssignment::TreeNode TreeNode;
-    typedef MaxSegmentTreeAssignment::UpdInfo UpdInfo;
-    
     testing_utilities::testAssignmentTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Max>();
+        <Tree, testing_utilities::GetMinMaxSum>();
 }
 
-TEST(StressTest, MaxTreeAssignmentAddWithVector) {
-    typedef MaxTreeAssignmentAdd Tree;
-    typedef MaxSegmentTreeAssignmentAdd::TreeNode TreeNode;
-    typedef MaxSegmentTreeAssignmentAdd::UpdInfo UpdInfo;
-    
-    testing_utilities::testAssignmentAddTree
-        <Tree, TreeNode, UpdInfo, testing_utilities::Max>();
+TEST(StressTest, MinMaxSumAdd) {
+    typedef MinMaxSumAddTree<int, std::less<int>, std::plus<int>,
+            std::multiplies<int>, INT_MAX, INT_MIN, 0>
+                Tree;
+
+    testing_utilities::testAddTree
+        <Tree, testing_utilities::GetMinMaxSum>();
+}
+
+bool checkAnswer(const std::vector<int> &slow_tree, int l, int r, 
+        const Segment<int> &ans) {
+    int sum = 0;
+    for (int i = ans.left; i <= ans.right; i++)
+        sum += slow_tree[i];
+    if (sum != ans.sum)
+        return false;
+    for (int i = l; i <= r; i++){
+        int cur_sum = 0;
+        for (int j = i; j <= r; j++){
+            cur_sum += slow_tree[j];
+            if (cur_sum > sum)
+                return false;
+        }
+    }
+    return true;
+}
+
+TEST(StressTest, MaxSumSegment) {
+    typedef MaxSumSegmentTree<int, std::less<int>, std::plus<int>,
+            std::multiplies<int>, 0> 
+                Tree;
+
+    Tree tree;
+    std::vector<int> slow_tree;
+    testing_utilities::initIntTrees(slow_tree, tree);
+    int sz = slow_tree.size();
+    int cnt_queries = rand() % 1000;
+    for(int i = 0; i < cnt_queries; i++) {
+        int t = rand() % 2;
+        int l = rand() % sz;
+        int r = rand() % sz;
+        if (l > r)
+            std::swap(l, r);
+        if (t == 0) {
+            ASSERT_TRUE(checkAnswer(slow_tree, l, r, tree.get(l, r)));
+        } else {
+            int val = testing_utilities::randomInt();
+            tree.assign(l, r, val);
+            testing_utilities::assign(slow_tree, l, r, val);
+        }
+
+    }
 }
 
 #endif

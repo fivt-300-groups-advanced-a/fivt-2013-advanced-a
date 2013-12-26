@@ -1,5 +1,5 @@
-#ifndef SEGMENTADDITIONTREE_H
-#define SEGMENTADDITIONTREE_H
+#ifndef SEGMENTADDITIONASSIGNMENTTREE_H
+#define SEGMENTADDITIONASSIGNMENTTREE_H
 
 #include <functional>
 #include <cstddef>
@@ -7,16 +7,16 @@
 #include "model/generalsegmenttree.h"
 
 // TODO: documentation
-template<typename DataType, typename Comparator = std::less<DataType> > class SegmentAdditionTree
+template<typename DataType, typename Comparator = std::less<DataType> > class SegmentAdditionAssignmentTree
 {
 	public:
-		SegmentAdditionTree(std::size_t size,
+		SegmentAdditionAssignmentTree(std::size_t size,
 							const DataType &negInf, const DataType &posInf, const DataType &zero,
 							Comparator cmp = std::less<DataType>()):
-			tree(size, ReturnType(posInf, negInf, zero), Function(cmp)) {}
+			tree(size, ReturnType(posInf, negInf, zero, Function(cmp))) {}
 
 		template<typename ForwardIterator>
-		SegmentAdditionTree(ForwardIterator begin, ForwardIterator end,
+		SegmentAdditionAssignmentTree(ForwardIterator begin, ForwardIterator end,
 							const DataType &negInf, const DataType &posInf, const DataType &zero,
 							Comparator cmp = std::less<DataType>()):
 			tree(begin, end, ReturnType(posInf, negInf, zero), Function(cmp)) {}
@@ -36,9 +36,14 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			return tree.get(left, right);
 		}
 
-		void update(std::size_t left, std::size_t right, const DataType &value)
+		void assign(std::size_t left, std::size_t right, const DataType &value)
 		{
-			tree.update(left, right, MetaInformation(value));
+			tree.update(left, right, MetaInformation(1, value));
+		}
+
+		void add(std::size_t left, std::size_t right, const DataType &value)
+		{
+			tree.update(left, right, MetaInformation(0, value));
 		}
 
 	private:
@@ -59,10 +64,16 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 		struct MetaInformation
 		{
 			public:
-				MetaInformation(): addValue(0) {}
-				MetaInformation(const DataType &nValue): addValue(nValue) {}
+				MetaInformation(): addValue(0), assignValue(0), assigned(false) {}
+				MetaInformation(const int type, const DataType &nValue)
+				{
+					assigned = type;
+					addValue = type ? 0 : nValue;
+					assignValue = type ? nValue : 0;
+				}
 
-				DataType addValue;
+				DataType addValue, assignValue;
+				bool assigned;
 		};
 
 		class MetaUpdater
@@ -70,9 +81,18 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			public:
 				void operator () (ReturnType &value, const MetaInformation &info, std::size_t left, std::size_t right) const
 				{
-					value.min += info.addValue;
-					value.max += info.addValue;
-					value.sum += info.addValue * (right - left + 1);
+					if (info.assigned)
+					{
+						value.min = info.addValue + info.assignValue;
+						value.max = info.addValue + info.assignValue;
+						value.sum = (info.addValue + info.addValue) * (right - left + 1);
+					}
+					else
+					{
+						value.min += info.addValue;
+						value.max += info.addValue;
+						value.sum += info.addValue * (right - left + 1);
+					}
 				}
 		};
 
@@ -81,11 +101,13 @@ template<typename DataType, typename Comparator = std::less<DataType> > class Se
 			public:
 				void operator () (MetaInformation &first, const MetaInformation &second, std::size_t, std::size_t) const
 				{
-					first.addValue += second.addValue;
+					if (second.assigned) first = second;
+					else first.addValue += second.addValue;
 				}
 		};
 
 		GeneralSegmentTree<ReturnType, MetaInformation, Function, MetaUpdater, MetaMerger> tree;
 };
 
-#endif // SEGMENTADDITIONTREE_H
+
+#endif // SEGMENTADDITIONASSIGNMENTTREE_H

@@ -7,5 +7,9 @@ SOURCES +=
 
 HEADERS += \
     model/generalsegmenttree.h \
-    model/segmentadditiontree.h
+    model/segmentadditiontree.h \
+    model/segmentassignmenttree.h \
+    model/segmentadditionassignmenttree.h \
+    applications/maximalsumsubsegment.h \
+    applications/constasysegments.h
 

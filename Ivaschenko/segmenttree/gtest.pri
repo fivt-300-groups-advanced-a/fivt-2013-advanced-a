@@ -6,4 +6,4 @@ SOURCES += \
     segmentassigntest.cpp \
     segmentaddassigntest.cpp \
     maximalsumsubsegment.cpp \
-    constansysegements.cpp
+    constancysegmentstest.cpp

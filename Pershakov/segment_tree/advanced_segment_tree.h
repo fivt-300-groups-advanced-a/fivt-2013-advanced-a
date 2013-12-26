@@ -19,26 +19,17 @@ template <class TreeNode, class UpdInfo> class SegmentTree {
             tree.resize(power);
             update_tree.resize(power);
             changed.resize(power, false);
-            build(1, 0, sz - 1, base);
-        }
-
-        explicit SegmentTree(int new_size) {
-            assert(new_size >= 0);
-            sz = new_size;
-            int power = getPower(sz) * 2;
-            tree.resize(power);
-            update_tree.resize(power);
-            changed.resize(power, false);
+            build(0, 0, sz - 1, base);
         }
 
         TreeNode get(int l, int r) {
             assert(0 <= l && l <= r && r < sz);
-            return get(1, 0, sz - 1, l, r);
+            return get(0, 0, sz - 1, l, r);
         }
         
         void update(int l, int r, UpdInfo &upd) {
             assert(0 <= l && l <= r && r < sz);
-            update(1, 0, sz - 1, l, r, upd);
+            update(0, 0, sz - 1, l, r, upd);
         }
 
     private:
@@ -47,11 +38,19 @@ template <class TreeNode, class UpdInfo> class SegmentTree {
         std::vector<bool> changed;
         int sz;
 
-        int getPower(int sz){
+        int getPower(int sz) const{
             int power = 1;
             while (power < sz)
                 power *= 2;
             return power;
+        }
+
+        int left_son(int v) const {
+            return 2 * v + 1;
+        }
+
+        int right_son(int v) const {
+            return 2 * v + 2;
         }
 
         void build(int v, int vl, int vr, std::vector<TreeNode> &base) {
@@ -60,20 +59,22 @@ template <class TreeNode, class UpdInfo> class SegmentTree {
                 return;
             }
             int mid = (vl + vr) / 2;
-            build(v * 2, vl, mid, base);
-            build(v * 2 + 1, mid + 1, vr, base);
-            tree[v].merge(tree[v * 2], tree[v * 2 + 1]);
+            build(left_son(v), vl, mid, base);
+            build(right_son(v), mid + 1, vr, base);
+            tree[v].merge(tree[left_son(v)], tree[right_son(v)]);
         }
 
         void push(int v, int vl, int vr) {
             int mid = (vl + vr) / 2;
+            int left = left_son(v);
+            int right = right_son(v);
             if (vl != vr) {
-                update_tree[v * 2].push(update_tree[v], vl, mid);
-                tree[v * 2].addUpdate(update_tree[v], vl, mid);
-                changed[v * 2] = true;
-                update_tree[v * 2 + 1].push(update_tree[v], mid + 1, vr);
-                tree[v * 2 + 1].addUpdate(update_tree[v], mid + 1, vr);
-                changed[v * 2 + 1] = true;
+                update_tree[left].push(update_tree[v], vl, mid);
+                tree[left].addUpdate(update_tree[v], vl, mid);
+                changed[left] = true;
+                update_tree[right].push(update_tree[v], mid + 1, vr);
+                tree[right].addUpdate(update_tree[v], mid + 1, vr);
+                changed[right] = true;
             }
             changed[v] = false;
             update_tree[v] = UpdInfo();
@@ -87,9 +88,9 @@ template <class TreeNode, class UpdInfo> class SegmentTree {
             if (vl == l && vr == r)
                 return tree[v];
             int mid = (vl + vr) / 2;
-            TreeNode left_res = get(v * 2, vl, mid, l, std::min(r, mid)),
+            TreeNode left_res = get(left_son(v), vl, mid, l, std::min(r, mid)),
                      right_res = 
-                         get(v * 2 + 1, mid + 1, vr, std::max(l, mid + 1), r);
+                         get(right_son(v), mid + 1, vr, std::max(l, mid + 1), r);
             TreeNode res;
             res.merge(left_res, right_res);
             return res;
@@ -107,9 +108,9 @@ template <class TreeNode, class UpdInfo> class SegmentTree {
                 return;
             }
             int mid = (vl + vr) / 2;
-            update(v * 2, vl, mid, l, std::min(r, mid), upd);
-            update(v * 2 + 1, mid + 1, vr, std::max(l, mid + 1), r, upd);
-            tree[v].merge(tree[v * 2], tree[v * 2 + 1]);
+            update(left_son(v), vl, mid, l, std::min(r, mid), upd);
+            update(right_son(v), mid + 1, vr, std::max(l, mid + 1), r, upd);
+            tree[v].merge(tree[left_son(v)], tree[right_son(v)]);
         }
 };
 

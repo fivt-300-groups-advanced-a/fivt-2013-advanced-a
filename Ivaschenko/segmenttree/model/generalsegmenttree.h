@@ -213,7 +213,7 @@ class GeneralSegmentTree
 			}
 			std::size_t middle = (tleft + tright) >> 1;
 			if (right <= middle)
-				internalUpdate((v << 1) + 1, tleft, middle, left, middle, info);
+				internalUpdate((v << 1) + 1, tleft, middle, left, right, info);
 			else if (left >= middle)
 				internalUpdate((v << 1) + 2, middle, tright, left, right, info);
 			else

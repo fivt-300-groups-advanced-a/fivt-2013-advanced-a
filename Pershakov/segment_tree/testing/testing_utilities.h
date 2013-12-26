@@ -6,45 +6,48 @@
 #include <cstdlib>
 #include <algorithm>
 
+#include "../min_max_sum_tree.h"
+
 namespace testing_utilities {
 
-    struct Min {
-        int operator() (std::vector<int> &slow_tree, int l, int r) {
-            int mn = slow_tree[l];
-            for (int i = l; i <= r; i++)
-                mn = std::min(mn, slow_tree[i]);
-            return mn;
-        }
-    };
-
-    struct Max {
-        int operator() (std::vector<int> &slow_tree, int l, int r) {
-            int mx = slow_tree[l];
-            for (int i = l; i <= r; i++)
-                mx = std::max(mx, slow_tree[i]);
-            return mx;
-        }
-    };
-
-    struct Sum {
-        int operator() (std::vector<int> &slow_tree, int l, int r) {
+    struct GetMinMaxSum {
+        MinMaxSum<int> operator() (std::vector<int> &slow_tree, int l, int r) {
             int sum = 0;
-            for (int i = l; i <= r; i++)
+            int min = slow_tree[l];
+            int max = slow_tree[r];
+            for (int i = l; i <= r; i++) {
                 sum += slow_tree[i];
-            return sum;
+                min = std::min(min, slow_tree[i]);
+                max = std::max(max, slow_tree[i]);
+            }
+            return MinMaxSum<int>(min, max, sum);
         }
     };
 
-    template <class Tree, class TreeNode>
+    struct GetCntEqualitySegments {
+        int operator() (std::vector<int> &slow_tree, int l, int r) {
+            int cnt = 1;
+            for (int i = l + 1; i <= r; i++)
+                if (slow_tree[i] != slow_tree[i - 1])
+                    cnt++;
+            return cnt;
+        }
+    };
+
+    /*
+     * return random number from [-100000, 100000]
+     */
+    int randomInt(){
+        return rand() % 200001 - 100000;
+    }
+
+    template <class Tree>
         void initIntTrees(std::vector<int> &slow_tree, Tree &tree) {
             int sz = rand() % 10000;
             slow_tree.resize(sz);
-            std::vector<TreeNode> init(sz);
-            for (int i = 0; i < sz; i++){
-                slow_tree[i] = rand() % 100000;
-                init[i] = TreeNode(slow_tree[i]);
-            }
-            tree = Tree(init);
+            for (int i = 0; i < sz; i++)
+                slow_tree[i] = randomInt();
+            tree = Tree(slow_tree);
     }
 
     void add(std::vector<int> &slow_tree, int l, int r, int val) {
@@ -52,17 +55,17 @@ namespace testing_utilities {
             slow_tree[i] += val;
     }
 
-    void put(std::vector<int> &slow_tree, int l, int r, int val) {
+    void assign(std::vector<int> &slow_tree, int l, int r, int val) {
         for (int i = l; i <= r; i++)
             slow_tree[i] = val;
     }
 
-    template<class Tree, class TreeNode, class UpdInfo, class Get>
+    template<class Tree, class Get>
         void testAddTree() {
             Get get;
             std::vector<int> slow_tree;
             Tree tree;
-            initIntTrees<Tree, TreeNode>(slow_tree, tree);
+            initIntTrees<Tree>(slow_tree, tree);
             int sz = slow_tree.size();
 
             int cnt_queries = rand() % 100000;
@@ -72,24 +75,21 @@ namespace testing_utilities {
                 if (l > r)
                     std::swap(l ,r);
                 if (query_type == 0) {
-                    TreeNode tree_res = tree.get(l, r);
-                    int res = get(slow_tree, l, r);
-                    ASSERT_EQ(tree_res.getVal(), res);
+                    ASSERT_EQ(tree.get(l, r), get(slow_tree, l, r));
                 } else {
-                    int val = rand() % 100000;
-                    UpdInfo upd(val);
-                    tree.update(l, r, upd);
+                    int val = randomInt();
+                    tree.add(l, r, val);
                     add(slow_tree, l, r, val);
                 }
             }
         }
 
-    template<class Tree, class TreeNode, class UpdInfo, class Get>
+    template<class Tree, class Get>
         void testAssignmentTree() {
             Get get;
             std::vector<int> slow_tree;
             Tree tree;
-            initIntTrees<Tree, TreeNode>(slow_tree, tree);
+            initIntTrees<Tree>(slow_tree, tree);
             int sz = slow_tree.size();
 
             int cnt_queries = rand() % 100000;
@@ -99,24 +99,21 @@ namespace testing_utilities {
                 if (l > r)
                     std::swap(l ,r);
                 if (query_type == 0) {
-                    TreeNode tree_res = tree.get(l, r);
-                    int res = get(slow_tree, l, r);
-                    ASSERT_EQ(tree_res.getVal(), res);
+                    ASSERT_EQ(tree.get(l, r), get(slow_tree, l, r));
                 } else {
-                    int val = rand() % 100000;
-                    UpdInfo upd(val);
-                    tree.update(l, r, upd);
-                    put(slow_tree, l, r, val);
+                    int val = randomInt();
+                    tree.assign(l, r, val);
+                    assign(slow_tree, l, r, val);
                 }
             }
         }
 
-    template<class Tree, class TreeNode, class UpdInfo, class Get>
+    template<class Tree, class Get>
         void testAssignmentAddTree() {
             Get get;
             std::vector<int> slow_tree;
             Tree tree;
-            initIntTrees<Tree, TreeNode>(slow_tree, tree);
+            initIntTrees<Tree>(slow_tree, tree);
             int sz = slow_tree.size();
 
             int cnt_queries = rand() % 100000;
@@ -126,18 +123,14 @@ namespace testing_utilities {
                 if (l > r)
                     std::swap(l, r);
                 if (query_type == 0) {
-                    TreeNode tree_res = tree.get(l, r);
-                    int res = get(slow_tree, l, r);
-                    ASSERT_EQ(tree_res.getVal(), res);
+                    ASSERT_EQ(tree.get(l, r), get(slow_tree, l, r));
                 } else if (query_type == 1) {
-                    int val = rand() % 100000;
-                    UpdInfo upd(val, 0, true);
-                    tree.update(l, r, upd);
-                    put(slow_tree, l, r, val);
+                    int val = randomInt();
+                    tree.assign(l, r, val);
+                    assign(slow_tree, l, r, val);
                 } else {
-                    int val = rand() % 100000;
-                    UpdInfo upd(0, val, false);
-                    tree.update(l, r, upd);
+                    int val = randomInt();
+                    tree.add(l, r, val);
                     add(slow_tree, l, r, val);
                 }
             }
