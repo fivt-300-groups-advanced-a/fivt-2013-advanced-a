@@ -40,5 +40,5 @@ GTEST_SRCS_ = ../gtest-1.7.0/src/*.cc ../gtest-1.7.0/src/*.h $(GTEST_HEADERS)
 generaltree_manual: ../bin/generaltree_manual.o ../bin/gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-../bin/generaltree_manual.o: generaltree_manual.cpp access.h ../source/generaltree.h $(GTEST_HEADERS)
+../bin/generaltree_manual.o: generaltree_manual.cpp access.h ../source/generaltree.h ../source/specialization.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@

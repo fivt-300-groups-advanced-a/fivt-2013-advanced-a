@@ -1,6 +1,8 @@
+#include <vector>
 #include <memory>
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 template <class T> class TestAccess;
 
@@ -570,4 +572,101 @@ private:
   std::vector<std::pair<ResultType, std::unique_ptr<MetaType>>> _data;
   size_t _length;
 };
+}
+
+struct ResSumTree
+{
+  ResSumTree():_l(-1), _r(-1), _sum(0) {}
+  ResSumTree(size_t l, size_t r, long long sum):_l(l), _r(r), _sum(sum) {}
+
+  size_t _l;
+  size_t _r;
+  long long _sum;
+};
+
+struct ResultMergerSumTree
+{
+  ResSumTree operator()(ResSumTree left, ResSumTree right)
+  {
+  return ResSumTree(left._l, right._r, left._sum + right._sum);
+  }
+};
+
+
+struct MetaToResSumAddTree
+{
+  ResSumTree operator()(long long meta, ResSumTree res)
+  {
+    return ResSumTree(res._l, res._r, res._sum + meta * (res._r - res._l + 1));
+  }
+};
+
+struct MetaToResSumAssignTree
+{
+  ResSumTree operator()(long long meta, ResSumTree res)
+  {
+    return ResSumTree(res._l, res._r, meta * (res._r - res._l + 1));
+  }
+};
+
+struct MetaMergerSumAddTree
+{
+  long long operator()(long long oldmeta, long long newmeta)
+  {
+    return oldmeta + newmeta;
+  }
+};
+
+struct MetaMergerSumAssignTree
+{
+  long long operator()(long long oldmeta, long long newmeta)
+  {
+    return newmeta;
+  }
+};
+
+namespace segmentTree{
+typedef segmentTree::GeneralTree <ResSumTree, long long,
+                                  ResultMergerSumTree,
+                                  MetaMergerSumAddTree,
+                                  MetaToResSumAddTree> sum_add;
+
+typedef segmentTree::GeneralTree <ResSumTree, long long,
+                                  ResultMergerSumTree,
+                                  MetaMergerSumAssignTree,
+                                  MetaToResSumAssignTree> sum_assign;                                
+}
+
+int main()
+{
+  freopen("sum.in", "r", stdin);
+  freopen("sum.out", "w", stdout);
+  int N;
+  std::cin >> N;
+  segmentTree::sum_assign rsq;
+  std::vector<ResSumTree> v;
+  for (int i = 0; i <= N; ++i)
+    v.push_back(ResSumTree(i, i, 0));
+  rsq.build_from_range(v.begin(),v.end());
+
+  int K;
+  std::cin >> K;
+  for (int i = 0; i < K; ++i)
+  {
+    char cmd;
+    size_t l, r;
+    long long x;
+    std::cin >> cmd;
+    if (cmd == 'A')
+    {
+      std::cin >> l >> r >> x;
+      rsq.modify(l, r, x);
+    }
+    if (cmd == 'Q')
+    {
+      std::cin >> l >> r;
+      std::cout << rsq.get(l, r)._sum << std::endl;
+    }
+  }
+  return 0;
 }

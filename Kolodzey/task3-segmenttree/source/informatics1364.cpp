@@ -1,6 +1,8 @@
+#include <vector>
 #include <memory>
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 
 template <class T> class TestAccess;
 
@@ -570,4 +572,78 @@ private:
   std::vector<std::pair<ResultType, std::unique_ptr<MetaType>>> _data;
   size_t _length;
 };
+}
+
+struct ResSumTree
+{
+  ResSumTree():_l(-1), _r(-1), _sum(0) {}
+  ResSumTree(size_t l, size_t r, long long sum):_l(l), _r(r), _sum(sum) {}
+
+  size_t _l;
+  size_t _r;
+  long long _sum;
+};
+
+struct ResultMergerSumTree
+{
+  ResSumTree operator()(ResSumTree left, ResSumTree right)
+  {
+  return ResSumTree(left._l, right._r, left._sum + right._sum);
+  }
+};
+
+
+struct MetaToResSumTree
+{
+  ResSumTree operator()(long long meta, ResSumTree res)
+  {
+    return ResSumTree(res._l, res._r, res._sum + meta * (res._r - res._l + 1));
+  }
+};
+
+struct MetaMergerSumTree
+{
+  long long operator()(long long oldmeta, long long newmeta)
+  {
+    return oldmeta + newmeta;
+  }
+};
+
+namespace segmentTree{
+typedef segmentTree::GeneralTree <ResSumTree, long long,
+                                  ResultMergerSumTree,
+                                  MetaMergerSumTree,
+                                  MetaToResSumTree> sum_add;
+}
+
+int main()
+{
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
+  int N;
+  std::cin >> N;
+  segmentTree::sum_add rsq;
+  std::vector<ResSumTree> v;
+  for (int i = 0; i <= N; ++i)
+    v.push_back(ResSumTree(i, i, 0));
+  rsq.build_from_range(v.begin(),v.end());
+
+  int M;
+  std::cin >> M;
+  for (int i = 0; i < M; ++i)
+  {
+    int cmd, l, r, x;
+    std::cin >> cmd;
+    if (cmd == 1)
+    {
+      std::cin >> l >> r >> x;
+      rsq.modify(l, r - 1, x);
+    }
+    if (cmd == 2)
+    {
+      std::cin >> l >> r;
+      std::cout << rsq.get(l, r - 1)._sum << std::endl;
+    }
+  }
+  return 0;
 }

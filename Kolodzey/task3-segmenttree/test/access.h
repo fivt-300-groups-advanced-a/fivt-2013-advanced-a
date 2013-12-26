@@ -51,9 +51,14 @@ public:
     return _ptr_to_GTree->_ptr_to_metaToResultApplier;
   }
 
-  std::vector<std::pair<ResultType, MetaType> >& get_data()
+  std::vector<std::pair<ResultType, std::unique_ptr<MetaType>>>& get_data()
   {
     return _ptr_to_GTree->_data;
+  }
+
+  size_t& get_length()
+  {
+    return _ptr_to_GTree->_length;
   }
 
   GeneralTree* _ptr_to_GTree;
