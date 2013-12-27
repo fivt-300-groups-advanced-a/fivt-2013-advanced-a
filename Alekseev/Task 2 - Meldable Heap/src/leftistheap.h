@@ -34,13 +34,13 @@ public:
         NodePtr _node;
     };
 
-    LeftistHeap():                                _size(0), root(nullptr), compare(Compare()) {}
-    explicit LeftistHeap(const Compare &compare): _size(0), root(nullptr), compare(compare) {}
-    explicit LeftistHeap(Compare &&compare):      _size(0), root(nullptr), compare(std::move(compare)) {}
+    LeftistHeap():                                heapSize(0), root(nullptr), compare(Compare()) {}
+    explicit LeftistHeap(const Compare &compare): heapSize(0), root(nullptr), compare(compare) {}
+    explicit LeftistHeap(Compare &&compare):      heapSize(0), root(nullptr), compare(std::move(compare)) {}
 
-    LeftistHeap(LeftistHeap<Key, Compare>&& that): _size(0), root(nullptr), compare(std::move(that.compare))
+    LeftistHeap(LeftistHeap<Key, Compare>&& that): heapSize(0), root(nullptr), compare(std::move(that.compare))
     {
-        std::swap(_size, that._size);
+        std::swap(heapSize, that.heapSize);
         std::swap(root, that.root);
     }
 
@@ -67,7 +67,7 @@ public:
     {
         NodePtr node = new Node(key);
         merge(root, root, node, nullptr);
-        ++_size;
+        ++heapSize;
         return Index(node);
     }
 
@@ -76,7 +76,7 @@ public:
     {
         NodePtr node = new Node(Key(args...));
         merge(root, root, node, nullptr);
-        ++_size;
+        ++heapSize;
         return Index(node);
     }
 
@@ -119,7 +119,7 @@ public:
     void absorb(LeftistHeap<Key, Compare> &that)
     {
         merge(root, root, that.root, nullptr);
-        that._size = 0;
+        that.heapSize = 0;
         that.root = nullptr;
     }
 
@@ -130,7 +130,7 @@ public:
 
     std::size_t size() const
     {
-        return _size;
+        return heapSize;
     }
 
 private:
@@ -156,7 +156,7 @@ private:
     }
     bool isRightSon(NodePtr node)
     {
-        return node && node->parent->rightSon == node;
+        return node && node->parent && node->parent->rightSon == node;
     }
 
     void updateMinHeight(NodePtr node)
@@ -200,7 +200,7 @@ private:
     {
         unlink(node);
         delete node;
-        --_size;
+        --heapSize;
     }
 
     void unlink(NodePtr node)
@@ -222,10 +222,10 @@ private:
         purgeTree(root->leftSon);
         purgeTree(root->rightSon);
         delete root;
-        --_size;
+        --heapSize;
     }
 
-    std::size_t _size;
+    std::size_t heapSize;
     NodePtr root;
     Compare compare;
 };
