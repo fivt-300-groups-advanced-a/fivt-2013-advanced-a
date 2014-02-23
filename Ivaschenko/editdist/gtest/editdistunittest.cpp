@@ -5,7 +5,7 @@
 
 #include "editdist.h"
 
-TEST(EditorDistance, SimpleTests)
+TEST(EditDistance, SimpleTests)
 {
 	std::vector< std::pair< std::vector<int>, std::vector<int> > > tests =
 	{
@@ -30,7 +30,7 @@ TEST(EditorDistance, SimpleTests)
 	}
 }
 
-TEST(EditorDistance, NonScalarDataTests)
+TEST(EditDistance, NonScalarDataTests)
 {
 	std::vector< std::pair< std::vector<std::string>, std::vector<std::string> > > tests =
 	{
@@ -54,7 +54,7 @@ TEST(EditorDistance, NonScalarDataTests)
 	}
 }
 
-TEST(EditorDistance, RandomTests)
+TEST(EditDistance, RandomTests)
 {
 	struct TestCase
 	{
@@ -105,5 +105,71 @@ TEST(EditorDistance, RandomTests)
 			ASSERT_NE(pos, a.size());
 			++pos;
 		}
+	}
+}
+
+TEST(EditDistance, CheckActions)
+{
+	struct TestCase
+	{
+		std::size_t n, m, seed;
+
+		TestCase(std::size_t n, std::size_t m, std::size_t seed): n(n), m(m), seed(seed) {}
+
+		std::pair< std::vector<int>, std::vector<int> > generateData()
+		{
+			std::mt19937 generator(seed);
+			std::pair< std::vector<int>, std::vector<int> > answer;
+			answer.first.resize(n);
+			std::generate_n(answer.first.begin(), n, generator);
+			answer.second.resize(m);
+			std::generate_n(answer.second.begin(), m, generator);
+			return answer;
+		}
+	};
+
+	std::vector<TestCase> tests =
+	{
+		TestCase(3, 4, 1),
+		TestCase(3, 5, 2),
+		TestCase(4, 2, 3),
+		TestCase(6, 1, 4),
+		TestCase(6, 4, 5),
+		TestCase(6, 6, 6),
+		TestCase(7, 7, 7),
+		TestCase(8, 4, 8),
+		TestCase(10, 5, 9),
+		TestCase(10, 10, 10),
+		TestCase(100, 100, 11),
+		TestCase(1000, 1000, 12),
+		TestCase(2000, 2000, 13)
+	};
+	for (auto test : tests)
+	{
+		auto data = test.generateData();
+		std::vector<int> &a = data.first, &b = data.second;
+		auto actions = editDistance(a.begin(), a.end(), b.begin(), b.end(), std::equal_to<int>());
+		for (const std::string &action : actions)
+		{
+			if (action[0] == 'C')
+			{
+				std::size_t pos, what;
+				sscanf(action.c_str(), "CHANGE a[%lu] to b[%lu]", &pos, &what);
+				a[pos] = b[what];
+			}
+			if (action[0] == 'I')
+			{
+				std::size_t pos, what;
+				sscanf(action.c_str(), "INSERT b[%lu] at position %lu", &what, &pos);
+				a.insert(a.begin() + pos, b[what]);
+			}
+			if (action[0] == 'E')
+			{
+				std::size_t pos;
+				sscanf(action.c_str(), "ERASE a[%lu]", &pos);
+				a.erase(a.begin() + pos);
+			}
+		}
+		ASSERT_TRUE(a == b);
 	}
 }
