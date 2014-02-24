@@ -35,7 +35,7 @@ class GeneralSegmentTree {
       Vertex(): ret(ReturnType()), is_meta(false), l(0), r(0) {}
       Vertex *l, *r;
       ReturnType ret;
-      MetaInformation meta.
+      MetaInformation meta;
       bool is_meta;
     };
 
@@ -51,7 +51,7 @@ class GeneralSegmentTree {
       }
        
       ~MemoryAllocator() {
-        for (size_t i = 0; i < blocks.size(); i++) delete blocks[i];
+        for (size_t i = 0; i < blocks.size(); i++) delete[] blocks[i];
       }
 
       int left = 0;
