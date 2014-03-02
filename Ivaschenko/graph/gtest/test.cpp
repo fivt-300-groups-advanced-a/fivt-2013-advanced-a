@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-TEST(Graph, ManualTest)
+TEST(GeneralGraph, ManualTest)
 {
 
 }
