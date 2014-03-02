@@ -76,19 +76,6 @@ std::vector<change> buildPrescription(const std::string &str1, int l1, int r1,
         addToVector(ans, insertString(str2, l2 + 1, r2));
         return ans;
     }
-    //if (l2 + 1 == r2) {
-        //for (int i = l1; i < r1; i++) 
-            //if (str1[i] == str2[l2]) {
-                //std::vector<change> ans = eraseString(str1, l1, i);
-                //ans.push_back(change(MATCH));
-                //addToVector(ans, eraseString(str1, i + 1, r1));
-                //return ans;
-            //}
-        //std::vector<change> ans;
-        //ans.push_back(change(REPLACE, str2[l2]));
-        //addToVector(ans, eraseString(str1, l1 + 1, r1));
-        //return ans;
-    //}
 
     int len1 = r1 - l1, len2 = r2 - l2;
     int mid1 = (len1 + 1) / 2;
