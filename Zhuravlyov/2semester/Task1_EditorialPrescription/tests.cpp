@@ -60,8 +60,8 @@ TEST(ManualTests, AllOperations)
 
 TEST(StressTest, MainStressTest)
 {
-	const int number_of_tests = 100;
-	const int max_string_length = 100;
+	const int number_of_tests = 1;
+	const int max_string_length = 100000;
 	std::string s, t;
 	for (int i = 0; i < number_of_tests; i++)
 	{
