@@ -1,0 +1,104 @@
+﻿Шаблонное программирование
+Шаблонный класс
+Template <class T> class Point {
+T x,y;
+}
+Point<float> - класс, который хранит внутри себя 2 float.
+
+Template  <class T> class Point {
+T x() const {return _x; }
+T y() const {return _y;}
+Private:
+T x_,y_;
+}
+Допустим координаты принимают значения от 0 до 3. Захотим хранить числа в одном байте.
+
+Специальный шаблон:
+Template <> class Point <bool> {
+Bool x() const {return x%2==1;}
+Private:
+Char koords_;
+}
+^ Возможность специализировать тип для каких-либо особых типов.
+
+Template <class x > class point <vector<x>> {
+
+}
+Point<vector<int>> - вызывает верхнюю узкую специализацию.
+
+
+Классический пример такого использования – vector<bool> - более узкая специализация.
+
+Const_ref<T>::type – вызов мета-функции. Принимает один или несколько типов и возвращает какой-то тип.
+Template <class T>
+Struct const_ref {
+Typedef const T& type;
+}
+Const_ref<T>::type
+
+Vector<T>::value_type, value_type это T.
+Мета функция – произвольная функция с некоторым количеством шаблонных параметров, в которой есть typedef. 
+
+Для int-а
+Template<> struct const_ref<int> {
+Typedef int type;
+};
+Во всех типах, кроме int const_ref<T>::type вернёт константную ссылку, в inte – int;
+
+Vector a,b;
+a.swap(b) – менят содержимое 2 векторов
+
+template class<T> struct is_primitive {
+static const bool value=false; // stratic значит, что это не является членом класса. Переменная общая для всех экземпляров класса.
+}
+Is_primitive<int>::value;
+Для других типов пишем переопределение.
+
+T <int X>
+Class F { };
+F<15>
+
+Constexpr int factorial (int x) {
+	Return (x==0?1:x*factorial(x-1));
+}
+Функция, вычисляющаяся на этапе компиляции, максимум однострочное описание.
+
+Constexpr class point {
+Constexpr Point(int x,int y) :x(x),y(y) { } // предварительные списки.
+}
+
+(ближе к ДЗ)
+Хотим целые числа сортировать цифровой сортировкой, а другие объекты – стандартной.
+
+Template <class T> Class Usual Sort {
+Template <class Cmp>
+Void sort(vector<t>* v); {
+Std::sort(v->begin();v->end(),cmp);
+}
+}
+
+Можно сделать шаблонное переопределение, но прийдётся делать много cp.
+
+Template <class T,Bool IsNumberic> struct OSHelper;
+Template <class t>  struct OSHelper<T,false>{
+Typedef US<T> type;
+}; ?????
+Template <class T class Reader=DS<T>::type> - объявление шаблонных параметров по умолчанию.
+
+Template <class Iterator>
+Void sort(Iterator b, Iterator e) {
+Typename Iterator_traits<It>::value_type tmp=*b; // компилятор подставляет значение по итератору
+		::ref_type
+		::iterator_tag
+// It::value_type (не будет работать на обычных указателей)
+}
+
+Typename A::value – если компилятору сходу непонятно, что стоит: константа или тип.
+
+Auto tmp=*b; - какой-то вполне определённый тип, который вычисляется в правой части.
+For (auto it=m.begin()…) – полезное применение
+
+Size_t – беззнаковый целый тип, в нем бит столько же, сколько в процессоре.
+
+Sorter – функтор, который принимает указатель на вектор v
+В цифровой сортировке хорошо бы реализовать класс BitExtractor, который разбивает что-либо на биты.
