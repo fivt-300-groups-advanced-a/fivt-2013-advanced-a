@@ -15,7 +15,7 @@ struct change {
 
     change() { }
 
-    change(const changeType &new_type) {
+    explicit change(const changeType &new_type) {
         type = new_type;
     }
 
