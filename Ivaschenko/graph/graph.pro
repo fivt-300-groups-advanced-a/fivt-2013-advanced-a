@@ -5,3 +5,6 @@ QMAKE_LIBS += /usr/local/lib/libgtest.a
 
 
 SOURCES += main.cpp
+
+HEADERS += \
+    generalgraph.h

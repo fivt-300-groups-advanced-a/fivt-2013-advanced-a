@@ -1,71 +1,117 @@
-#include <algorithm>
-#include <iostream>
-#include <cstdlib>
-#include <cassert>
+
 #include <string>
 #include <vector>
 #include <cstdio>
-#include <set>
-#include <map>
-#include <queue>
 #include <memory.h>
-#include <cmath>
+#include "gtest/gtest.h"
 
 using namespace std;
 
-#define forn(i, n) for (int i = 0; i < (int)n; i++)
-#define fore(i, b, e) for (int i = (int)b; i <= (int)e; i++)
-#define all(x) (x).begin(), (x).end()
-#define se second
-#define fi first
-#define mp make_pair
-#define pb push_back
-#define op operator
-
 #define DEL_FIRST -1
 #define DEL_SECOND -2
+#define fore(i, b, e) for (int i = (int)b; i <= (int)e; i++)
+#define forn(i, n) for (int i = 0; i < (int)n; i++)
 
-typedef vector <int> vi;
-typedef pair<int, int> pii;
-typedef long long i64;
+typedef vector <pair<int, int> > pairVector;
+typedef vector < vector<int> > dpVector;
 
 const int inf =  1e9;
-const int maxn = 1005;
 
-int dp_front[maxn][maxn];
-int dp_back[maxn][maxn];
-string s, t;
-vector <pair<int, int> > ans;
 
 inline void upd(int & x, int y)
 {
 	x = min(x, y);
 }
 
-inline void print_ans()
+inline void printAns(const pairVector & ans, const string & t)
 {
-	for (int j = 0; j < ans.size(); j++)
-		printf("%d %d\n", ans[j].first, ans[j].second);
-	//printf("==================\n");
+	forn(j, ans.size())
+	{
+		printf("symbol number %d ", ans[j].first);
+		ASSERT_TRUE((ans[j].second >= 0 || ans[j].second == DEL_FIRST || ans[j].second == DEL_SECOND));
+		if (ans[j].second >= 0)
+			printf("changed to %c\n", t[ans[j].second]);
+		else if (ans[j].second == DEL_FIRST)
+			printf("deleted from first string\n");
+		else
+		{
+			printf("deleted from second string\n");
+		}
+	}
 }
 
-int solve(int start_s, int finish_s, int start_t, int finish_t)
+inline int solveEasy(const string & s, const string & t)
 {
-	//printf("[%d;%d] [%d;%d]\n", start_s, finish_s, start_t, finish_t);
+	dpVector dp(s.length() + 1);
+	fore(i, 0, s.length())
+		dp[i].resize(t.length() + 1);
+	dp[0][0] = 0;
+	fore(i, 0, s.length())
+	{
+		fore(j, 0, t.length()) if (i != 0 || j != 0)
+		{
+			dp[i][j] = inf;
+			if (i > 0 && j > 0)
+				dp[i][j] = dp[i - 1][j - 1] + (s[i - 1] == t[j - 1] ? 0 : 1);
+			if (i > 0)
+				dp[i][j] = min(dp[i][j], dp[i - 1][j] + 1);
+			if (j > 0)
+				dp[i][j] = min(dp[i][j], dp[i][j - 1] + 1);
+		}
+	}
+	return dp[s.length()][t.length()];
+}
+
+bool checkAns(const string & s, const string & t, pairVector & ans)
+{
+	vector <bool> to_del_first(s.length(), false);
+	vector <bool> to_del_second(t.length(), false);
+	string s_changed = s;
+	fore(j, 0, ans.size() - 1)
+	{
+		int pos1 = ans[j].first;
+		int pos2 = ans[j].second;
+		if (pos2 == -1)
+		{
+			EXPECT_FALSE((pos1 < 0 || pos1 >= s.length()));
+			to_del_first[pos1] = true;
+		}
+		else if (pos2 == -2)
+		{
+			EXPECT_FALSE(pos1 < 0 || pos1 >= t.length());
+			to_del_second[pos1] = true;
+		}
+		else
+		{
+			EXPECT_FALSE(pos1 < 0 || pos1 >= s.length() || pos2 < 0 || pos2 >= t.length());
+			s_changed[pos1] = t[pos2];
+		}
+	}
+	string s1 = "";
+	forn(j, s.length())
+		if (!to_del_first[j])
+			s1 += s_changed[j];
+	string t1 = "";
+	forn(j, t.length())
+		if (!to_del_second[j])
+			t1 += t[j];
+	return s1 == t1;
+}
+
+int solveHirshberg(const string & s, const string & t, int start_s, int finish_s, int start_t, int finish_t, pairVector & ans, dpVector & dp_front, dpVector & dp_back)
+{
 	if (start_t > finish_t)
 	{
 		if (start_s > finish_s)
 			return 0;
 		for(int pos = start_s; pos <= finish_s; pos++)
 			ans.push_back(make_pair(pos, DEL_FIRST));
-		//print_ans();
 		return finish_s - start_s + 1;
 	}
 	if (start_s > finish_s)
 	{
 		for (int pos = start_t; pos <= finish_t; pos++)
 			ans.push_back(make_pair(pos, DEL_SECOND));
-		//print_ans();
 		return finish_t - start_t + 1;
 	}
 	if (start_s == finish_s && start_t == finish_t)
@@ -75,14 +121,13 @@ int solve(int start_s, int finish_s, int start_t, int finish_t)
 			ans.push_back(make_pair(start_s, start_t));
 			return 1;
 		}
-		//print_ans();
 		return 0;
 	}
 
 	int middle_s = (start_s + finish_s) / 2;
 
-	for (int i = start_s; i <= middle_s; i++)
-		for (int j = start_t; j <= finish_t; j++)
+	fore(i, start_s, middle_s)
+		fore(j, start_t, finish_t)
 		{
 			dp_front[i][j] = inf;
 			int g;
@@ -138,7 +183,7 @@ int solve(int start_s, int finish_s, int start_t, int finish_t)
 			}
 		if (pos != -1)
 		{
-			for (int p = start_t; p <= finish_t; p++)
+			fore(p, start_t, finish_t)
 			{
 				if (pos != p)
 					ans.push_back(make_pair(p, DEL_SECOND));
@@ -147,32 +192,211 @@ int solve(int start_s, int finish_s, int start_t, int finish_t)
 		else
 		{
 			ans.push_back(make_pair(start_s, start_t));
-			for (int p = start_t + 1; p <= finish_t; p++)
+			fore(p, start_t + 1, finish_t)
 				ans.push_back(make_pair(p, DEL_SECOND));
 		}
-		//print_ans();
 		return best_sum;
 	}
 	
-	int cnt1 = solve(start_s, middle_s, start_t, middle_t);
-	//printf("[%d;%d] [%d;%d] %d\n", start_s, middle_s, start_t, middle_t, cnt1);
-	int cnt2 = solve(middle_s + 1, finish_s, middle_t + 1, finish_t);
-	//printf("[%d;%d] [%d;%d] %d\n", middle_s + 1, finish_s, middle_t + 1, finish_t, cnt2);
-	fflush(stdout);
-	//printf("start_s = %d finish_s = %d start_t = %d finish_t = %d cnt1 = %d cnt2 = %d\n", start_s, finish_s, start_t, finish_t, cnt1, cnt2);
+	int cnt1 = solveHirshberg(s, t, start_s, middle_s, start_t, middle_t, ans, dp_front, dp_back);
+	int cnt2 = solveHirshberg(s, t, middle_s + 1, finish_s, middle_t + 1, finish_t, ans, dp_front, dp_back);
 	return cnt1 + cnt2;
+}
+
+int solveHirshberg(const string & s, const string & t, pairVector & ans)
+{
+	dpVector dp_front(s.length() + 1);
+	dpVector dp_back(s.length() + 1);
+	fore(j, 0, s.length())
+	{
+		dp_front[j].resize(t.length() + 1);
+		dp_back[j].resize(t.length() + 1);
+	}
+	int solveResult = solveHirshberg(s, t, 0, s.length() - 1, 0, t.length() - 1, ans, dp_front, dp_back);
+	EXPECT_TRUE(checkAns(s, t, ans));
+	return solveResult;
 }
 
 
 
-int main()
+TEST(handy_tests, handy_test_1)
 {
-	freopen("input.txt", "r", stdin);
-	freopen("output.txt", "w", stdout);
-	cin >> s >> t;
-	int answer = solve(0, s.length() - 1, 0, t.length() - 1);
-	cout << s << endl << t << endl;
-	printf("%d\n", answer);
-	print_ans();
-	return 0;
+	pairVector ans;
+	int solveRes = solveHirshberg("AEDDA", "BACCD", ans);
+	ASSERT_EQ(solveRes, 4);
+}
+
+TEST(handy_tests, handy_test_2)
+{
+	pairVector ans;
+	int solveRes = solveHirshberg("ABCDEFGH", "ACDEXGIH", ans);
+	ASSERT_EQ(solveRes, 3);
+}
+
+TEST(handy_tests, handy_test_3)
+{
+	pairVector ans;
+	int solveRes = solveHirshberg("FGH", "XGIH", ans);
+	ASSERT_EQ(solveRes, 2);
+}
+
+TEST(handy_tests, handy_test_4)
+{
+	pairVector ans;
+	int solveRes = solveHirshberg("BAEASDAS", "AE", ans);
+	ASSERT_EQ(solveRes, 6);
+}
+
+TEST(handy_tests, handy_test_5)
+{
+	pairVector ans;
+	int solveRes = solveHirshberg("AE", "BAEASDAS", ans);
+	ASSERT_EQ(solveRes, 6);
+}
+
+inline void genTest1(int mod, int n, string & s)
+{
+	ASSERT_TRUE(mod >= 1 && mod <= 26);
+	fore(j, 0, n - 1)
+		s += ('A' + rand() % mod);
+}
+
+const int stress_count_1 = 100;
+const int len_mod_1 = 70;
+
+TEST(stress_tests, stress_test_first_variant_1)
+{
+	for (int it = 0; it < stress_count_1; it++)
+	{
+		string s, t;
+		genTest1(26, rand() % len_mod_1, s);
+		genTest1(26, rand() % len_mod_1, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+		int rightAns = solveEasy(s, t);
+		ASSERT_EQ(solveRes, rightAns);
+	}
+	printf("(stress tests) all %d tests completed! (with length mod %d)\n", stress_count_1, len_mod_1);
+}
+
+inline void genTest2(int mod, int n, int changes, string & s, string & t)
+{
+	ASSERT_TRUE(mod >= 1 && mod <= 26);
+	ASSERT_TRUE(changes <= n);
+	fore(j, 0, n - 1)
+		s += ('A' + rand() % mod);
+	t = s;
+	fore(change, 1, changes)
+	{
+		int typ = rand() % 3;
+		int pos1 = rand() % t.length();
+		char new_char = ('A' + rand()) % mod;
+		switch(typ)
+		{
+		case 0:
+			{
+				t = t.substr(0, pos1) + (new_char) + t.substr(pos1, t.length());
+				break;
+			}
+		case 1:
+			{
+				t = t.substr(0, pos1) + t.substr(pos1 + 1, t.length());
+				break;
+			}
+		case 2:
+			{
+				t[pos1] = new_char;
+				break;
+			}
+		}
+	}
+}
+
+TEST(stress_tests, stress_test_second_variant_1)
+{
+	//srand(time(0));
+	for (int it = 0; it < stress_count_1; it++)
+	{
+		string s, t;
+		int t1 = rand() % len_mod_1 + 1;
+		int t2 = rand() % t1;
+		genTest2(26, t1, t2, s, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+		int rightAns = solveEasy(s, t);
+		ASSERT_EQ(solveRes, rightAns);
+	}
+	printf("(stress tests) all %d tests completed! (with length mod %d)\n", stress_count_1, len_mod_1);
+}
+
+const int stress_count_2 = 5;
+const int len_mod_2 = 700;
+
+TEST(stress_tests, stress_test_first_variant_2)
+{
+	for (int it = 0; it < stress_count_2; it++)
+	{
+		string s, t;
+		genTest1(26, rand() % len_mod_2, s);
+		genTest1(26, rand() % len_mod_2, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+		int rightAns = solveEasy(s, t);
+		ASSERT_EQ(solveRes, rightAns);
+	}
+	printf("(stress tests) all %d tests completed! (with length mod %d)\n", stress_count_2, len_mod_2);
+}
+
+TEST(stress_tests, stress_test_second_variant_2)
+{
+	//srand(time(0));
+	for (int it = 0; it < stress_count_2; it++)
+	{
+		string s, t;
+		int t1 = rand() % len_mod_2 + 1;
+		int t2 = rand() % t1;
+		genTest2(26, t1, t2, s, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+		int rightAns = solveEasy(s, t);
+		ASSERT_EQ(solveRes, rightAns);
+	}
+	printf("(stress tests) all %d tests completed! (with length mod %d)\n", stress_count_2, len_mod_2);
+}
+
+const int time_count_1 = 5;
+const int len_mod_3 = 700;
+
+TEST(time_tests, time_test_first_variant)
+{
+	for (int it = 0; it < time_count_1; it++)
+	{
+		string s, t;
+		genTest1(26, rand() % len_mod_3, s);
+		genTest1(26, rand() % len_mod_3, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+	}
+	printf("(time tests) all %d tests completed! (with length mod %d)\n", time_count_1, len_mod_3);
+}
+
+TEST(time_tests, time_test_second_variant)
+{
+	//srand(time(0));
+	for (int it = 0; it < time_count_1; it++)
+	{
+		string s, t;
+		int t1 = rand() % len_mod_3 + 1;
+		int t2 = rand() % t1;
+		genTest2(26, t1, t2, s, t);
+		pairVector ans;
+		int solveRes = solveHirshberg(s, t, ans);
+	}
+	printf("(time tests) all %d tests completed! (with length mod %d)\n", time_count_1, len_mod_3);
+}
+
+int main(int argc, char ** argv)
+{
+	testing::InitGoogleTest(&argc, argv);
+	RUN_ALL_TESTS();
 }
