@@ -5,7 +5,7 @@ int dummy(std::vector<int> &input) {
   //check input
   if (input.size() == 0)
     return 0;
-  if (input.size() > 16) {
+  if (input.size() > 20) {
     std::cerr << "Input too long for dummy" << std::endl;
     exit(EXIT_FAILURE);
   }
