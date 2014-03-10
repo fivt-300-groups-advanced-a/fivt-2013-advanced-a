@@ -1,8 +1,6 @@
-
 #include <string>
 #include <vector>
 #include <cstdio>
-#include <memory.h>
 #include "gtest/gtest.h"
 
 using namespace std;
@@ -13,7 +11,6 @@ using namespace std;
 #define forn(i, n) for (int i = 0; i < (int)n; i++)
 
 typedef vector <pair<int, int> > pairVector;
-typedef vector < vector<int> > dpVector;
 
 const int inf =  1e9;
 
@@ -42,7 +39,7 @@ inline void printAns(const pairVector & ans, const string & t)
 
 inline int solveEasy(const string & s, const string & t)
 {
-	dpVector dp(s.length() + 1);
+	vector < vector <int> >  dp(s.length() + 1);
 	fore(i, 0, s.length())
 		dp[i].resize(t.length() + 1);
 	dp[0][0] = 0;
@@ -98,7 +95,7 @@ bool checkAns(const string & s, const string & t, pairVector & ans)
 	return s1 == t1;
 }
 
-int solveHirshberg(const string & s, const string & t, int start_s, int finish_s, int start_t, int finish_t, pairVector & ans, dpVector & dp_front, dpVector & dp_back)
+int solveHirshberg(const string & s, const string & t, int start_s, int finish_s, int start_t, int finish_t, pairVector & ans)
 {
 	if (start_t > finish_t)
 	{
@@ -123,47 +120,60 @@ int solveHirshberg(const string & s, const string & t, int start_s, int finish_s
 		}
 		return 0;
 	}
+	
+	vector <int> dp_front0(finish_t + 2, 0), dp_front1(finish_t + 2, 0), dp_back0(finish_t + 2, 0), dp_back1(finish_t + 2, 0);
 
 	int middle_s = (start_s + finish_s) / 2;
-
+	//dp_front0.resize(finish_t + 1);
+	//forn(j, finish_t + 1)
+	//	dp_front0[j] = 0;
 	fore(i, start_s, middle_s)
+	{
 		fore(j, start_t, finish_t)
 		{
-			dp_front[i][j] = inf;
+			dp_front1[j] = inf;
 			int g;
 			if (i - 1 < start_s)
 				g = j - start_t;
 			else if (j - 1 < start_t)
 				g = i - start_s;
-			else g = dp_front[i - 1][j - 1];
-			upd(dp_front[i][j], g + (s[i] == t[j] ? 0 : 1));
+			else g = dp_front0[j - 1];
+			upd(dp_front1[j], g + (s[i] == t[j] ? 0 : 1));
 			if (i > start_s)
-				upd(dp_front[i][j], dp_front[i - 1][j] + 1);
+				upd(dp_front1[j], dp_front0[j] + 1);
 			if (j > start_t)
-				upd(dp_front[i][j], dp_front[i][j - 1] + 1);
+				upd(dp_front1[j], dp_front1[j - 1] + 1);
 		}
+		dp_front0 = dp_front1;
+	}
+	//dp_back0.resize(finish_t + 1);
+	//forn(j, finish_t + 1)
+	//	dp_back0[j] = 0;
 	for (int i = finish_s; i > middle_s; i--)
+	{
 		for (int j = finish_t; j >= start_t; j--)
 		{
-			dp_back[i][j] = inf;
+			dp_back1[j] = inf;
 			int g;
 			if (i + 1 > finish_s)
 				g = finish_t - j;
 			else if (j + 1 > finish_t)
 				g = finish_s - i;
-			else g = dp_back[i + 1][j + 1];
-			upd(dp_back[i][j], g + (s[i] == t[j] ? 0 : 1));
+			else g = dp_back0[j + 1];
+			upd(dp_back1[j], g + (s[i] == t[j] ? 0 : 1));
 			if (i < finish_s)
-				upd(dp_back[i][j], dp_back[i + 1][j] + 1);
+				upd(dp_back1[j], dp_back0[j] + 1);
 			if (j < finish_t)
-				upd(dp_back[i][j], dp_back[i][j + 1] + 1);
+				upd(dp_back1[j], dp_back1[j + 1] + 1);
 		}
+		dp_back0 = dp_back1;
+	}
 	int best_sum = inf;
 	int middle_t;
 	fore(i, start_t - 1, finish_t)
 	{
-		int front = (i == start_t - 1 ? middle_s - start_s + 1 : dp_front[middle_s][i]);
-		int tmp = (middle_s + 1 <= finish_s ? dp_back[middle_s + 1][i + 1] : finish_t - i);
+		int front = (i == start_t - 1 ? middle_s - start_s + 1 : dp_front0[i]);
+		int tmp = (middle_s + 1 <= finish_s ? dp_back0[i + 1] : finish_t - i);
 		int back = (i == finish_t ? finish_s - middle_s : tmp);
 		int new_sum = front + back;
 		if (new_sum < best_sum)
@@ -198,21 +208,14 @@ int solveHirshberg(const string & s, const string & t, int start_s, int finish_s
 		return best_sum;
 	}
 	
-	int cnt1 = solveHirshberg(s, t, start_s, middle_s, start_t, middle_t, ans, dp_front, dp_back);
-	int cnt2 = solveHirshberg(s, t, middle_s + 1, finish_s, middle_t + 1, finish_t, ans, dp_front, dp_back);
+	int cnt1 = solveHirshberg(s, t, start_s, middle_s, start_t, middle_t, ans);
+	int cnt2 = solveHirshberg(s, t, middle_s + 1, finish_s, middle_t + 1, finish_t, ans);
 	return cnt1 + cnt2;
 }
 
 int solveHirshberg(const string & s, const string & t, pairVector & ans)
 {
-	dpVector dp_front(s.length() + 1);
-	dpVector dp_back(s.length() + 1);
-	fore(j, 0, s.length())
-	{
-		dp_front[j].resize(t.length() + 1);
-		dp_back[j].resize(t.length() + 1);
-	}
-	int solveResult = solveHirshberg(s, t, 0, s.length() - 1, 0, t.length() - 1, ans, dp_front, dp_back);
+	int solveResult = solveHirshberg(s, t, 0, s.length() - 1, 0, t.length() - 1, ans);
 	EXPECT_TRUE(checkAns(s, t, ans));
 	return solveResult;
 }
