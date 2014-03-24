@@ -9,7 +9,121 @@ f(LI* li) {
 	LIIter* x = li.setIterator(); // здесь нужно знать, какого типа x.
 }
 Ну, давайте приведём пример. 
-(тут код)
+#include <iostream>
+#include <vector>
+#include <memory>
+
+/*
+class MyIterator : public Iterator {
+public:
+    void Next() {
+        // do nothing
+    }
+
+    virtual ~MyIterator() { }
+};
+
+class MyIterator2 : public MyIterator {
+public:
+    int GetCurrentVertex() {
+        return 0;
+    }
+
+    virtual ~MyIterator2() { }
+};
+*/
+
+class Iterator {
+public:
+    virtual void Next() = 0;
+    virtual int GetCurrentVertex() const = 0;
+    virtual ~Iterator() { }
+};
+
+class ListOfIncedents {
+public:
+    virtual bool IsConnected(int v) const = 0;
+    virtual std::unique_ptr<Iterator> GetIterator() const = 0;
+    virtual ~ListOfIncedents() { } 
+};
+
+class Graph {
+    const ListOfIncedents& GetLIForVertex(int v) {
+    }
+private:
+    std::vector<std::unique_ptr<ListOfIncedents>> lis_;
+};
+
+template <class StdIterator>
+class IteratorByStdIterator : public Iterator {
+public:
+    IteratorByStdIterator(StdIterator b, StdIterator e):
+        b_(b), e_(e) { }
+
+private:
+    StdIterator b_, e_;
+};
+
+class IteratorByIsConnected : public Iterator {
+public:
+    IteratorByIsConnected(
+            const ListOfIncedents* li,
+            int start_vertex,
+            int vertex_count
+            ): li_(li), v_(start_vertex), vc_(vertex_count) { }
+
+    void Next() {
+        ++v_;
+        while (v_ < vc_ && !li_->IsConnected(v_)) ++v_;
+    }
+
+    int GetCurrentVertex() const { return v_; }
+private:
+    int v_;
+    int vc_;
+    const ListOfIncedents* li_;
+};
+
+/*
+class OneElementIterator : public Iterator {
+public:
+    OneElementIterator(int v): v_(v) { }
+    void Next() { }
+    int GetCurrentVertex() const { return v_; }
+private:
+    int v_;
+};*/
+
+class FunctionalListOfIncedents : public ListOfIncedents {
+public:
+    FunctionalListOfIncedents(int v): v_(v) { }
+
+    virtual bool IsConnected(int v) const {
+        return v_ == v;
+    }
+    virtual std::unique_ptr<Iterator> GetIterator() const {
+        return std::move(
+                std::unique_ptr<Iterator>(new IteratorByIsConnected(
+                        this, v_, v_ + 1)));
+    }
+    virtual ~FunctionalListOfIncedents() { } 
+private:
+    int v_;
+};
+
+
+void DoNextTwoTimes(Iterator* it) {
+    it->Next();
+    it->Next();
+}
+
+int main() {
+    FunctionalListOfIncedents li(12);
+    auto it = li.GetIterator();
+    std::cerr << it->GetCurrentVertex() << std::endl;
+    return 0;
+}
+
 
 Нельзя возвращать абстрактный класс в качестве значения.
 Нужно возвращать указатель, причёт лучше если это будет не обычный указатель, а unique_ptr.
