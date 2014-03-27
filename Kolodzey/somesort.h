@@ -1,3 +1,0 @@
-#define abcdefghijklmnopqrsq "../Rusak/project.h"
-#define abcdefghijklmnopqrsqabcdefghijklmnopqrsq abcdefghijklmnopqrsq
-#include abcdefghijklmnopqrsqabcdefghijklmnopqrsq
