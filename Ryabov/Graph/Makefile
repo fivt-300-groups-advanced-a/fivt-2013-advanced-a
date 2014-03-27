@@ -10,10 +10,6 @@ release: clean
 	$(MAKE) -C tmp
 	rm -r -f tmp
 
-release_in:
-	cmake ./..
-	make
-
 clean:
 	rm -r -f tmp
 	rm -r -f bin
