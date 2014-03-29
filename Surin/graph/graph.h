@@ -31,24 +31,29 @@ class Graph{
         std::vector<std::unique_ptr<ListOfIncidents> > lists;
     public:
         Graph(std::unique_ptr<ListFactory>, int);
-        void addEdge(int, int);
-        void delEdge(int, int);
+        virtual void addEdge(int, int);
+        virtual void delEdge(int, int);
         ListOfIncidents * getIncidents(int);
 };
 
+
+class GraphWithRevEdges : public Graph{
+    public:
+        GraphWithRevEdges(std::unique_ptr<ListFactory> ptr, int n);
+        virtual void addEdge(int, int);
+        virtual void delEdge(int, int);
+};
+
 template<class T>
-class Const: ListFactory {
+class Const: public ListFactory {
 private:
-    int n;
 public:
-    Const(int _n): n(_n){
-    }
-    virtual ListOfIncidents * get(int x) override {
+    virtual ListOfIncidents * get(int x, int n) override {
         return new T(n);
     }
 };
 
-class Cond: ListFactory {
+class Cond: public ListFactory {
 private:
     std::unique_ptr<ListFactory> orig;
     std::unique_ptr<ListFactory> nnew;
@@ -58,17 +63,48 @@ public:
     virtual ListOfIncidents * get(int, int);
 };
 
+class FunctionalFactory: public ListFactory {
+private:
+    std::function<bool (int, int)> pred;
+    int n;
+public:
+    FunctionalFactory(std::function<bool (int, int)>);
+    virtual ListOfIncidents * get(int, int);
+};
+
+class FunctionalList : public ListOfIncidents {
+    private:
+        std::function<bool (int)> pred;
+        int n;
+    public:
+        class Iterator : public IntIterator {
+            private:
+                int it, last;
+                std::function<bool (int)> pred;
+            public:
+                virtual void operator ++ ();
+                virtual int operator * ();
+                virtual bool end();
+                Iterator(std::function<bool (int)>, int, int);
+        };
+        FunctionalList(std::function<bool (int)> pred, int n); 
+        virtual std::unique_ptr<IntIterator> begin();
+        virtual void add(int);
+        virtual void remove(int);
+        virtual bool isConnected(int x);
+        virtual ~FunctionalList() {}
+};
 
 template<class T>
-class List : ListOfIncidents{
+class List : public ListOfIncidents{
 };
 
 template<>
-class List<std::vector<int> > {
+class List<std::vector<int> >: ListOfIncidents {
 private:
     std::vector<int> v;
 public:
-    class Iterator: IntIterator{
+    class Iterator: public IntIterator{
     private:
         friend class List<std::vector<int> >;
         std::vector<int>::iterator it, last;
@@ -81,21 +117,23 @@ public:
     };
     virtual void add(int) ;
     virtual void remove(int);
+    virtual std::unique_ptr<IntIterator> begin() = 0;
     List(int);
+    List();
 };
 
 
 template<>
-class List<std::vector<bool> > {
+class List<std::vector<bool> > : public ListOfIncidents {
 private:
-    std::vector<int> v;
+    std::vector<bool> v;
+    int n;
 public:
-    class Iterator: IntIterator{
+    class Iterator: public IntIterator{
     private:
-        friend class List<std::vector<int> >;
-        std::vector<int>::iterator it, last;
-        Iterator(std::vector<int>::iterator it,
-                    std::vector<int>::iterator last); 
+        friend class List<std::vector<bool> >;
+        std::vector<bool>::iterator it, last;
+        Iterator(std::vector<bool>::iterator it, std::vector<bool>::iterator last); 
     public:
         virtual void operator ++ ();
         virtual int operator * ();
@@ -103,6 +141,8 @@ public:
     };
     virtual void add(int) ;
     virtual void remove(int);
+    virtual bool isConnected(int);
+    virtual std::unique_ptr<IntIterator> begin() = 0;
     List(int);
 };
 

@@ -12,14 +12,7 @@
 #include "graph.h"
 
 
-
-
-
-
-
-
 int main(int argc, char ** argv) {
-    std::cout << [=](int x) {};
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }
