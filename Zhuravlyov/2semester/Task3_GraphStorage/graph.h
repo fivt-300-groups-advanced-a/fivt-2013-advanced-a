@@ -37,12 +37,12 @@ public:
 		}
 	}
 
-	const ListOfIncedents& getIncedents(unsigned int i)
+	ListOfIncedents& getIncedents(unsigned int i)
 	{
 		return *edges_[i];
 	}
 
-	const ListOfIncedents& getBackEdges(unsigned int i)
+	ListOfIncedents& getBackEdges(unsigned int i)
 	{
 		return *back_edges_[i];
 	}

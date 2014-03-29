@@ -19,10 +19,7 @@ public:
 
 	std::unique_ptr<ListOfIncedents> getList(unsigned int i) const override
 	{
-		return std::move(
-							std::unique_ptr<ListOfIncedents>
-							(new StandartList(edges_[i], to_sort_))
-						);
+		return std::move(std::unique_ptr<ListOfIncedents>(new StandartList(edges_[i], to_sort_)));
 	}
 	virtual ~ListByDefault() {}
 private:
@@ -63,34 +60,30 @@ private:
 class KHeapByDefault: public DefaultFabric
 {
 public:
-	KHeapByDefault(unsigned int k, unsigned int n): k_(k), n_(k) {}
+	KHeapByDefault(unsigned int k, unsigned int max_vertex): k_(k), max_vertex_(max_vertex) {}
 	std::unique_ptr<ListOfIncedents> getList(unsigned int i) const override
 	{
-		if (i * k_ > n_)
+		if (i * k_ > max_vertex_)
 			return std::move(std::unique_ptr<ListOfIncedents>(new EmptyList()));
 		else
-			return std::move(
-							   std::unique_ptr<ListOfIncedents>
-							   (new KHeapList(i * k_, std::min(n_, i * k_ + k_ - 1)))
-							 );
+			return std::move(std::unique_ptr<ListOfIncedents>(new KHeapList(i * k_ + 1, std::min(max_vertex_, i * k_ + k_))));
 	}
 private:
-	unsigned int k_, n_;
+	/* k is heap-parametr */
+	unsigned int k_, max_vertex_;
 };
 
 class FullGraphByDefault: public DefaultFabric
 {
 public:
-	FullGraphByDefault(unsigned int n): n_(n) {}
+	FullGraphByDefault(unsigned int number_of_vertices)
+		: number_of_vertices_(number_of_vertices) {}
 	std::unique_ptr<ListOfIncedents> getList(unsigned int i) const override
 	{
-		return std::move( 
-							std::unique_ptr<ListOfIncedents>
-							(new KHeapList(0, n_))
-						);
+		return std::move(std::unique_ptr<ListOfIncedents>(new KHeapList(0, number_of_vertices_ - 1)));
 	}
 private:
-	unsigned int n_;
+	unsigned int number_of_vertices_;
 };
 
 #endif

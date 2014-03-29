@@ -18,10 +18,11 @@ public:
 class ListOfIncedents
 {
 public:
-	ListOfIncedents() {};
+	ListOfIncedents() {}
 	virtual bool isConnected(unsigned int vertex) const = 0;
 	virtual std::unique_ptr<ListOfIncedentsIterator> getIterator() const = 0;
-	virtual ~ListOfIncedents(){};
+	virtual void sort() {}
+	virtual ~ListOfIncedents(){}
 };
 
 template <typename Iterator>
@@ -61,9 +62,8 @@ class IteratorByIsConnected: public ListOfIncedentsIterator
 public:
 	IteratorByIsConnected(const ListOfIncedents* list,
 						  unsigned int lessVertex, 
-						  unsigned int maxVertex) : vertexNumber_(lessVertex),
-													maxVertex_(maxVertex),
-													list_(list) 
+						  unsigned int maxVertex) 
+						  : vertexNumber_(lessVertex), maxVertex_(maxVertex), list_(list) 
 	{
 		while (vertexNumber_ <= maxVertex_ && !list->isConnected(vertexNumber_))
 			vertexNumber_++;
@@ -96,14 +96,11 @@ private:
 class BitSetList : public ListOfIncedents
 {
 public:
-	explicit BitSetList(const std::vector<unsigned int>& data)
+	explicit BitSetList(const std::vector<unsigned int>& data, unsigned int graph_size)
 	{
+		incidents_.resize(graph_size);
 		for (unsigned int i = 0; i < data.size(); i++)
-		{
-			if (data[i] >= incidents_.size())
-				incidents_.resize(data[i]);
 			incidents_[data[i]] = true;
-		}
 	}
 
 	explicit BitSetList(const std::vector<bool>& data)
@@ -137,7 +134,7 @@ public:
 		if (to_sort)
 			std::sort(incidents_.begin(), incidents_.end());
 	}
-	void sort()
+	void sort() override
 	{
 		if (!sorted_)
 			std::sort(incidents_.begin(), incidents_.end());
