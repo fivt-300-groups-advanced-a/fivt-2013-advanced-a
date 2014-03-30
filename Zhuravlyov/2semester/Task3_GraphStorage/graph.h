@@ -2,12 +2,50 @@
 #define GRAPH
 
 #include "ListOfInc.h"
+#include "default_fabrics.h"
 
 class Graph
 {
 public:
-	// i have no idea what to do
-	// how can user change storage way?
+	Graph(std::vector< std::unique_ptr<ListOfIncedents> > &edges)
+	{
+		edges_ = std::move(edges);
+	}
+
+	Graph(std::vector< std::unique_ptr<ListOfIncedents> > &edges,
+		  std::vector< std::unique_ptr<ListOfIncedents> > &back_edges)
+	{
+		edges_ = std::move(edges);
+		back_edges_ = std::move(back_edges);
+	}
+
+	Graph(std::unique_ptr<DefaultFabric> fabric, unsigned int number_of_vertices)
+	{
+		edges_.resize(number_of_vertices);
+		for (unsigned int i = 0; i < number_of_vertices; i++)
+			edges_[i] = std::move( fabric->getList(i) );
+	}
+
+	Graph(std::unique_ptr<DefaultFabric> fabric, std::unique_ptr<DefaultFabric> back_edges_fabric, unsigned int number_of_vertices)
+	{
+		edges_.resize(number_of_vertices);
+		back_edges_.resize(number_of_vertices);
+		for (unsigned int i = 0; i < number_of_vertices; i++)
+		{
+			edges_[i] = std::move( fabric->getList(i) );
+			back_edges_[i] = std::move( back_edges_fabric->getList(i) );
+		}
+	}
+
+	ListOfIncedents& getIncedents(unsigned int i)
+	{
+		return *edges_[i];
+	}
+
+	ListOfIncedents& getBackEdges(unsigned int i)
+	{
+		return *back_edges_[i];
+	}
 private:
 	std::vector< std::unique_ptr<ListOfIncedents> > edges_;
 	std::vector< std::unique_ptr<ListOfIncedents> > back_edges_;
