@@ -19,4 +19,5 @@ HEADERS += \
     iterators/adjacencymatrixiterator.h \
     fabrics/abstractgraphfabric.h \
     fabrics/vectorlistgraphfabric.h \
-    fabrics/bitsetgraphfabric.h
+    fabrics/bitsetgraphfabric.h \
+    fabrics/functionalgraphfabric.h
