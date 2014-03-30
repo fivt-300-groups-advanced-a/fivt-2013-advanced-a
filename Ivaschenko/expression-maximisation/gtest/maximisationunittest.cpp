@@ -40,6 +40,7 @@ TEST(ExpressionMaximisation, SimpleTests)
 		TestCase({0, 3, 1}),
 		TestCase({0, 10, 1}),
 		TestCase({-13, 13, -13}),
+		TestCase({-13, -13, -13}),
 		TestCase({1, -1, 0}),
 		TestCase({1, -1, -1})
 	};
@@ -65,7 +66,8 @@ TEST(ExpressionMaximisation, Stress)
 		TestCase(8, 10, 10),
 		TestCase(9, 15, 10),
 		TestCase(10, 15, 10),
-		TestCase(11, 15, 10)
+		TestCase(11, 15, 10),
+		TestCase(12, 20, 2)
 	};
 
 	for (auto test : tests)
