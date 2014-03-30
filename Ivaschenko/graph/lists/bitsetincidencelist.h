@@ -5,24 +5,33 @@
 #include "iterators/adjacencymatrixiterator.h"
 
 #include <utility>
-#include <bitset>
+#include <vector>
 
 namespace graph
 {
-	template<std::size_t graphSize> class BitsetIncidenceList : public IncidenceList
+	class BitsetIncidenceList : public IncidenceList
 	{
 		public:
-			BitsetIncidenceList(): bitCount(0)
+			explicit BitsetIncidenceList(std::size_t graphSize): bitCount(0)
 			{
-				isNeighbour.reset();
+				isNeighbour.assign(graphSize, false);
 			}
 
-			BitsetIncidenceList(std::bitset<graphSize> &bitSet): isNeighbour(bitSet), bitCount(isNeighbour.count()) {}
-			BitsetIncidenceList(const std::initializer_list<vertex_t> &list)
+			explicit BitsetIncidenceList(const std::vector<bool> &bitSet): isNeighbour(bitSet)
 			{
-				isNeighbour.reset();
-				for (vertex_t v : list) isNeighbour.set(v);
-				bitCount = isNeighbour.count();
+				bitCount = 0;
+				for (std::size_t v = 0; v < isNeighbour.size(); ++v)
+					if (isNeighbour[v]) ++bitCount;
+			}
+
+			BitsetIncidenceList(std::size_t graphSize, const std::vector<vertex_t> &list)
+			{
+				isNeighbour.assign(graphSize, false);
+				for (vertex_t v : list)
+					isNeighbour[v] = true;
+				bitCount = 0;
+				for (std::size_t v = 0; v < graphSize; ++v)
+					if (isNeighbour[v]) ++bitCount;
 			}
 
 			std::size_t size() const override
@@ -33,7 +42,7 @@ namespace graph
 			std::unique_ptr<IncidenceListIterator> getIterator() const override
 			{
 				return std::move(std::unique_ptr<IncidenceListIterator>
-								 (new AdjacencyMatrixIterator(this, 0, graphSize - 1)));
+								 (new AdjacencyMatrixIterator(this, 0, isNeighbour.size() - 1)));
 			}
 
 			bool connected(vertex_t v) const override
@@ -44,7 +53,7 @@ namespace graph
 			virtual ~BitsetIncidenceList() {}
 
 		private:
-			std::bitset<graphSize> isNeighbour;
+			std::vector<bool> isNeighbour;
 			std::size_t bitCount;
 	};
 }

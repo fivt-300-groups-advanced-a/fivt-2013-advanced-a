@@ -11,7 +11,7 @@ namespace graph
 	class SingleVertexList : public IncidenceList
 	{
 		public:
-			SingleVertexList(vertex_t v): to(v) {}
+			explicit SingleVertexList(vertex_t v): to(v) {}
 
 			std::size_t size() const override
 			{

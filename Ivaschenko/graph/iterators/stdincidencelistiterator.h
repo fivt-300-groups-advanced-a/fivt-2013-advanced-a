@@ -33,7 +33,7 @@ namespace graph
 				return it != end;
 			}
 
-			virtual ~StdIncidenceListIterator();
+			virtual ~StdIncidenceListIterator() {}
 		private:
 			Iterator it, end;
 	};

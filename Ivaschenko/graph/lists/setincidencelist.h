@@ -12,8 +12,8 @@ namespace graph
 	{
 		public:
 			SetIncidenceList() {}
-			SetIncidenceList(const std::initializer_list<vertex_t> &neighbours): adjList(neighbours) {}
-			SetIncidenceList(const std::set<vertex_t> &neighbours): adjList(neighbours) {}
+			explicit SetIncidenceList(const std::initializer_list<vertex_t> &neighbours): adjList(neighbours) {}
+			explicit SetIncidenceList(const std::set<vertex_t> &neighbours): adjList(neighbours) {}
 
 			std::size_t size() const override
 			{

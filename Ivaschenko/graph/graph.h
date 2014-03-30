@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "lists/incidencelist.h"
+#include "fabrics/abstractgraphfabric.h"
 
 namespace graph
 {
@@ -14,19 +15,32 @@ namespace graph
 	class Graph
 	{
 		public:
-			Graph(std::vector< std::unique_ptr<IncidenceList> > &edgesLists): adjLists(std::move(edgesLists)) {}
+			explicit Graph(std::vector< std::unique_ptr<IncidenceList> > &edgesLists): adjLists(std::move(edgesLists)) {}
+
 			Graph(std::vector< std::unique_ptr<IncidenceList> > &edgesLists,
 				  std::vector< std::unique_ptr<IncidenceList> > &backEdgesLists):
 				adjLists(std::move(edgesLists)), backLists(std::move(backEdgesLists)) {}
 
-			std::unique_ptr<IncidenceList> getEdgesFrom(std::size_t id) const
+			Graph(const std::unique_ptr<AbstractGraphFabric> &fabric, std::size_t graphSize, bool reverseEdges)
 			{
-				return adjLists[id];
+				adjLists.resize(graphSize);
+				if (reverseEdges) backLists.resize(graphSize);
+				for (std::size_t i = 0; i < graphSize; ++i)
+				{
+					adjLists[i] = std::move(fabric->nextEdgeList());
+					if (reverseEdges)
+						backLists[i] = std::move(fabric->nextBackEdgeList());
+				}
 			}
 
-			std::unique_ptr<IncidenceList> getEdgesTo(std::size_t id) const
+			const std::unique_ptr<IncidenceList>& getEdgesFrom(std::size_t id) const
 			{
-				return backLists[id];
+				return std::move(adjLists[id]);
+			}
+
+			const std::unique_ptr<IncidenceList>& getEdgesTo(std::size_t id) const
+			{
+				return std::move(backLists[id]);
 			}
 
 		private:

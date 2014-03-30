@@ -13,12 +13,12 @@ namespace graph
 	{
 		public:
 			VectorIncidenceList(): sorted(true) {}
-			VectorIncidenceList(std::vector<vertex_t> neighbours, bool sortNeeded):
+			VectorIncidenceList(std::vector<vertex_t> neighbours, bool sortNeeded = false):
 				adjList(neighbours), sorted(sortNeeded)
 			{
 				if (sortNeeded) performSort();
 			}
-			VectorIncidenceList(const std::initializer_list<vertex_t> &neighbours, bool sortNeeded):
+			VectorIncidenceList(const std::initializer_list<vertex_t> &neighbours, bool sortNeeded = false):
 				adjList(neighbours), sorted(sortNeeded)
 			{
 				if (sortNeeded) performSort();
