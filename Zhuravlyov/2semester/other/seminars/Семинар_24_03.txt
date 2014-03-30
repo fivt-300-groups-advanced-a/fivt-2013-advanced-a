@@ -1,0 +1,197 @@
+﻿Хороший интерфейс - интерфейс, которым нельзя неправильно воспользоваться.
+Если вам каждый раз перед x.do() нужно вызывать x.prepare(), то это плохой интерфейс.
+Так вот, к вопросу о нашем графе. У нас ситуация такая, есть методы is_connected и get_incident_vertex.
+is_connected можно сделать хотя бы за логарифм в случае хранения в виде списка.
+При этом сортировку лучше реализовать в конструкторе. И сделать метод is_connected const.
+Есть ещё getIterator() const. Он должен возвращать LIIterator.
+При этом LIIterator должен быть интерфейсом.
+f(LI* li) {
+	LIIter* x = li.setIterator(); // здесь нужно знать, какого типа x.
+}
+Ну, давайте приведём пример. 
+#include <iostream>
+#include <vector>
+#include <memory>
+
+/*
+class MyIterator : public Iterator {
+public:
+    void Next() {
+        // do nothing
+    }
+
+    virtual ~MyIterator() { }
+};
+
+class MyIterator2 : public MyIterator {
+public:
+    int GetCurrentVertex() {
+        return 0;
+    }
+
+    virtual ~MyIterator2() { }
+};
+*/
+
+class Iterator {
+public:
+    virtual void Next() = 0;
+    virtual int GetCurrentVertex() const = 0;
+    virtual ~Iterator() { }
+};
+
+class ListOfIncedents {
+public:
+    virtual bool IsConnected(int v) const = 0;
+    virtual std::unique_ptr<Iterator> GetIterator() const = 0;
+    virtual ~ListOfIncedents() { } 
+};
+
+class Graph {
+    const ListOfIncedents& GetLIForVertex(int v) {
+    }
+private:
+    std::vector<std::unique_ptr<ListOfIncedents>> lis_;
+};
+
+template <class StdIterator>
+class IteratorByStdIterator : public Iterator {
+public:
+    IteratorByStdIterator(StdIterator b, StdIterator e):
+        b_(b), e_(e) { }
+
+private:
+    StdIterator b_, e_;
+};
+
+class IteratorByIsConnected : public Iterator {
+public:
+    IteratorByIsConnected(
+            const ListOfIncedents* li,
+            int start_vertex,
+            int vertex_count
+            ): li_(li), v_(start_vertex), vc_(vertex_count) { }
+
+    void Next() {
+        ++v_;
+        while (v_ < vc_ && !li_->IsConnected(v_)) ++v_;
+    }
+
+    int GetCurrentVertex() const { return v_; }
+private:
+    int v_;
+    int vc_;
+    const ListOfIncedents* li_;
+};
+
+/*
+class OneElementIterator : public Iterator {
+public:
+    OneElementIterator(int v): v_(v) { }
+    void Next() { }
+    int GetCurrentVertex() const { return v_; }
+private:
+    int v_;
+};*/
+
+class FunctionalListOfIncedents : public ListOfIncedents {
+public:
+    FunctionalListOfIncedents(int v): v_(v) { }
+
+    virtual bool IsConnected(int v) const {
+        return v_ == v;
+    }
+    virtual std::unique_ptr<Iterator> GetIterator() const {
+        return std::move(
+                std::unique_ptr<Iterator>(new IteratorByIsConnected(
+                        this, v_, v_ + 1)));
+    }
+    virtual ~FunctionalListOfIncedents() { } 
+private:
+    int v_;
+};
+
+
+void DoNextTwoTimes(Iterator* it) {
+    it->Next();
+    it->Next();
+}
+
+int main() {
+    FunctionalListOfIncedents li(12);
+    auto it = li.GetIterator();
+    std::cerr << it->GetCurrentVertex() << std::endl;
+    return 0;
+}
+
+
+Нельзя возвращать абстрактный класс в качестве значения.
+Нужно возвращать указатель, причёт лучше если это будет не обычный указатель, а unique_ptr.
+В дефолтный конструктор класса можно передать любого наследника класса.
+Так что от get_incident_vertex внутри базового класса мы избавились, вместо него теперь итератор.
+Чтобы вернуть unique_ptr всегда нужно сделать std::move, чтобы значение не копировалось.
+Тепрерь мы одинаково эффективно сможем реализовать и bitset и list-of-incidents.
+Но теперь для реализации нового класса нужно реализовать целых 2 класса.
+Как с этим можно бороться?
+Можно реализовать некоторые стандартные итераторы, например IteratorByIsConnected.
+Итог:
++) Теперь, благодаря итерированию всё делается более-менее быстро
+-) Необходимость релизовывать новый класс
+
+Нельзя делать шаблонный виртуальный метод, но можно делать шаблоный метод, который о чего-то наследуется.
+Переопределить наследники могут только виртуальный нешаблонный метод.
+Можно шаблонным указать класс, от которого будет производиться наследование.
+
+Наследование вообще простая штука.
+Если у вас есть виртуальный метод, его нужно переопределить.
+Если у вас есть виртуальный объект, его нужно передавать по указателю.
+
+std::tuple - некий кортеж.
+std::tuple<int, int, double, ...>
+std::get<0>(x) - получить элемет
+std::tie - получает tuple из ссылок
+std::ignore - ссылка, игнорирующая присваивание.
+А что там за std::move? 
+
+Ну, рассмотрим какой-то класс
+class A {
+	A(const A& a) {} - конструктор копирования
+	A& operator=(const A& a) {} - конструктор присваивания
+}
+T может быть просто T, T&, T*, const T&, const T*.
+В качестве rvalue может быть любой тип. В качестве lvalue может быть только T&
+Ещё ввели T&& - это нужно воспринимать, как временный объект.
+Для компилятора string&& - объект, который никому не нужен. 
+Если вы передаёте f(string('abc')), то передаётся именно string&&.
+Вы можете писать фукнции, принимающие временный объект - f(string&& s)
+Например, мы хотим реализовать функцию 
+NumberOfUniqueChars(string s)
+{
+	sort(s);
+	unique(..);
+	..
+}
+NumberOfUniqueChars(const string& s)
+{
+	scopy=s;
+	...
+}
+В обоих случаят происходит копирование.
+В новом стандарте можно написать
+NumberOfUniqueChars(string&& s) {} - объект не копируется, а передаётся в функцию.
+
+std::move() - позволяет явно создать временный объект, очистив старую переменную.
+Однако должен быть конструктор перемещения у класса 
+Конструктор перемещения выглядит так:
+T(T&& x) {} - старый объект должен быть очищен.
+В этом плане объекты бывают собственно перемещаемые и копируемые.
+
+А что значит move у unique_ptr? Он просто ворует указатель и устанавливает его самого значением NULL.
+У unique_ptr-а нет конструктора копирования, поэтому и нужно делать move.
+Вообще если у вас есть хоть одно не копируемое поле, то сам класс не копируемый.
+
+class X
+{
+	X(X&&) = default; // каждое поле класса перемещает
+}
+Есть type_traits. Там есть is_move_constructable<T>::value
