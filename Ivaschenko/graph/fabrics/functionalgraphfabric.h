@@ -5,13 +5,14 @@
 
 #include "fabrics/abstractgraphfabric.h"
 #include "lists/singlevertexlist.h"
+#include "lists/vectorincidencelist.h"
 
 namespace graph
 {
 	class FunctionalGraphFabric : public AbstractGraphFabric
 	{
 		public:
-			FunctionalGraphFabric(std::vector<vertex_t> to, bool backEdges = false):
+			FunctionalGraphFabric(std::vector<vertex_t> list, bool backEdges = false):
 				directPtr(0), backPtr(0), to(list), back(backEdges)
 			{
 				if (backEdges)
@@ -24,17 +25,17 @@ namespace graph
 
 			std::unique_ptr<IncidenceList> nextEdgeList() override
 			{
-				assert(directPtr < adjList.size());
-				return std::move(std::unique_ptr<IncidenceList>(new SingleVertexList(adjList.size(), adjList[directPtr++])));
+				assert(directPtr < to.size());
+				return std::move(std::unique_ptr<IncidenceList>(new SingleVertexList(to[directPtr++])));
 			}
 
 			std::unique_ptr<IncidenceList> nextBackEdgeList() override
 			{
 				assert(back && backPtr < backList.size());
-				return std::move(std::unique_ptr<IncidenceList>(new BitsetIncidenceList(adjList.size(), backList[backPtr++])));
+				return std::move(std::unique_ptr<IncidenceList>(new VectorIncidenceList(backList[backPtr++])));
 			}
 
-			virtual ~BitsetGraphFabric() {}
+			virtual ~FunctionalGraphFabric() {}
 
 		private:
 			std::size_t directPtr, backPtr;

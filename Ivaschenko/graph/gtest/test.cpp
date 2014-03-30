@@ -11,6 +11,8 @@
 #include "fabrics/vectorlistgraphfabric.h"
 #include "fabrics/bitsetgraphfabric.h"
 #include "fabrics/functionalgraphfabric.h"
+#include "fabrics/fullgraphfabric.h"
+#include "fabrics/kheapgraphfabric.h"
 
 #include "graph.h"
 
@@ -38,6 +40,34 @@ TEST(Graph, ConstuctionFromFunctionalFabric)
 			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
 	std::cout << "Back edges:" << std::endl;
 	for (std::size_t i = 0; i < 4; ++i)
+		for (auto it = g.getEdgesTo(i)->getIterator(); it->valid(); it->moveForward())
+			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
+}
+
+TEST(Graph, ConstuctionFromFullGraphFabric)
+{
+	std::unique_ptr<graph::AbstractGraphFabric> fabric(new graph::FullGraphFabric(3));
+	graph::Graph g(fabric, 3, true);
+	std::cout << "Direct edges:" << std::endl;
+	for (std::size_t i = 0; i < 3; ++i)
+		for (auto it = g.getEdgesFrom(i)->getIterator(); it->valid(); it->moveForward())
+			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
+	std::cout << "Back edges:" << std::endl;
+	for (std::size_t i = 0; i < 3; ++i)
+		for (auto it = g.getEdgesTo(i)->getIterator(); it->valid(); it->moveForward())
+			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
+}
+
+TEST(Graph, ConstuctionFromKHeapFabric)
+{
+	std::unique_ptr<graph::AbstractGraphFabric> fabric(new graph::KHeapGraphFabric(5, 2));
+	graph::Graph g(fabric, 5, true);
+	std::cout << "Direct edges:" << std::endl;
+	for (std::size_t i = 0; i < 5; ++i)
+		for (auto it = g.getEdgesFrom(i)->getIterator(); it->valid(); it->moveForward())
+			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
+	std::cout << "Back edges:" << std::endl;
+	for (std::size_t i = 0; i < 5; ++i)
 		for (auto it = g.getEdgesTo(i)->getIterator(); it->valid(); it->moveForward())
 			std::cout << "(" << i << "; " << it->getVertex() << ")" << std::endl;
 }
