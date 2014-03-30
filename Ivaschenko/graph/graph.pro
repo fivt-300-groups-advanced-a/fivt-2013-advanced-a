@@ -7,4 +7,8 @@ QMAKE_LIBS += /usr/local/lib/libgtest.a
 SOURCES += main.cpp
 
 HEADERS += \
-    generalgraph.h
+    model/graph.h \
+    model/bitsetincidencelist.h \
+    model/setincidencelist.h \
+    model/incidencelist.h \
+    model/vectorincidencelist.h

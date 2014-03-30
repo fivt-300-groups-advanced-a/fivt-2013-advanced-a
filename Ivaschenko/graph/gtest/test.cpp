@@ -1,6 +1,9 @@
+#include <iostream>
+
 #include <gtest/gtest.h>
 
-TEST(GeneralGraph, ManualTest)
-{
+#include "model/setincidencelist.h"
 
+TEST(Graph, ManualTest)
+{
 }
