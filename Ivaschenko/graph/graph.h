@@ -33,6 +33,11 @@ namespace graph
 				}
 			}
 
+			std::size_t size() const
+			{
+				return adjLists.size();
+			}
+
 			const std::unique_ptr<IncidenceList>& getEdgesFrom(std::size_t id) const
 			{
 				return std::move(adjLists[id]);
