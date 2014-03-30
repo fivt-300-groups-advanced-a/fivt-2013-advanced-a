@@ -154,15 +154,9 @@ class MatrixOfIncidents : public ListOfIncidents {
 
 class IncidentVertexes : public ListOfIncidents {
     public:
-        IncidentVertexes(const std::vector<int> &_to) {
+        IncidentVertexes(const std::vector<int> &_to, bool to_sort = false) {
             to = _to;
-            bool sorted = true;
-            for (int i = 0; i < (int)to.size() - 1; i++)
-                if (to[i] > to[i + 1]) {
-                    sorted = false;
-                    break;
-                }
-            if (!sorted)
+            if (to_sort)
                 std::sort(to.begin(), to.end());
         }
 
