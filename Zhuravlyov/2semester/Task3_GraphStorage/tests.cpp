@@ -8,8 +8,10 @@ typedef std::unique_ptr<DefaultFabric> fabric_ptr_t;
 
 TEST(StorageTests, BitSetListTest)
 {
+	/* For testing memory leak checker is working */
+//	ListOfIncedents* leak = new OneVertexList(0); 
 	const unsigned int number_of_tests = 10;
-	const unsigned int max_graph_size = 100;
+	const unsigned int max_graph_size = 1000;
 	for (unsigned int test_case = 0; test_case < number_of_tests; test_case++)
 	{
 		/* generating graph */
@@ -81,7 +83,7 @@ TEST(StorageTests, DefaultListTest)
 TEST(StorageTests, FunctionalGraph)
 {
 	const unsigned int number_of_tests = 20;
-	const unsigned int max_graph_size = 500;
+	const unsigned int max_graph_size = 1000;
 	for (unsigned int test_case = 0; test_case  < number_of_tests; test_case++)
 	{
 		unsigned int graph_size = rand() % max_graph_size;
@@ -111,7 +113,7 @@ TEST(StorageTests, FunctionalGraph)
 TEST(StorageTests, KHeap)
 {
 	const unsigned int number_of_tests = 20;
-	const unsigned int max_graph_size = 500;
+	const unsigned int max_graph_size = 1000;
 	for (unsigned int test_case = 0; test_case < number_of_tests; test_case++)
 	{
 		/* building graph */
@@ -120,16 +122,16 @@ TEST(StorageTests, KHeap)
 		auto fabric_heap = std::move(fabric_ptr_t(new KHeapByDefault(k, graph_size - 1)));
 		Graph graph(std::move(fabric_heap), graph_size);
 		/* testing graph */
-		for (int i = 0; i < graph_size; i++)
+		for (unsigned int i = 0; i < graph_size; i++)
 		{
-			for (int j = 0; j < graph_size; j++)
+			for (unsigned int j = 0; j < graph_size; j++)
 				if (j >= i * k + 1 && j <= i * k + k)
 					EXPECT_TRUE(graph.getIncedents(i).isConnected(j));
 				else 
 					EXPECT_FALSE(graph.getIncedents(i).isConnected(j));
 
 			auto iterator = graph.getIncedents(i).getIterator();
-			for (int j = 1; j <= k; j++)
+			for (unsigned int j = 1; j <= k; j++)
 			{
 				if (i * k + j >= graph_size)
 					EXPECT_FALSE(iterator->isValid());
@@ -151,7 +153,7 @@ TEST(StorageTests, KHeap)
 TEST(StorageTests, FullGraph)
 {
 	const unsigned int number_of_tests = 10;
-	const unsigned int max_graph_size = 100;
+	const unsigned int max_graph_size = 1000;
 	for (unsigned int test_case = 0; test_case < number_of_tests; test_case++)
 	{
 		/* building graph */
@@ -159,12 +161,12 @@ TEST(StorageTests, FullGraph)
 		auto fabric_full = std::move(fabric_ptr_t(new FullGraphByDefault(graph_size)));
 		Graph graph(std::move(fabric_full), graph_size);
 		/* testing graph */
-		for (int i = 0; i < graph_size; i++)
+		for (unsigned int i = 0; i < graph_size; i++)
 		{
-			for (int j = 0; j < graph_size; j++)
+			for (unsigned int j = 0; j < graph_size; j++)
 				EXPECT_TRUE(graph.getIncedents(i).isConnected(j));
 			auto iterator = graph.getIncedents(i).getIterator();
-			for (int j = 0; j < graph_size; j++)
+			for (unsigned int j = 0; j < graph_size; j++)
 			{
 				EXPECT_EQ(iterator->getCurrentVertex(), j);
 				EXPECT_EQ(iterator->next(), j < graph_size - 1);
@@ -177,7 +179,7 @@ TEST(StorageTests, FullGraph)
 TEST(IntegrationTest, DifferentWaysToStorageInOneGraph)
 {
 	const unsigned int number_of_tests = 10;
-	const unsigned int max_graph_size = 500;
+	const unsigned int max_graph_size = 1000;
 	for (unsigned int test_case = 0; test_case < number_of_tests; test_case++)
 	{
 		unsigned int graph_size = rand() % max_graph_size + 1;
