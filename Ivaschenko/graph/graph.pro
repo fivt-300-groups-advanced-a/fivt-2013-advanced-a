@@ -7,4 +7,20 @@ QMAKE_LIBS += /usr/local/lib/libgtest.a
 SOURCES += main.cpp
 
 HEADERS += \
-    generalgraph.h
+    graph.h \
+    lists/bitsetincidencelist.h \
+    lists/setincidencelist.h \
+    lists/incidencelist.h \
+    lists/vectorincidencelist.h \
+    lists/singlevertexlist.h \
+    lists/emptyincidencelist.h \
+    iterators/incidencelistiterator.h \
+    iterators/stdincidencelistiterator.h \
+    iterators/adjacencymatrixiterator.h \
+    fabrics/abstractgraphfabric.h \
+    fabrics/vectorlistgraphfabric.h \
+    fabrics/bitsetgraphfabric.h \
+    fabrics/functionalgraphfabric.h \
+    fabrics/fullgraphfabric.h \
+    lists/consecutiveincidencelist.h \
+    fabrics/kheapgraphfabric.h

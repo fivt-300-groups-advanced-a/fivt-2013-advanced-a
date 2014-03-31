@@ -35,6 +35,8 @@ struct TestCase
 			RNG generator(-maxc, maxc, seed);
 			first.resize(n);
 			std::generate_n(first.begin(), n, generator);
+
+			generator = RNG(-maxc, maxc, seed ^ 0xDEADBEEF);
 			second.resize(m);
 			std::generate_n(second.begin(), m, generator);
 		}
@@ -102,6 +104,7 @@ TEST(EditDistance, SimpleTests)
 		const std::vector<int> &a = test.first, &b = test.second;
 		auto clever = editdist::editDist(a.begin(), a.end(), b.begin(), b.end(), std::equal_to<int>());
 		std::size_t answer = editdist::dummyEditDist(a.begin(), a.end(), b.begin(), b.end(), std::equal_to<int>());
+		//std::cerr << answer << '\n';
 		ASSERT_EQ(answer, clever.size());
 		ASSERT_TRUE(checkAnswer(a, b, clever));
 	}
@@ -153,7 +156,11 @@ std::vector<TestCase> tests =
 	TestCase(1, 10, 10, 2, 23),
 	TestCase(1, 100, 100, 5, 24),
 	TestCase(1, 1000, 10, 50, 25),
-	TestCase(1, 2000, 20, 100, 26)
+	TestCase(1, 2000, 20, 100, 26),
+	TestCase(1, 1000, 2000, 2, 27),
+	TestCase(1, 2000, 2000, 2, 28),
+	TestCase(1, 1000, 1000, 2, 29),
+	TestCase(0, 10000, 10000, 2, 13)
 };
 
 TEST(EditDistance, RandomTests)
@@ -163,6 +170,7 @@ TEST(EditDistance, RandomTests)
 		const std::vector<int> &a = test.first, &b = test.second;
 		auto clever = editdist::editDist(a.begin(), a.end(), b.begin(), b.end(), std::equal_to<int>());
 		std::size_t answer = editdist::dummyEditDist(a.begin(), a.end(), b.begin(), b.end(), std::equal_to<int>());
+		std::cerr << answer << '\n';
 		ASSERT_EQ(answer, clever.size());
 		ASSERT_TRUE(checkAnswer(a, b, clever));
 	}

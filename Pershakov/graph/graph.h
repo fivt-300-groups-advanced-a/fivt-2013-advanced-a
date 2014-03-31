@@ -8,7 +8,7 @@
 
 class Graph {
     public:
-       Graph(std::vector<std::unique_ptr<ListOfIncidents> > &_g) {
+       explicit Graph(std::vector<std::unique_ptr<ListOfIncidents> > &_g) {
            g = move(_g);
        }
 
