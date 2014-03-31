@@ -178,3 +178,62 @@ FunctionalFactory::FunctionalFactory(std::function<bool (int, int)> pred): pred(
 ListOfIncidents * FunctionalFactory::get(int x, int n) {
     return new FunctionalList([=](int _x) {return pred(x, _x);}, n);
 }
+
+
+OneList::Iterator::Iterator(bool a, int b) : endv(a), val(b){
+}
+
+void OneList::Iterator::operator ++ () {
+    endv = false;
+}
+
+int OneList::Iterator::operator * () {
+    if (endv || val == -1) return -1;
+    else return val;
+}
+
+bool OneList::Iterator::end() {
+    return endv;    
+}
+
+void OneList::add(int v) {
+    val = v;
+}
+
+void OneList::remove(int v) {
+    if (val == v) val = -1;
+}
+
+bool OneList::isConnected(int v) {
+    return (val == v);
+}
+
+std::unique_ptr<IntIterator> OneList::begin() {
+    return std::unique_ptr<IntIterator>(new Iterator(true, val));
+}
+
+
+OneList::OneList(int) : OneList(){
+}
+
+OneList::OneList() : val(-1){
+}
+
+FGraph::FGraph(std::function<bool(int, int)> pred, int n): pred(pred), n(n) {
+}
+
+void FGraph::addEdge(int, int) {
+    assert(false);
+}
+
+void FGraph::delEdge(int, int) {
+    assert(false);
+}
+
+ListOfIncidents * FGraph::getIncidents(int x) {
+    return new FunctionalList([=](int _){return pred(x, _);}, n);
+}
+
+bool AGraph::isConnected(int a, int b) {
+    return getIncidents(a)->isConnected(b);
+}
