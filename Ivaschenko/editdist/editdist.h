@@ -82,17 +82,16 @@ namespace editdist
 	{
 		std::size_t *dp[2];
 		for (int i = 0; i < 2; ++i)
-		{
 			dp[i] = new std::size_t[m + 1];
-			std::fill(dp[i], dp[i] + m + 1, m + n);
-		}
-		for (int i = 0; i <= m; ++i) dp[0][i] = i;
+
+		for (int i = 0; i <= m; ++i)
+			dp[0][i] = i;
 		for (std::size_t i = 0; i < n; ++i)
 		{
 			dp[1][0] = i + 1;
 			for (std::size_t j = 1; j <= m; ++j)
 			{
-				dp[1][j] = std::min(dp[1][j], dp[0][j] + 1);
+				dp[1][j] = dp[0][j] + 1;
 				dp[1][j] = std::min(dp[1][j], dp[1][j - 1] + 1);
 				if (comparator(**(aFirst + i), **(bFirst + (j - 1))))
 					dp[1][j] = std::min(dp[1][j], dp[0][j - 1]);
@@ -100,10 +99,10 @@ namespace editdist
 					dp[1][j] = std::min(dp[1][j], dp[0][j - 1] + 1);
 			}
 			std::swap(dp[0], dp[1]);
-			std::fill(dp[1], dp[1] + m + 1, m + n);
 		}
 		std::vector<std::size_t> answer(dp[0], dp[0] + m + 1);
-		for (int i = 0; i < 2; ++i) delete [] dp[i];
+		for (int i = 0; i < 2; ++i)
+			delete [] dp[i];
 		return answer;
 	}
 
@@ -152,9 +151,8 @@ namespace editdist
 				editDist(aFirst + firstHalf, aLast,
 										 bFirst + bestPartition, bLast,
 										 comparator, offset + firstHalf);
-		std::vector<Action> answer;
-		std::merge(left.begin(), left.end(), right.begin(), right.end(), std::back_inserter(answer));
-		return answer;
+		right.insert(right.end(), left.begin(), left.end());
+		return right;
 	}
 
 	template<typename RandomAccessIterator, typename Equal>
