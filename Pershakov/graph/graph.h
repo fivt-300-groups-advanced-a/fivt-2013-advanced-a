@@ -3,6 +3,7 @@
 #define GRAPH_H
 
 #include <vector>
+#include <memory>
 
 #include "list_of_incidents.h"
 
