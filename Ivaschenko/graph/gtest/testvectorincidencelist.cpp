@@ -39,6 +39,7 @@ namespace
 			std::unique_ptr<graph::IncidenceList> list(
 						new graph::VectorIncidenceList(v.begin(), v.end()));
 			sort(v.begin(), v.end());
+			ASSERT_EQ(test.size(), list->size());
 			for (auto it = list->getIterator(); it->valid(); it->moveForward())
 				listCopy.push_back(it->getVertex());
 			ASSERT_EQ(v, listCopy);
