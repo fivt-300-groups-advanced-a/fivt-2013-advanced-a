@@ -57,6 +57,7 @@ namespace
 			{
 				if (prev != -1) ASSERT_EQ(it->getVertex(), prev + 1);
 				++cnt;
+				prev = it->getVertex();
 			}
 			ASSERT_EQ(cnt, test.size());
 			for (std::size_t to = test.a; to <= test.b; ++to)
