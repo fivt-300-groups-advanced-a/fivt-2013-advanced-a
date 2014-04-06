@@ -1,26 +1,9 @@
-#include "gtest/gtest.h"
+#include "utils.h"
 
 #include "adjacencylist.h"
 
-class AdjacencyListTest : public ::testing::Test
+class AdjacencyListTest : public AdjacencyTest
 {
-protected:
-    void checkEquivalence(Adjacency *adj, std::vector<std::size_t> src)
-    {
-        ASSERT_EQ(src.size(), adj->size());
-
-        sort(src.begin(), src.end());
-
-        std::unique_ptr<AdjacencyIterator> it = adj->makeIterator();
-
-        for (std::size_t value : src)
-        {
-            ASSERT_TRUE(it->isValid());
-            ASSERT_EQ(value, it->destination());
-            ASSERT_TRUE(it->advance());
-        }
-        ASSERT_FALSE(it->isValid());
-    }
 };
 
 TEST_F(AdjacencyListTest, Empty)
@@ -46,10 +29,17 @@ TEST_F(AdjacencyListTest, MoveCtor)
     checkEquivalence(adj.get(), v);
 }
 
-TEST(AdjacencyListDeathTest, RepeatingDests)
+TEST(AdjacencyListDeathTest, RepeatingDestinations)
 {
     std::vector<std::size_t> v = {3, 1, 4, 1, 5};
     ASSERT_DEATH({
-                    std::unique_ptr<Adjacency> adj(new AdjacencyList(v.begin(), v.end()));
+                    AdjacencyList(v.begin(), v.end());
+                 }, "");
+}
+
+TEST(AdjacencyListDeathTest, InvalidIteratorDereference)
+{
+    ASSERT_DEATH({
+                     AdjacencyList(std::vector<std::size_t>()).makeIterator()->destination();
                  }, "");
 }

@@ -13,16 +13,11 @@ class AdjacencyListIterator : public AdjacencyIterator
     typedef std::vector<std::size_t>::const_iterator vectorIter;
 
 public:
-    AdjacencyListIterator(const vectorIter &it,
-                          const vectorIter &end):
-        it(it),
-        end(end)
-    {}
-
     virtual ~AdjacencyListIterator() {}
 
     virtual std::size_t destination() const override
     {
+        assert(isValid());
         return *it;
     }
 
@@ -38,6 +33,16 @@ public:
     {
         return it != end;
     }
+
+protected:
+    friend class AdjacencyList;
+
+    AdjacencyListIterator(const vectorIter &it,
+                          const vectorIter &end):
+        it(it),
+        end(end)
+    {}
+
 private:
     vectorIter it, end;
 };

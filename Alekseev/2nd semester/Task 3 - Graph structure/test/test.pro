@@ -13,4 +13,5 @@ HEADERS += \
     utils.h
 
 SOURCES += \
-    adjacencylist-test.cpp
+    adjacencylist-test.cpp \
+    adjacencybitset-test.cpp
