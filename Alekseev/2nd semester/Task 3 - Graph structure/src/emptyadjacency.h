@@ -3,12 +3,15 @@
 
 #include "adjacency.h"
 
+namespace graph
+{
+
 class EmptyAdjacencyIterator : public AdjacencyIterator
 {
 public:
     virtual ~EmptyAdjacencyIterator() {}
 
-    virtual destination() const override
+    virtual vertex_t destination() const override
     {
         assert(false);
     }
@@ -39,10 +42,12 @@ public:
         return std::unique_ptr<AdjacencyIterator>(new EmptyAdjacencyIterator());
     }
 
-    virtual bool isConnectedTo(std::size_t vertex) const override
+    virtual bool isConnectedTo(vertex_t) const override
     {
         return false;
     }
 };
+
+} // namespace graph
 
 #endif // EMPTYADJACENCY_H

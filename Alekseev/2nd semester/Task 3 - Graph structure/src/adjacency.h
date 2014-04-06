@@ -3,12 +3,17 @@
 
 #include <memory>
 
+namespace graph
+{
+
+typedef std::size_t vertex_t;
+
 class AdjacencyIterator
 {
 public:
     virtual ~AdjacencyIterator() {}
 
-    virtual std::size_t destination() const = 0;
+    virtual graph::vertex_t destination() const = 0;
 
     virtual bool advance() = 0;
 
@@ -24,7 +29,9 @@ public:
 
     virtual std::unique_ptr<AdjacencyIterator> makeIterator() const = 0;
 
-    virtual bool isConnectedTo(std::size_t vertex) const = 0;
+    virtual bool isConnectedTo(vertex_t vertex) const = 0;
 };
+
+} // namespace graph
 
 #endif // ADJACENCY_H

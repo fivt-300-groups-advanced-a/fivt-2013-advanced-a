@@ -14,4 +14,6 @@ HEADERS += \
 
 SOURCES += \
     adjacencylist-test.cpp \
-    adjacencybitset-test.cpp
+    adjacencybitset-test.cpp \
+    emptyadjacency-test.cpp \
+    singleadjacency-test.cpp

@@ -7,6 +7,7 @@ HEADERS += \
     ../src/adjacency.h \
     ../src/adjacencylist.h \
     ../src/adjacencybitset.h \
-    ../src/emptyadjacency.h
+    ../src/emptyadjacency.h \
+    ../src/singleadjacency.h
 
 SOURCES +=

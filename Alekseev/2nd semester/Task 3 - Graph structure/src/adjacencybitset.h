@@ -5,12 +5,15 @@
 
 #include "adjacency.h"
 
+namespace graph
+{
+
 class AdjacencyBitSetIterator : public AdjacencyIterator
 {
 public:
     virtual ~AdjacencyBitSetIterator() {}
 
-    virtual std::size_t destination() const override
+    virtual vertex_t destination() const override
     {
         assert(isValid());
         return pos;
@@ -74,7 +77,7 @@ public:
         return std::unique_ptr<AdjacencyIterator>(new AdjacencyBitSetIterator(0, bits));
     }
 
-    virtual bool isConnectedTo(std::size_t vertex) const override
+    virtual bool isConnectedTo(vertex_t vertex) const override
     {
         return vertex < bits.size() && bits[vertex];
     }
@@ -98,5 +101,7 @@ private:
     const std::vector<bool> bits;
     const std::size_t size_;
 };
+
+} // namespace graph
 
 #endif // ADJACENCYBITSET_H

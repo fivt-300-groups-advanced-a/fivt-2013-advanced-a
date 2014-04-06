@@ -7,6 +7,8 @@
 
 #include "adjacency.h"
 
+using namespace graph;
+
 class AdjacencyTest : public ::testing::Test
 {
 protected:
@@ -17,6 +19,7 @@ protected:
         std::sort(src.begin(), src.end());
 
         std::unique_ptr<AdjacencyIterator> it = adj->makeIterator();
+        ASSERT_NE(nullptr, it.get());
 
         for (std::size_t value : src)
         {
