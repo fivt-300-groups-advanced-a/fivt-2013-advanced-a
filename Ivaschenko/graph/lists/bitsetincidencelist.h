@@ -24,11 +24,12 @@ namespace graph
 					if (isNeighbour[v]) ++bitCount;
 			}
 
-			BitsetIncidenceList(std::size_t graphSize, const std::vector<vertex_t> &list)
+			template<typename ForwardIterator>
+			BitsetIncidenceList(std::size_t graphSize, ForwardIterator begin, ForwardIterator end)
 			{
 				isNeighbour.assign(graphSize, false);
-				for (vertex_t v : list)
-					isNeighbour[v] = true;
+				for (; begin != end; ++begin)
+					isNeighbour[*begin] = true;
 				bitCount = 0;
 				for (std::size_t v = 0; v < graphSize; ++v)
 					if (isNeighbour[v]) ++bitCount;
