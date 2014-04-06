@@ -13,8 +13,10 @@ namespace graph
 	{
 		public:
 			VectorIncidenceList() {}
-			VectorIncidenceList(std::vector<vertex_t> neighbours):
-				adjList(neighbours)
+
+			template<typename ForwardIterator>
+			VectorIncidenceList(ForwardIterator begin, ForwardIterator end):
+				adjList(begin, end)
 			{
 				if (!is_sorted(adjList.begin(), adjList.end()))
 					performSort();

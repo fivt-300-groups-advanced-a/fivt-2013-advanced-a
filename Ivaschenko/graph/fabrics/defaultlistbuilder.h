@@ -46,11 +46,13 @@ namespace graph
 					return std::move(std::unique_ptr<IncidenceList>(
 										 new ConsecutiveIncidenceList(adjList[0], adjList.back())));
 
-				return std::move(std::unique_ptr<IncidenceList>(new VectorIncidenceList(adjList)));
+				return std::move(std::unique_ptr<IncidenceList>(
+									 new VectorIncidenceList(adjList.begin(), adjList.end())));
 			}
 
 			void addEdge(vertex_t to)
 			{
+				assert(to < n);
 				if (dense)
 				{
 					if (connected[to])
