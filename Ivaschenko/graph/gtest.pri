@@ -5,6 +5,7 @@ SOURCES += \
     gtest/testbitsetincidencelist.cpp \
     gtest/testsetincidencelist.cpp \
     gtest/testconsecutiveincidencelist.cpp \
-    gtest/testsinglevertexlist.cpp
+    gtest/testsinglevertexlist.cpp \
+    gtest/testemptyincidencelist.cpp
 
 HEADERS +=

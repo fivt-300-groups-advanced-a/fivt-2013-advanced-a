@@ -20,7 +20,7 @@ namespace
 		}
 	};
 
-	TEST(ConsecutiveIncidenceList, CustomTest)
+	TEST(SingleVertexList, CustomTest)
 	{
 		std::vector<TestCase> tests =
 		{
