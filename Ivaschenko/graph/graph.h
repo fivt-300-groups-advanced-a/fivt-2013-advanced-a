@@ -31,11 +31,13 @@ namespace graph
 
 			const IncidenceList* getEdgesFrom(std::size_t id) const
 			{
+				assert(id < adjLists.size());
 				return adjLists[id].get();
 			}
 
 			const IncidenceList* getEdgesTo(std::size_t id) const
 			{
+				assert(id < backLists.size());
 				return backLists[id].get();
 			}
 

@@ -30,13 +30,22 @@ namespace graph
 				if (!is_sorted(adjList.begin(), adjList.end()))
 					sort(adjList.begin(), adjList.end());
 
+				bool unique = true;
+				for (std::size_t i = 0; i < adjList.size(); ++i)
+					unique &= adjList[i] != adjList[i + 1];
+
 				if (adjList.empty())
-					return std::move(std::unique_ptr<IncidenceList>(new EmptyIncidenceList()));
+					return std::move(std::unique_ptr<IncidenceList>(
+										 new EmptyIncidenceList()));
+
 				if (adjList.size() == 1)
-					return std::move(std::unique_ptr<IncidenceList>(new SingleVertexList(adjList[0])));
-				if (*std::max_element(adjList.begin(), adjList.end()) -
-					*std::min_element(adjList.begin(), adjList.end()) + 1 == adjList.size())
-					return std::move(std::unique_ptr<IncidenceList>(new ConsecutiveIncidenceList(adjList[0], adjList.back())));
+					return std::move(std::unique_ptr<IncidenceList>(
+										 new SingleVertexList(adjList[0])));
+
+				if (unique && adjList.back() - adjList[0] + 1 == adjList.size())
+					return std::move(std::unique_ptr<IncidenceList>(
+										 new ConsecutiveIncidenceList(adjList[0], adjList.back())));
+
 				return std::move(std::unique_ptr<IncidenceList>(new VectorIncidenceList(adjList)));
 			}
 
@@ -55,7 +64,7 @@ namespace graph
 				else
 				{
 					adjList.push_back(to);
-					if (n > 8 && adjList.size() * sizeof(vertex_t) > n / CHAR_BIT && convertToBitset())
+					if (adjList.size() * sizeof(vertex_t) > n / CHAR_BIT && convertToBitset())
 					{
 						dense = true;
 						adjList = std::vector<vertex_t>();
@@ -103,6 +112,6 @@ namespace graph
 				return true;
 			}
 	};
-};
+}
 
 #endif // DEFAULTLISTBUILDER_H
