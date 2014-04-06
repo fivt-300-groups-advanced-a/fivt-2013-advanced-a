@@ -97,6 +97,28 @@ private:
     UserIterator last;
 };
 
+class FunctionalGraph : public ListOfIncidentVerteces
+{
+public:
+    explicit FunctionalGraph(int _to)
+    {
+        to = _to;
+    }
+    
+    bool isConnected(int vertex) const override
+    {
+        return to == vertex;
+    }
+    
+    std::unique_ptr<Iterator> getIterator() const override {
+        return std::move(std::unique_ptr<Iterator>(new BitSetIterator(this, to, to)));
+    }
+    
+    virtual ~FunctionalGraph() {}
+private:
+    int to;
+};
+
 class BitSetMethod : public ListOfIncidentVerteces
 {
 public:
