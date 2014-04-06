@@ -1,4 +1,5 @@
 SOURCES += \
-    gtest/test.cpp \
+    gtest/testlistbuilder.cpp \
+    gtest/testgraph.cpp
 
 HEADERS +=

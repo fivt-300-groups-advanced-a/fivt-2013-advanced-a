@@ -17,10 +17,5 @@ HEADERS += \
     iterators/incidencelistiterator.h \
     iterators/stdincidencelistiterator.h \
     iterators/adjacencymatrixiterator.h \
-    fabrics/abstractgraphfabric.h \
-    fabrics/vectorlistgraphfabric.h \
-    fabrics/bitsetgraphfabric.h \
-    fabrics/functionalgraphfabric.h \
-    fabrics/fullgraphfabric.h \
     lists/consecutiveincidencelist.h \
-    fabrics/kheapgraphfabric.h
+    fabrics/defaultlistbuilder.h
