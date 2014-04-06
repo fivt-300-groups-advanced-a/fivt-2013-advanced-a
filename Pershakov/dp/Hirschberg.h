@@ -84,8 +84,9 @@ std::vector<change> buildPrescription(const std::string &str1, int l1, int r1,
     std::vector<int> prev(len2 + 1);
 
     // for prefixes
-    initDP(prev);
+    initDP(pref);
     for (int i = 1; i <= mid1; i++) {
+        pref.swap(prev);
         pref[0] = i;
         for (int j = 1; j < len2 + 1; j++) {
             pref[j] = std::min(pref[j - 1], prev[j]) + 1;
@@ -94,13 +95,12 @@ std::vector<change> buildPrescription(const std::string &str1, int l1, int r1,
             else
                 pref[j] = std::min(pref[j], prev[j - 1] + 1);
         }
-        pref.swap(prev);
     }
-    pref = prev;
 
     // for suffixes
-    initRevDP(prev);
+    initRevDP(suf);
     for (int i = len1; i > mid1; i--) {
+        suf.swap(prev);
         suf[len2] = len1 - i + 1;
         for (int j = len2 - 1; j >= 0; j--) {
             suf[j] = std::min(suf[j + 1], prev[j]) + 1;
@@ -109,9 +109,7 @@ std::vector<change> buildPrescription(const std::string &str1, int l1, int r1,
             else
                 suf[j] = std::min(suf[j], prev[j + 1] + 1);
         }
-        suf.swap(prev);
     }
-    suf = prev;
 
     // merging
     int mid2 = 0;
@@ -124,7 +122,7 @@ std::vector<change> buildPrescription(const std::string &str1, int l1, int r1,
                                                  str2, l2, l2 + mid2);
     std::vector<change> res2 = buildPrescription(str1, l1 + mid1, r1, 
                                                  str2, l2 + mid2, r2);
-    addToVector(res1, res2);
+    res1.insert(res1.end(), res2.begin(), res2.end());
     return res1;
 }
 

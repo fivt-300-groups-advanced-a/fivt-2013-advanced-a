@@ -26,14 +26,33 @@ class ListFactory {
         virtual ~ListFactory(){}
 };
 
-class Graph{
+class AGraph {
+public: 
+    virtual bool isConnected(int, int);
+    virtual void addEdge(int, int) = 0;
+    virtual void delEdge(int, int) = 0;
+    virtual ListOfIncidents * getIncidents(int) = 0;
+    virtual ~AGraph(){}
+};
+
+class FGraph : public AGraph {
+    std::function<bool(int, int)> pred;
+    int n;
+public:
+    FGraph(std::function<bool(int, int)>, int);
+    virtual void addEdge(int, int);
+    virtual void delEdge(int, int);
+    virtual ListOfIncidents * getIncidents(int);
+};
+
+class Graph : public AGraph{
     private:
         std::vector<std::unique_ptr<ListOfIncidents> > lists;
     public:
         Graph(std::unique_ptr<ListFactory>, int);
         virtual void addEdge(int, int);
         virtual void delEdge(int, int);
-        ListOfIncidents * getIncidents(int);
+        virtual ListOfIncidents * getIncidents(int);
 };
 
 
@@ -100,7 +119,7 @@ class List : public ListOfIncidents{
 };
 
 template<>
-class List<std::vector<int> >: ListOfIncidents {
+class List<std::vector<int> >: public ListOfIncidents {
 private:
     std::vector<int> v;
 public:
@@ -117,7 +136,7 @@ public:
     };
     virtual void add(int) ;
     virtual void remove(int);
-    virtual std::unique_ptr<IntIterator> begin() = 0;
+    virtual std::unique_ptr<IntIterator> begin();
     List(int);
     List();
 };
@@ -142,8 +161,31 @@ public:
     virtual void add(int) ;
     virtual void remove(int);
     virtual bool isConnected(int);
-    virtual std::unique_ptr<IntIterator> begin() = 0;
+    virtual std::unique_ptr<IntIterator> begin();
     List(int);
+};
+
+class OneList : public ListOfIncidents{
+private:
+    int val;
+public:
+    class Iterator: IntIterator {
+    private:
+        bool endv;
+        int val;
+        friend class OneList;
+        Iterator(bool, int);
+    public:
+        virtual void operator ++ ();
+        virtual int operator * ();
+        virtual bool end();
+    };
+    virtual void add(int) ;
+    virtual void remove(int);
+    virtual bool isConnected(int);
+    virtual std::unique_ptr<IntIterator> begin();
+    OneList(int);
+    OneList();
 };
 
 #endif
