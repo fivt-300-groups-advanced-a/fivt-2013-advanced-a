@@ -12,12 +12,13 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 class Iterator
 {
 public:
-    virtual int getIncidentVertex();
-    virtual bool nextVertexWithEdge();
+    virtual int getIncidentVertex() = 0;
+    virtual bool nextVertexWithEdge() = 0;
     virtual ~Iterator() {}
 };
 

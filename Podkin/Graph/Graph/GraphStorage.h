@@ -13,12 +13,13 @@
 #include "ListOfIncidentVerteces.h"
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 class Graph{
 public:
     Graph(std::vector<std::unique_ptr<ListOfIncidentVerteces> > &_graph)
     {
-        graph = move(_graph);
+        graph = std::move(_graph);
     }
     
     const ListOfIncidentVerteces& getIncidentVerteces(int vertex)
