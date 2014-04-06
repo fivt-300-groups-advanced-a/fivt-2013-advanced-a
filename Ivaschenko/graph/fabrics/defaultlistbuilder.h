@@ -31,7 +31,7 @@ namespace graph
 					sort(adjList.begin(), adjList.end());
 
 				bool unique = true;
-				for (std::size_t i = 0; i < adjList.size(); ++i)
+				for (std::size_t i = 0; i + 1 < adjList.size(); ++i)
 					unique &= adjList[i] != adjList[i + 1];
 
 				if (adjList.empty())
