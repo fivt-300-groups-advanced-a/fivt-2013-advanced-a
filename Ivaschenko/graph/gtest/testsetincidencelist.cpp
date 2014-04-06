@@ -34,7 +34,7 @@ namespace
 		return test;
 	}
 
-	TEST(BitsetIncidenceList, CustomTest)
+	TEST(SetIncidenceList, CustomTest)
 	{
 		std::vector<TestCase> tests =
 		{

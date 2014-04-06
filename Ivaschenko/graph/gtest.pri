@@ -3,6 +3,7 @@ SOURCES += \
     gtest/testgraph.cpp \
     gtest/testvectorincidencelist.cpp \
     gtest/testbitsetincidencelist.cpp \
-    gtest/testsetincidencelist.cpp
+    gtest/testsetincidencelist.cpp \
+    gtest/testconsecutiveincidencelist.cpp
 
 HEADERS +=
