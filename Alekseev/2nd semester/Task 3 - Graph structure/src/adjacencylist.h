@@ -8,21 +8,19 @@
 
 #include "adjacency.h"
 
+namespace graph
+{
+
 class AdjacencyListIterator : public AdjacencyIterator
 {
-    typedef std::vector<std::size_t>::const_iterator vectorIter;
+    typedef std::vector<vertex_t>::const_iterator vectorIter;
 
 public:
-    AdjacencyListIterator(const vectorIter &it,
-                          const vectorIter &end):
-        it(it),
-        end(end)
-    {}
-
     virtual ~AdjacencyListIterator() {}
 
-    virtual std::size_t destination() const override
+    virtual vertex_t destination() const override
     {
+        assert(isValid());
         return *it;
     }
 
@@ -38,13 +36,23 @@ public:
     {
         return it != end;
     }
+
+protected:
+    friend class AdjacencyList;
+
+    AdjacencyListIterator(const vectorIter &it,
+                          const vectorIter &end):
+        it(it),
+        end(end)
+    {}
+
 private:
     vectorIter it, end;
 };
 
 class AdjacencyList : public Adjacency
 {
-    typedef std::vector<std::size_t> IdVector;
+    typedef std::vector<vertex_t> IdVector;
 
 public:
     template<class FwdIt>
@@ -69,7 +77,7 @@ public:
                                                       vertices.cend()));
     }
 
-    virtual bool isConnectedTo(std::size_t vertex) const override
+    virtual bool isConnectedTo(vertex_t vertex) const override
     {
         return std::binary_search(vertices.cbegin(), vertices.cend(), vertex);
     }
@@ -82,7 +90,9 @@ private:
         return std::move(vert);
     }
 
-    const std::vector<std::size_t> vertices;
+    const std::vector<vertex_t> vertices;
 };
+
+} // namespace graph
 
 #endif // ADJACENCYLIST_H
