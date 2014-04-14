@@ -6,9 +6,13 @@
 
 #include "adjacency.h"
 
+namespace graph
+{
+
 class Graph
 {
 public:
+
     explicit Graph(const Graph &graph) = delete;
     Graph& operator = (const Graph &graph) = delete;
 
@@ -21,8 +25,8 @@ public:
     {}
     Graph(std::vector<std::unique_ptr<Adjacency>> &&adj,
           std::vector<std::unique_ptr<Adjacency>> &&backAdj):
-        adj(std::move(adj)),
-        backAdj(std::move(backAdj))
+        adj(std::forward(adj)),
+        backAdj(std::forward(backAdj))
     {}
 
     Graph& operator = (Graph &&graph)
@@ -32,16 +36,16 @@ public:
         return *this;
     }
 
-    std::size_t size() const
+    std::size_t vertexCount() const
     {
         return adj.size();
     }
 
-    const Adjacency *getEdgesFrom(std::size_t vertex) const
+    const Adjacency *getEdgesFrom(vertex_t vertex) const
     {
         return adj[vertex].get();
     }
-    const Adjacency *getEdgesTo(std::size_t vertex) const
+    const Adjacency *getEdgesTo(vertex_t vertex) const
     {
         return backAdj[vertex].get();
     }
@@ -49,5 +53,7 @@ public:
 private:
     std::vector<std::unique_ptr<Adjacency>> adj, backAdj;
 };
+
+} // namespace graph
 
 #endif // GRAPH_H
