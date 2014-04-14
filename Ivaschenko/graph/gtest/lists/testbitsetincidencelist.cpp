@@ -44,7 +44,7 @@ namespace
 			TestCase(2, {1}),
 			TestCase(3, {0, 1, 2}),
 			TestCase(4, {}),
-			TestCase(5, {0, 2, 4}),
+			TestCase(5, {0, 2, 2, 4}),
 			TestCase(10, {0, 1, 9, 8}),
 			genTestCase(10, 5, 1),
 			genTestCase(15, 10, 2),

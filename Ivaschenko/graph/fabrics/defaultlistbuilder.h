@@ -26,7 +26,9 @@ namespace graph
 
 			std::unique_ptr<IncidenceList> getList()
 			{
-				if (dense) return std::move(std::unique_ptr<IncidenceList>(new BitsetIncidenceList(connected)));
+				if (dense)
+					return std::move(std::unique_ptr<IncidenceList>(new BitsetIncidenceList(connected)));
+
 				if (!is_sorted(adjList.begin(), adjList.end()))
 					sort(adjList.begin(), adjList.end());
 
@@ -90,7 +92,6 @@ namespace graph
 					if (connected[i])
 						adjList.push_back(i);
 				connected = std::vector<bool>();
-				connected.shrink_to_fit();
 				dense = false;
 			}
 
@@ -105,8 +106,7 @@ namespace graph
 					if (connected[v])
 					{
 						unique = false;
-						connected.clear();
-						connected.shrink_to_fit();
+						connected = std::vector<bool>();
 						return false;
 					}
 					connected[v] = true;

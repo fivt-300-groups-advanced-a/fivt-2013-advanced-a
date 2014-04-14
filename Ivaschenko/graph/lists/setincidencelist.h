@@ -14,7 +14,7 @@ namespace graph
 			SetIncidenceList() {}
 
 			template<typename ForwardIterator>
-			explicit SetIncidenceList(ForwardIterator begin, ForwardIterator end):
+			SetIncidenceList(ForwardIterator begin, ForwardIterator end):
 				adjList(begin, end) {}
 
 			std::size_t size() const override

@@ -1,7 +1,9 @@
 include(gtest.pri)
 
-QMAKE_CXXFLAGS += -std=gnu++0x -lgtest -pthread
+LIBS += -lpthread
+QMAKE_CXXFLAGS += -std=gnu++0x -lgtest
 QMAKE_LIBS += /usr/local/lib/libgtest.a
+CONFIG -= qt
 
 
 SOURCES += main.cpp
@@ -18,4 +20,5 @@ HEADERS += \
     iterators/stdincidencelistiterator.h \
     iterators/adjacencymatrixiterator.h \
     lists/consecutiveincidencelist.h \
-    fabrics/defaultlistbuilder.h
+    fabrics/defaultlistbuilder.h \
+    algo/strongconnectivity.h

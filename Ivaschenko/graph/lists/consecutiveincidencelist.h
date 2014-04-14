@@ -24,6 +24,7 @@ namespace graph
 
 			std::unique_ptr<IncidenceListIterator> getIterator() const override
 			{
+				// TODO: open interval
 				return std::move(std::unique_ptr<IncidenceListIterator>
 								 (new AdjacencyMatrixIterator(this, first, last)));
 			}

@@ -1,11 +1,12 @@
 SOURCES += \
-    gtest/testlistbuilder.cpp \
     gtest/testgraph.cpp \
-    gtest/testvectorincidencelist.cpp \
-    gtest/testbitsetincidencelist.cpp \
-    gtest/testsetincidencelist.cpp \
-    gtest/testconsecutiveincidencelist.cpp \
-    gtest/testsinglevertexlist.cpp \
-    gtest/testemptyincidencelist.cpp
+    gtest/fabrics/testlistbuilder.cpp \
+    gtest/lists/testvectorincidencelist.cpp \
+    gtest/lists/testbitsetincidencelist.cpp \
+    gtest/lists/testsetincidencelist.cpp \
+    gtest/lists/testconsecutiveincidencelist.cpp \
+    gtest/lists/testsinglevertexlist.cpp \
+    gtest/lists/testemptyincidencelist.cpp \
+    gtest/algo/teststrongconnectivity.cpp
 
 HEADERS +=

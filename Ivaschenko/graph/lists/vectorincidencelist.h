@@ -18,14 +18,12 @@ namespace graph
 			VectorIncidenceList(ForwardIterator begin, ForwardIterator end):
 				adjList(begin, end)
 			{
-				if (!is_sorted(adjList.begin(), adjList.end()))
-					performSort();
+				performSort();
 			}
-			VectorIncidenceList(const std::initializer_list<vertex_t> &neighbours):
+			VectorIncidenceList(std::initializer_list<vertex_t> neighbours):
 				adjList(neighbours)
 			{
-				if (!is_sorted(adjList.begin(), adjList.end()))
-					performSort();
+				performSort();
 			}
 
 			size_t size() const override
@@ -35,6 +33,7 @@ namespace graph
 
 			std::unique_ptr<IncidenceListIterator> getIterator() const override
 			{
+				// TODO: typedef maybe
 				return std::move(std::unique_ptr<IncidenceListIterator>
 								 (new StdIncidenceListIterator<std::vector<vertex_t>::const_iterator>(adjList.begin(), adjList.end())));
 			}
@@ -50,7 +49,8 @@ namespace graph
 
 			void performSort()
 			{
-				sort(adjList.begin(), adjList.end());
+				if (!is_sorted(adjList.begin(), adjList.end()))
+					sort(adjList.begin(), adjList.end());
 			}
 	};
 }
