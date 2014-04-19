@@ -69,11 +69,11 @@ class AdjacencyMatrixIncidence : public BaseIncidence {
                              : is_adjacent_to_(std::move(is_adjacent_to)) { }
 
   virtual unique_ptr<BaseIterator> begin() const override {
-    AdjacencyMatrixIterator it(is_adjacent_to_.cbegin(), 0,
-                               is_adjacent_to_.cend());
+    unique_ptr<BaseIterator> ptr (new AdjacencyMatrixIterator
+                                          (is_adjacent_to_.cbegin(), 0,
+                                           is_adjacent_to_.cend()));
     if (is_adjacent_to_[0] != true)
-      it.moveForvard();
-    unique_ptr<BaseIterator> ptr (&it);
+      ptr->moveForvard();
     return std::move(ptr);
   }
   bool isConnected(int v) const override { return is_adjacent_to_[v]; }

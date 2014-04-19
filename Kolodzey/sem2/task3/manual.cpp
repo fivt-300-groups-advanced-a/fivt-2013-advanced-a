@@ -96,10 +96,10 @@ TEST(AdjacencyMatrixIncidence, Constructor) {
 TEST(AdjacencyMatrixIncidence, Begin) {
   bool init[6] = {0, 0, 1, 1, 0, 1};
 
-  AdjacencyMatrixIncidence li1(vector<bool>(init + 2, init + 6));
+  AdjacencyMatrixIncidence li1(vector<bool>(init, init + 6));
   std::unique_ptr<graph::BaseIterator> ptr_it1 = li1.begin();
-  //EXPECT_EQ(2, ptr_it1->getCurrentVertexId());
-  //AdjacencyMatrixIncidence li2(vector<bool>(init + 2, init + 6));
-  //::unique_ptr<graph::BaseIterator> ptr_it2 = li2.begin();
-  //EXPECT_EQ(0, ptr_it2->getCurrentVertexId());
+  EXPECT_EQ(2, ptr_it1->getCurrentVertexId());
+  AdjacencyMatrixIncidence li2(vector<bool>(init + 2, init + 6));
+  std::unique_ptr<graph::BaseIterator> ptr_it2 = li2.begin();
+  EXPECT_EQ(0, ptr_it2->getCurrentVertexId());
 }
