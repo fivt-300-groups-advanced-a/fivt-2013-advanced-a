@@ -18,14 +18,14 @@ class graph::AccessAdjacencyMatrixIncidence {
  public:
   AccessAdjacencyMatrixIncidence(AdjacencyMatrixIncidence* li_ptr)
       : li_ptr_(li_ptr) {}
-  vector<bool>& getVectorBool() { return li_ptr_->is_adjacent_to_; }
+  vector<bool>& getVectorBool() { return li_ptr_->adjdata_; }
   AdjacencyMatrixIncidence* li_ptr_;
 };
 
 TEST(AdjacencyMatrixIterator, Constructor) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};
 
-  AdjacencyMatrixIterator it(values.begin(), 0, values.end());
+  AdjacencyMatrixIterator it(0, values.begin(), values.end());
   
   graph::AccessAdjacencyMatrixIterator acc_it(&it);
   EXPECT_EQ(values.begin(), acc_it.getPos());
@@ -37,25 +37,25 @@ TEST(AdjacencyMatrixIterator, Constructor) {
 TEST(AdjacencyMatrixIterator, getCurrentVertexId) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};
   
-  AdjacencyMatrixIterator it0(values.begin(), 0, values.end());
+  AdjacencyMatrixIterator it0(0, values.begin(), values.end());
   EXPECT_EQ(0, it0.getCurrentVertexId());
-  AdjacencyMatrixIterator it3(values.begin(), 3, values.end());
+  AdjacencyMatrixIterator it3(3, values.begin(), values.end());
   EXPECT_EQ(3, it3.getCurrentVertexId());
 }
 
 TEST(AdjacencyMatrixIterator, isValid) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};
   
-  AdjacencyMatrixIterator it0(values.begin(), 0, values.end());
+  AdjacencyMatrixIterator it0(0, values.begin(), values.end());
   EXPECT_EQ(true, it0.isValid());
-  AdjacencyMatrixIterator it3(values.end(), 3, values.end());
+  AdjacencyMatrixIterator it3(3, values.end(), values.end());
   EXPECT_EQ(false, it3.isValid());
 }
 
 TEST(AdjacencyMatrixIterator, moveForvard) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};  
   //initialization of matrix_it so it refers to the connected vertex
-  AdjacencyMatrixIterator matrix_it(values.begin()+2, 2, values.end());
+  AdjacencyMatrixIterator matrix_it(2, values.begin()+2, values.end());
   graph::AccessAdjacencyMatrixIterator acc_matrix_it(&matrix_it);
   int val = 0;
 

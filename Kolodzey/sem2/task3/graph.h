@@ -3,6 +3,7 @@
 #include <vector>
 
 namespace graph {
+
 using std::unique_ptr;
 using std::vector;
 
@@ -14,7 +15,6 @@ class BaseIterator {
   virtual ~BaseIterator() {}
 };
 
-
 class BaseIncidence {
  public:
   virtual unique_ptr<BaseIterator> begin() const = 0;
@@ -25,16 +25,16 @@ class BaseIncidence {
 class AccessAdjacencyMatrixIterator;
 
 class AdjacencyMatrixIterator : public BaseIterator {
+ 
  public:
-  AdjacencyMatrixIterator(const vector<bool>::const_iterator pos,
-                          int vertex_id,
+  
+  AdjacencyMatrixIterator(int vertex_id,
+                          const vector<bool>::const_iterator pos,
                           const vector<bool>::const_iterator end)
-              : pos_(pos),
-                vertex_id_(vertex_id),
-                end_(end){}
+      : vertex_id_(vertex_id),
+        pos_(pos),
+        end_(end){}
 
-  //make iterator refer to the nearest connected vertex, which doesn't
-  //coincide with the current vertex whenever current is connected or not
   virtual void moveForvard() override {
     if (isValid()) {
       do {
@@ -49,37 +49,47 @@ class AdjacencyMatrixIterator : public BaseIterator {
       return vertex_id_;
     return -1;
   }
+
   virtual bool isValid() const override { return pos_ != end_; } 
+  
   virtual ~AdjacencyMatrixIterator() {}
 
  private:
-  vector<bool>::const_iterator pos_;
   int vertex_id_;
+  vector<bool>::const_iterator pos_;
   vector<bool>::const_iterator end_;
+
  friend class AccessAdjacencyMatrixIterator;
 };
 
 class AccessAdjacencyMatrixIncidence;
 
 class AdjacencyMatrixIncidence : public BaseIncidence {
+ 
  public:
-  explicit AdjacencyMatrixIncidence(const vector<bool>& is_adjacent_to)
-                                        : is_adjacent_to_(is_adjacent_to) { }
-  explicit AdjacencyMatrixIncidence(vector<bool>&& is_adjacent_to)
-                             : is_adjacent_to_(std::move(is_adjacent_to)) { }
+
+  explicit AdjacencyMatrixIncidence(const vector<bool>& adjdata)
+               : adjdata_(adjdata) { }
+
+  explicit AdjacencyMatrixIncidence(vector<bool>&& adjdata)
+               : adjdata_(std::move(adjdata)) { }
 
   virtual unique_ptr<BaseIterator> begin() const override {
-    unique_ptr<BaseIterator> ptr (new AdjacencyMatrixIterator
-                                          (is_adjacent_to_.cbegin(), 0,
-                                           is_adjacent_to_.cend()));
-    if (is_adjacent_to_[0] != true)
+    unique_ptr<BaseIterator> ptr(new AdjacencyMatrixIterator(0,
+                                                             adjdata_.cbegin(),
+                                                             adjdata_.cend()));
+    if (adjdata_[0] != true)
       ptr->moveForvard();
     return std::move(ptr);
   }
-  bool isConnected(int v) const override { return is_adjacent_to_[v]; }
+
+  bool isConnected(int v) const override { return adjdata_[v]; }
+
   virtual ~AdjacencyMatrixIncidence() {}
+
  private:
-  vector<bool> is_adjacent_to_;
+  vector<bool> adjdata_;
+
  friend class AccessAdjacencyMatrixIncidence;
 };
 
