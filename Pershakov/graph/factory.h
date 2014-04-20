@@ -26,6 +26,12 @@ class LIFactory {
             to.push_back(v);
         }
 
+        void unique() {
+            std::sort(to.begin(), to.end());
+            auto it = std::unique(to.begin(), to.end());
+            to.resize(it - to.begin());
+        }
+
         std::unique_ptr<ListOfIncidents> build() {
             std::unique_ptr<ListOfIncidents> res;
             if (to.size() == 0)
