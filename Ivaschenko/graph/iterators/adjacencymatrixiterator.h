@@ -17,6 +17,7 @@ namespace graph
 
 			vertex_t operator * () const override
 			{
+				// TODO: assertion
 				return current;
 			}
 

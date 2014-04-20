@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <string>
 
 class Iterator {
     public:
@@ -21,6 +22,10 @@ class ListOfIncidents {
         virtual bool isConnected(int v) const = 0;
 
         virtual std::unique_ptr<Iterator> getIterator() const = 0;
+
+        virtual std::string getType() const {
+            return "It doesn't matter";
+        }
 
         virtual ~ListOfIncidents() { }
 };
@@ -60,9 +65,9 @@ class ByConnectionIterator : public Iterator {
         int last_vertex;
 };
 
-template<class T> class StdIterator : public Iterator {
+template<class Iter> class StdIterator : public Iterator {
     public:
-        StdIterator(const T _cur, const T _last) {
+        StdIterator(const Iter _cur, const Iter _last) {
             cur = _cur;
             last = _last;
         }
@@ -82,7 +87,7 @@ template<class T> class StdIterator : public Iterator {
         }
 
     private:
-        T cur, last;
+        Iter cur, last;
 };
 
 class FunctionalListOfIncidents : public ListOfIncidents {
@@ -103,31 +108,12 @@ class FunctionalListOfIncidents : public ListOfIncidents {
                         new ByConnectionIterator(this, to, to)));
         }
 
+        std::string getType() const override {
+            return "FunctionalListOfIncidents";
+        }
+
     private:
         int to;
-};
-
-class KHeapListOfIncidents : public ListOfIncidents {
-    public:
-        KHeapListOfIncidents(int _first_son, int _last_son) {
-            first_son = _first_son;
-            last_son = _last_son;
-        }
-
-        ~KHeapListOfIncidents() { }
-
-        bool isConnected(int v) const override {
-            return first_son <= v && v <= last_son;
-        }
-
-        std::unique_ptr<Iterator> getIterator() const override {
-            return std::move(
-                    std::unique_ptr<Iterator>(
-                        new ByConnectionIterator(this, first_son, last_son)));
-        }
-
-    private:
-        int first_son, last_son;
 };
 
 class MatrixOfIncidents : public ListOfIncidents {
@@ -148,15 +134,19 @@ class MatrixOfIncidents : public ListOfIncidents {
                         new ByConnectionIterator(this, 0, is_edge.size() - 1)));
         }
 
+        std::string getType() const override {
+            return "MatrixOfIncidents";
+        }
+
     private:
         std::vector<bool> is_edge;
 };
 
 class IncidentVertexes : public ListOfIncidents {
     public:
-        explicit IncidentVertexes(const std::vector<int> &_to, bool to_sort = false) {
+        explicit IncidentVertexes(const std::vector<int> &_to) {
             to = _to;
-            if (to_sort)
+            if (!isSorted())
                 std::sort(to.begin(), to.end());
         }
 
@@ -177,8 +167,40 @@ class IncidentVertexes : public ListOfIncidents {
                         new StdIterator<iter>(to.begin(), to.end())));
         }
 
+        std::string getType() const override {
+            return "IncidentVertexes";
+        }
+
     private:
         std::vector<int> to;
+
+        bool isSorted() {
+            for (int i = 0; i < (int)to.size() - 1; i++)
+                if (to[i] > to[i + 1])
+                    return false;
+            return true;
+        }
+};
+
+class EmptyListOfIncidents : public ListOfIncidents {
+    public:
+        EmptyListOfIncidents() { }
+
+        ~EmptyListOfIncidents() { }
+
+        bool isConnected(int v) const override {
+            return false;
+        }
+
+        std::unique_ptr<Iterator> getIterator() const override {
+            return std::move(
+                    std::unique_ptr<Iterator>(
+                        new ByConnectionIterator(this, 1, 0))); 
+        }
+
+        std::string getType() const override {
+            return "EmptyListOfIncidents";
+        }
 };
 
 #endif

@@ -12,8 +12,10 @@ namespace graph
 	{
 		public:
 			SetIncidenceList() {}
-			explicit SetIncidenceList(const std::initializer_list<vertex_t> &neighbours): adjList(neighbours) {}
-			explicit SetIncidenceList(const std::set<vertex_t> &neighbours): adjList(neighbours) {}
+
+			template<typename ForwardIterator>
+			SetIncidenceList(ForwardIterator begin, ForwardIterator end):
+				adjList(begin, end) {}
 
 			std::size_t size() const override
 			{
