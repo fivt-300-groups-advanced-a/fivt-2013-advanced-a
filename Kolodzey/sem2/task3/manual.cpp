@@ -54,8 +54,7 @@ TEST(AdjacencyMatrixIterator, isValid) {
 
 TEST(AdjacencyMatrixIterator, moveForvard) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};  
-  //initialization of matrix_it so it refers to the connected vertex
-  AdjacencyMatrixIterator matrix_it(2, values.begin()+2, values.end());
+  AdjacencyMatrixIterator matrix_it(2, values.begin() + 2, values.end());
   graph::AccessAdjacencyMatrixIterator acc_matrix_it(&matrix_it);
   int val = 0;
 

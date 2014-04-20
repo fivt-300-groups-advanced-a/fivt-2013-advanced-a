@@ -6,6 +6,7 @@ namespace graph {
 
 using std::unique_ptr;
 using std::vector;
+using std::cerr;
 
 class BaseIterator {
  public:
@@ -62,6 +63,7 @@ class AdjacencyMatrixIterator : public BaseIterator {
  friend class AccessAdjacencyMatrixIterator;
 };
 
+class
 class AccessAdjacencyMatrixIncidence;
 
 class AdjacencyMatrixIncidence : public BaseIncidence {
@@ -93,7 +95,7 @@ class AdjacencyMatrixIncidence : public BaseIncidence {
  friend class AccessAdjacencyMatrixIncidence;
 };
 
-/*
+/* 
 class AdjacencyListIterator : public BaseIterator {
  public: 
   override void moveForvard();
@@ -111,10 +113,24 @@ class AdjacencyListIncidence : public BaseIncidence {
 };
 */
 
-/*
-class BaseGraph {
+
+class Graph {
+ public:
+  Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
+      : incidence_(std::move(incidence)) { }
+  unique_ptr<BaseIterator> begin(int vertex_id) const {
+    if ((vertex_id >= incidence_.size()) || (vertex_id < -1)) {
+      cerr << "impossible to return begin(" << vertex_id << ")" << std::endl;
+      cerr << "Id out of range" << std::endl;
+      abort();
+    }
+    //if (vertex_id == -1)
+    //  return Iterator trough all vertexes
+    return ;
+  }
+  bool isConnected(int u, int v)
  private:
-  vector<unique_ptr<BaseIncidence>> _
+  vector<unique_ptr<BaseIncidence>> incidence_;
 };
-*/
+
 }//namespace graph
