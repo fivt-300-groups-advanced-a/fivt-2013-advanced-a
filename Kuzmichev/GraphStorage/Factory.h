@@ -1,10 +1,13 @@
-#include "Graph.h"
+#ifndef FACTORY
+#define FACTORY
+
+#include "LI.h"
 
 class AbstractFactory
 {
 public:
 	virtual bool addEdge(uint u) = 0;
-	virtual const LIPtr getLI() = 0;
+	virtual LIPtr getLI() = 0;
 	virtual ~AbstractFactory(){};
 };
 
@@ -12,6 +15,7 @@ class StandardFactory : AbstractFactory
 {
 public:
 	StandardFactory(uint _n) : flagBitset(false), n(_n) {}
+	StandardFactory(uint _n, vector <uint> _v) : flagBitset(false), n(_n), v(_v) {}
 	bool addEdge(uint u) override //returns false if u is invalid
 	{
 		if (u >= n)
@@ -32,7 +36,7 @@ public:
 		}
 		return true;
 	}
-	const LIPtr getLI() override
+	LIPtr getLI() override
 	{
 		if (v.empty() && !flagBitset)
 			return LIPtr((AbstractLI *) new EmptyLI());
@@ -48,3 +52,5 @@ private:
 	vector <uint> v;
 	vector <bool> bitset;
 };
+
+#endif
