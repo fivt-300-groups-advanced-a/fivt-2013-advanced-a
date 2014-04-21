@@ -21,7 +21,10 @@ public:
 	ListOfIncedents() {}
 	virtual bool isConnected(unsigned int vertex) const = 0;
 	virtual std::unique_ptr<ListOfIncedentsIterator> getIterator() const = 0;
-	virtual void sort() {}
+	virtual std::string getTypeName() const // for testing only
+	{
+		return "Type undefined";
+	}
 	virtual ~ListOfIncedents(){}
 };
 
@@ -96,7 +99,8 @@ private:
 class BitSetList : public ListOfIncedents
 {
 public:
-	explicit BitSetList(const std::vector<unsigned int>& data, unsigned int graph_size)
+
+	BitSetList(const std::vector<unsigned int>& data, unsigned int graph_size)
 	{
 		incidents_.resize(graph_size);
 		for (unsigned int i = 0; i < data.size(); i++)
@@ -108,7 +112,7 @@ public:
 
 	bool isConnected(unsigned int vertex) const	override
 	{
-		assert(vertex >= 0 && vertex <= incidents_.size());
+		assert(vertex >= 0 && vertex < incidents_.size());
 		return incidents_[vertex];
 	}
 
@@ -120,6 +124,11 @@ public:
 						);
 	}
 
+	std::string getTypeName() const override
+	{
+		return "BitSet";
+	}
+
 	virtual ~BitSetList() {}
 private:
 	std::vector<bool> incidents_;
@@ -128,23 +137,17 @@ private:
 class StandartList : public ListOfIncedents
 {
 public:
-	StandartList(const std::vector<unsigned int>& incidents, bool to_sort = false)
-		:incidents_(incidents), sorted_(to_sort)
+	StandartList(const std::vector<unsigned int>& incidents)
+		:incidents_(incidents)
 	{
-		if (to_sort)
 			std::sort(incidents_.begin(), incidents_.end());
 	}
-	void sort() override
-	{
-		if (!sorted_)
-			std::sort(incidents_.begin(), incidents_.end());
-		sorted_ = 1;
-	}
+
 	bool isConnected(unsigned int vertex) const override
 	{
-		assert(sorted_);
 		return std::binary_search(incidents_.begin(), incidents_.end(), vertex);
 	}
+
 	std::unique_ptr<ListOfIncedentsIterator> getIterator() const override
 	{
 		return std::move(
@@ -152,10 +155,15 @@ public:
 						 (new StdIterator<std::vector<unsigned int>::const_iterator>(incidents_.begin(), incidents_.end()))
 						);
 	}
+
+	std::string getTypeName() const override
+	{
+		return "List";
+	}
+
 	virtual ~StandartList(){}
 private:
 	std::vector<unsigned int> incidents_;
-	bool sorted_;
 };
 
 class OneVertexList : public ListOfIncedents
@@ -174,6 +182,12 @@ public:
 						  (new IteratorByIsConnected(this, vertex_, vertex_))
 						);
 	}
+
+	std::string getTypeName() const override
+	{
+		return "OneVertex";
+	}
+
 	virtual ~OneVertexList(){}
 private:
 	unsigned int vertex_;
@@ -215,6 +229,13 @@ public:
 							(new IteratorByIsConnected(this, 1, 0))
 						);
 	}
+
+	std::string getTypeName() const override
+	{
+		return "Empty";
+	}
+
+	virtual ~EmptyList(){}
 };
 
 #endif
