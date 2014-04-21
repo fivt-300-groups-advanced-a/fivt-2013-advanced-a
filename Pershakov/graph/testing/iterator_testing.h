@@ -77,4 +77,16 @@ TEST(IteratorTesting, ByConnectionIteratorTesting) {
     }
 }
 
+TEST(IteratorTesting, ManualTesting) {
+    std::vector<int> arr;
+    int sz = 500;
+    arr.push_back(sz - 1);
+    std::unique_ptr<ListOfIncidents> li(new FakeListOfIncidents(arr));
+    ByConnectionIterator it(li.get(), 0, sz);
+    ASSERT_TRUE(it.getVertex() == sz - 1);
+    it.next();
+    ASSERT_EQ(it.getVertex(), -1);
+
+}
+
 #endif

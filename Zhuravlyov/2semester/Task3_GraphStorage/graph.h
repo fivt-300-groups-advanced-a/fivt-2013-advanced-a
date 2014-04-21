@@ -7,7 +7,7 @@
 class Graph
 {
 public:
-	Graph(std::vector< std::unique_ptr<ListOfIncedents> > &edges)
+	Graph(std::vector< std::unique_ptr<ListOfIncedents> > &&edges) 
 	{
 		edges_ = std::move(edges);
 	}
@@ -37,14 +37,19 @@ public:
 		}
 	}
 
-	ListOfIncedents& getIncedents(unsigned int i)
+	const ListOfIncedents& getIncedents(unsigned int i) const
 	{
 		return *edges_[i];
 	}
 
-	ListOfIncedents& getBackEdges(unsigned int i)
+	const ListOfIncedents& getBackEdges(unsigned int i) const
 	{
 		return *back_edges_[i];
+	}
+
+	unsigned int getsize() const
+	{
+		return edges_.size();
 	}
 private:
 	std::vector< std::unique_ptr<ListOfIncedents> > edges_;

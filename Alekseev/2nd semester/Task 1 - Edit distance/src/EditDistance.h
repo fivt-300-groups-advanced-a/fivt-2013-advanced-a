@@ -5,9 +5,23 @@
 #include <functional>
 #include <algorithm>
 
-//#include <iostream>
-//#include <string>
-//using std::cerr;
+struct EditInstruction
+{
+    enum Type
+    {
+        INSERT,
+        ERASE,
+        REPLACE
+    };
+
+    EditInstruction(Type type, std::size_t position, std::size_t newCharPosition = 0):
+        type(type), oldCharPosition(position), newCharPosition(newCharPosition)
+    {}
+
+    Type type;
+    std::size_t oldCharPosition;
+    std::size_t newCharPosition;
+};
 
 namespace
 {
@@ -41,24 +55,6 @@ std::vector<std::size_t> calcPartial(RAIter srcBegin, RAIter srcEnd,
 
     return prevDp;
 }
-
-struct EditInstruction
-{
-    enum Type
-    {
-        INSERT,
-        ERASE,
-        REPLACE
-    };
-
-    EditInstruction(Type type, std::size_t position, std::size_t newCharPosition = 0):
-        type(type), oldCharPosition(position), newCharPosition(newCharPosition)
-    {}
-
-    Type type;
-    std::size_t oldCharPosition;
-    std::size_t newCharPosition;
-};
 
 template<class RAIter,
          class Equal = std::equal_to<typename std::iterator_traits<RAIter>::value_type > >

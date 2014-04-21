@@ -7,7 +7,7 @@ QMAKE_CXXFLAGS += -std=gnu++0x
 
 unix:{
 LIBS += -lpthread
-QMAKE_LIBS += /usr/local/lib/libgtest.a
+QMAKE_LIBS += /usr/local/lib/gtest.a
 }
 
 win32:{
