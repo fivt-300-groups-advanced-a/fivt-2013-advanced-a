@@ -1,9 +1,18 @@
 #include "gtest/gtest.h"
 #include "graph.h"
 
-using graph::AdjacencyMatrixIterator;
-using std::vector;
+using graph::BaseIncidence;
+using graph::BaseIterator;
 using graph::AdjacencyMatrixIncidence;
+using graph::AdjacencyMatrixIterator;
+using graph::GraphIterator;
+
+using graph::AccessGraphIterator;
+using graph::AccessAdjacencyMatrixIterator;
+using graph::AccessAdjacencyMatrixIncidence;
+
+using std::vector;
+using std::unique_ptr;
 
 class graph::AccessAdjacencyMatrixIterator {
  public:
@@ -22,12 +31,24 @@ class graph::AccessAdjacencyMatrixIncidence {
   AdjacencyMatrixIncidence* li_ptr_;
 };
 
+class graph::AccessGraphIterator {
+ public:
+  AccessGraphIterator(GraphIterator* it_ptr) : it_ptr_(it_ptr) {}
+  vector<unique_ptr<BaseIncidence>>::const_iterator getPos() {
+    return it_ptr_->pos_;
+  }
+  vector<unique_ptr<BaseIncidence>>::const_iterator getEnd() {
+    return it_ptr_->end_;
+  }
+  GraphIterator* it_ptr_;
+};
+
 TEST(AdjacencyMatrixIterator, Constructor) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};
 
   AdjacencyMatrixIterator it(0, values.begin(), values.end());
   
-  graph::AccessAdjacencyMatrixIterator acc_it(&it);
+  AccessAdjacencyMatrixIterator acc_it(&it);
   EXPECT_EQ(values.begin(), acc_it.getPos());
   EXPECT_EQ(values.end(), acc_it.getEnd());
   EXPECT_EQ(0, it.getCurrentVertexId());
@@ -55,7 +76,7 @@ TEST(AdjacencyMatrixIterator, isValid) {
 TEST(AdjacencyMatrixIterator, moveForvard) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};  
   AdjacencyMatrixIterator matrix_it(2, values.begin() + 2, values.end());
-  graph::AccessAdjacencyMatrixIterator acc_matrix_it(&matrix_it);
+  AccessAdjacencyMatrixIterator acc_matrix_it(&matrix_it);
   int val = 0;
 
   for (vector<bool>::iterator it = values.begin(); it != values.end(); ++it) {
@@ -81,7 +102,7 @@ TEST(AdjacencyMatrixIncidence, Constructor) {
   vector<bool> values(init, init + 6);
   //Constructor which copies vector<bool>
   AdjacencyMatrixIncidence li1(values);
-  graph::AccessAdjacencyMatrixIncidence access_li(&li1);
+  AccessAdjacencyMatrixIncidence access_li(&li1);
   EXPECT_EQ(vector<bool>(init, init + 6), access_li.getVectorBool());
   EXPECT_EQ(vector<bool>(init, init + 6), values);
 
@@ -96,9 +117,59 @@ TEST(AdjacencyMatrixIncidence, Begin) {
   bool init[6] = {0, 0, 1, 1, 0, 1};
 
   AdjacencyMatrixIncidence li1(vector<bool>(init, init + 6));
-  std::unique_ptr<graph::BaseIterator> ptr_it1 = li1.begin();
+  std::unique_ptr<BaseIterator> ptr_it1 = li1.begin();
   EXPECT_EQ(2, ptr_it1->getCurrentVertexId());
   AdjacencyMatrixIncidence li2(vector<bool>(init + 2, init + 6));
-  std::unique_ptr<graph::BaseIterator> ptr_it2 = li2.begin();
+  std::unique_ptr<BaseIterator> ptr_it2 = li2.begin();
   EXPECT_EQ(0, ptr_it2->getCurrentVertexId());
+}
+
+TEST(GraphIterator, Constructor) {
+  vector<unique_ptr<BaseIncidence>> values(10);
+  GraphIterator it(0, values.begin(), values.end());
+  AccessGraphIterator acc_it(&it);
+  EXPECT_EQ(values.begin(), acc_it.getPos());
+  EXPECT_EQ(values.end(), acc_it.getEnd());
+  EXPECT_EQ(0, it.getCurrentVertexId());
+}
+
+TEST(GraphIterator, getCurrentVertexId) {
+  vector<unique_ptr<BaseIncidence>> values(10);
+  
+  GraphIterator it0(0, values.begin(), values.end());
+  EXPECT_EQ(0, it0.getCurrentVertexId());
+  GraphIterator it3(3, values.begin(), values.end());
+  EXPECT_EQ(3, it3.getCurrentVertexId());
+}
+
+TEST(GraphIterator, isValid) {
+  vector<unique_ptr<BaseIncidence>> values(10);
+  
+  GraphIterator it0(0, values.begin(), values.end());
+  EXPECT_EQ(true, it0.isValid());
+  GraphIterator it3(3, values.end(), values.end());
+  EXPECT_EQ(false, it3.isValid());
+}
+
+TEST(GraphIterator, moveForvard) {
+  vector<unique_ptr<BaseIncidence>> values(10); 
+  GraphIterator it(0, values.begin(), values.end());
+  AccessGraphIterator acc_it(&it);
+  vector<unique_ptr<BaseIncidence>>::const_iterator v_it = values.begin();
+  for (int i = 0; i < 10; ++i, ++v_it) {
+    EXPECT_EQ(i, it.getCurrentVertexId());
+    EXPECT_EQ(v_it, acc_it.getPos());
+    EXPECT_EQ(values.end(), acc_it.getEnd());
+    EXPECT_EQ(true, it.isValid());
+    it.moveForvard();
+  }
+    EXPECT_EQ(-1, it.getCurrentVertexId());
+    EXPECT_EQ(values.end(), acc_it.getPos());
+    EXPECT_EQ(values.end(), acc_it.getEnd());
+    EXPECT_EQ(false, it.isValid());
+    it.moveForvard();
+    EXPECT_EQ(-1, it.getCurrentVertexId());
+    EXPECT_EQ(values.end(), acc_it.getPos());
+    EXPECT_EQ(values.end(), acc_it.getEnd());
+    EXPECT_EQ(false, it.isValid());
 }

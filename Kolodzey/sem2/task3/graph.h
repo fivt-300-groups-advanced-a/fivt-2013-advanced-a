@@ -63,7 +63,6 @@ class AdjacencyMatrixIterator : public BaseIterator {
  friend class AccessAdjacencyMatrixIterator;
 };
 
-class
 class AccessAdjacencyMatrixIncidence;
 
 class AdjacencyMatrixIncidence : public BaseIncidence {
@@ -113,7 +112,45 @@ class AdjacencyListIncidence : public BaseIncidence {
 };
 */
 
+class AccessGraphIterator;
 
+class GraphIterator : public BaseIterator {
+
+ public:
+  
+  GraphIterator(int vertex_id,
+                const vector<unique_ptr<BaseIncidence>>::const_iterator pos,
+                const vector<unique_ptr<BaseIncidence>>::const_iterator end)
+      : vertex_id_(vertex_id),
+        pos_(pos),
+        end_(end){}
+
+  virtual void moveForvard() override {
+    if (isValid()) {
+        ++pos_;
+        ++vertex_id_;
+      }
+  }
+
+  virtual int getCurrentVertexId() const override {
+    if (isValid())
+      return vertex_id_;
+    return -1;
+  }
+
+  virtual bool isValid() const override { return pos_ != end_; } 
+  
+  virtual ~GraphIterator() {}
+
+ private:
+  int vertex_id_;
+  vector<unique_ptr<BaseIncidence>>::const_iterator pos_;
+  vector<unique_ptr<BaseIncidence>>::const_iterator end_;
+
+ friend class AccessGraphIterator;
+};
+
+/*
 class Graph {
  public:
   Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
@@ -132,5 +169,5 @@ class Graph {
  private:
   vector<unique_ptr<BaseIncidence>> incidence_;
 };
-
+*/
 }//namespace graph
