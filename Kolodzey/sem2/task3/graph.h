@@ -7,6 +7,7 @@ namespace graph {
 using std::unique_ptr;
 using std::vector;
 using std::cerr;
+using std::endl;
 
 class BaseIterator {
  public:
@@ -150,24 +151,42 @@ class GraphIterator : public BaseIterator {
  friend class AccessGraphIterator;
 };
 
-/*
+
 class Graph {
  public:
   Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
       : incidence_(std::move(incidence)) { }
+
   unique_ptr<BaseIterator> begin(int vertex_id) const {
-    if ((vertex_id >= incidence_.size()) || (vertex_id < -1)) {
+    if ((vertex_id >= int(size())) || (vertex_id < -1)) {
       cerr << "impossible to return begin(" << vertex_id << ")" << std::endl;
       cerr << "Id out of range" << std::endl;
       abort();
     }
-    //if (vertex_id == -1)
-    //  return Iterator trough all vertexes
-    return ;
+    if (vertex_id == -1) //return Iterator via all vertexes
+      return unique_ptr<GraphIterator> (new GraphIterator(0,
+                                                          incidence_.cbegin(),
+                                                          incidence_.cend()));
+    return incidence_[vertex_id]->begin();
   }
-  bool isConnected(int u, int v)
+
+  bool isConnected(int u, int v) const {
+    if ((u >= int(size())) || (u < 0) || (v >= int(size())) || (v < 0)) {
+      cerr << "impossible to return isConnected(" << u << ", "
+                                                  << v << ")" << endl;
+      cerr << "Id out of range; size = " << size() << endl;
+      cerr << "Possible ids are 0 ... " << size() - 1 << endl;
+      abort();
+    }
+    return incidence_[u]->isConnected(v);
+  }
+
+  size_t size() const {
+    return incidence_.size();
+  }
+
  private:
   vector<unique_ptr<BaseIncidence>> incidence_;
 };
-*/
+
 }//namespace graph
