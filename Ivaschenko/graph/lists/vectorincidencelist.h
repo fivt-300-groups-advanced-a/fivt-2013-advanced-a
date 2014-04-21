@@ -12,6 +12,8 @@ namespace graph
 	class VectorIncidenceList : public IncidenceList
 	{
 		public:
+			typedef StdIncidenceListIterator< std::vector<vertex_t>::const_iterator > iterator_type;
+
 			VectorIncidenceList() {}
 
 			template<typename ForwardIterator>
@@ -31,11 +33,9 @@ namespace graph
 				return adjList.size();
 			}
 
-			std::unique_ptr<IncidenceListIterator> getIterator() const override
+			iterator_pointer getIterator() const override
 			{
-				// TODO: typedef maybe
-				return std::move(std::unique_ptr<IncidenceListIterator>
-								 (new StdIncidenceListIterator<std::vector<vertex_t>::const_iterator>(adjList.begin(), adjList.end())));
+				return std::move(iterator_pointer(new iterator_type(adjList.begin(), adjList.end())));
 			}
 
 			bool connected(vertex_t v) const override

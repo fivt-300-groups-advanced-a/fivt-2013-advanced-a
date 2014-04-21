@@ -11,6 +11,8 @@ namespace graph
 	class IncidenceList
 	{
 		public:
+			typedef std::unique_ptr<IncidenceListIterator> iterator_pointer;
+
 			virtual std::size_t size() const = 0;
 
 			std::size_t length() const
@@ -18,7 +20,7 @@ namespace graph
 				return size();
 			}
 
-			virtual std::unique_ptr<IncidenceListIterator> getIterator() const = 0;
+			virtual iterator_pointer getIterator() const = 0;
 
 			virtual bool connected(vertex_t v) const = 0;
 

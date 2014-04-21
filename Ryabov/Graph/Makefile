@@ -1,18 +1,16 @@
-debug: clean
-	mkdir tmp
+debug:
+	mkdir -p tmp
 	cd tmp && cmake -DCMAKE_BUILD_TYPE=Debug ./..
 	$(MAKE) -C tmp
-	rm -r -f tmp
 
-release: clean
-	mkdir tmp
+release:
+	mkdir -p tmp
 	cd tmp && cmake ./..
 	$(MAKE) -C tmp
-	rm -r -f tmp
 
 clean:
 	rm -r -f tmp
 	rm -r -f bin
 
-run:
+run: debug
 	./bin/main

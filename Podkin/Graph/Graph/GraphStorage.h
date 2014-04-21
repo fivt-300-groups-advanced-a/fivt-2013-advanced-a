@@ -17,7 +17,9 @@
 
 class Graph{
 public:
-    Graph(std::vector<std::unique_ptr<ListOfIncidentVerteces> > &_graph)
+    Graph() {}
+    
+    explicit Graph(std::vector<std::unique_ptr<ListOfIncidentVerteces> > &_graph)
     {
         graph = std::move(_graph);
     }

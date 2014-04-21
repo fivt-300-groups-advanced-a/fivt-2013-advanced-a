@@ -19,16 +19,15 @@ namespace
 
 		std::size_t size() const
 		{
-			return b - a + 1;
+			return b - a;
 		}
 	};
 
 	TestCase genTestCase(std::size_t n, std::size_t seed)
 	{
-		assert(n > 0);
 		std::mt19937 generator(seed);
 		std::size_t start = generator() % 1000000000;
-		return TestCase(start, start + n - 1);
+		return TestCase(start, start + n);
 	}
 
 	TEST(ConsecutiveIncidenceList, CustomTest)
@@ -60,7 +59,7 @@ namespace
 				prev = it->getVertex();
 			}
 			ASSERT_EQ(cnt, test.size());
-			for (std::size_t to = test.a; to <= test.b; ++to)
+			for (std::size_t to = test.a; to < test.b; ++to)
 				ASSERT_TRUE(list->connected(to));
 		}
 	}
