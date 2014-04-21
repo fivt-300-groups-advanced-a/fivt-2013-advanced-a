@@ -12,6 +12,8 @@ namespace graph
 	class BitsetIncidenceList : public IncidenceList
 	{
 		public:
+			typedef AdjacencyMatrixIterator iterator_type;
+
 			explicit BitsetIncidenceList(std::size_t graphSize): bitCount(0)
 			{
 				isNeighbour.assign(graphSize, false);
@@ -40,10 +42,9 @@ namespace graph
 				return bitCount;
 			}
 
-			std::unique_ptr<IncidenceListIterator> getIterator() const override
+			iterator_pointer getIterator() const override
 			{
-				return std::move(std::unique_ptr<IncidenceListIterator>
-								 (new AdjacencyMatrixIterator(this, 0, isNeighbour.size() - 1)));
+				return std::move(iterator_pointer(new iterator_type(this, 0, isNeighbour.size())));
 			}
 
 			bool connected(vertex_t v) const override

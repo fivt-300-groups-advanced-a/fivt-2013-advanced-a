@@ -16,8 +16,6 @@ namespace graph
 				return this->operator * ();
 			}
 
-			// TODO: delete this
-			virtual std::unique_ptr<IncidenceListIterator> next() const = 0;
 			virtual bool moveForward() = 0;
 
 			virtual bool valid() const = 0;

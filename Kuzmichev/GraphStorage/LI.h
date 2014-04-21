@@ -1,3 +1,6 @@
+#ifndef LI
+#define LI
+
 #include <memory>
 #include <vector>
 #include <algorithm>
@@ -19,11 +22,12 @@ public:
 
 typedef unique_ptr <AbstractIter> IterPtr;
 
-template <typename Iterator>
+/*template <typename Iterator>*/
 class StandardIter : AbstractIter
 {
 public:
-	StandardIter(Iterator _cur, Iterator _end) : cur(_cur), end(_end) {}
+	//StandardIter(Iterator _cur, Iterator _end) : cur(_cur), end(_end) {}
+	StandardIter(vector <uint> ::iterator _cur, vector <uint> ::iterator _end) : cur(_cur), end(_end) {}
 	bool next() override
 	{
 		if (cur == end)
@@ -40,7 +44,8 @@ public:
 		return cur == end;
 	}
 private:
-	Iterator cur, end;
+	vector <uint> :: iterator cur, end;
+	//Iterator cur, end;
 };
 
 class BitsetIter : AbstractIter
@@ -120,7 +125,7 @@ class AbstractLI
 {
 public:
 	//AbstractLI(){}
-	virtual const bool isConnected(uint u) = 0;
+	virtual const bool isConnected(const uint u) = 0;
 	virtual const IterPtr getIterator() = 0;
 	const string getClass()
 	{
@@ -136,8 +141,8 @@ typedef vector < LIPtr > vectorLI;
 class FuncLI : AbstractLI
 {
 public:
-	explicit FuncLI(int _v) : v(_v) {}
-	const bool isConnected(uint u) override
+	explicit FuncLI(const int _v) : v(_v) {}
+	const bool isConnected(const uint u) override
 	{
 		return u == v;
 	}
@@ -152,35 +157,33 @@ private:
 class StandardLI : AbstractLI
 {
 public:
-	StandardLI(vector<uint> & _v, bool _sorted) : v(_v), sorted(_sorted) {}
-	explicit StandardLI(vector<uint> & _v) : v(_v), sorted(false) {}
-	const bool isConnected(uint u) override
+	//StandardLI(vector<uint> & _v, bool _sorted) : v(_v), sorted(_sorted) {}
+	StandardLI(vector<uint> & _v, bool sorted) : v(_v)
 	{
 		if (!sorted)
-			sort();
+			sort(v.begin(), v.end());
+	}
+	explicit StandardLI(vector<uint> & _v) : v(_v)
+	{
+		sort(v.begin(), v.end());
+	}
+	const bool isConnected(const uint u) override
+	{
 		return binary_search(v.begin(), v.end(), u);
 	}
 	const IterPtr getIterator() override
 	{
-		if (!sorted)
-			sort();
-		return IterPtr((AbstractIter *)new StandardIter<vector <uint> :: iterator> (v.begin(), v.end()));
+		return IterPtr((AbstractIter *)new StandardIter (v.begin(), v.end()));
 	}
 private:
 	vector <uint> v;
-	bool sorted;
-	void sort()
-	{
-		std::sort(v.begin(), v.end());
-		sorted = true;
-	}
 };
 
 class BitsetLI : AbstractLI
 {
 public:
 	explicit BitsetLI(vector <bool> & _bitset) : bitset(_bitset) {}
-	const bool isConnected(uint u) override
+	const bool isConnected(const uint u) override
 	{
 		return bitset[u];
 	}
@@ -196,7 +199,7 @@ class EmptyLI : AbstractLI
 {
 public:
 	EmptyLI(){}
-	const bool isConnected(uint u) override
+	const bool isConnected(const uint u) override
 	{
 		return false;
 	}
@@ -205,3 +208,5 @@ public:
 		return IterPtr((AbstractIter *) new EmptyIter());
 	}
 };
+
+#endif

@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "./../bin/")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "./../bin/")
 project(Graph)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(SOURCE_EXE main.cpp)
 
-set(SOURCE_LIB graph.cc)
+set(SOURCE_LIB graph.cpp)
 
-add_library(graph SHARED ${SOURCE_LIB})
+#add_library(graph SHARED ${SOURCE_LIB})
 
 add_executable(main ${SOURCE_EXE})
 
@@ -21,4 +21,4 @@ else()
 endif()
 
 
-target_link_libraries(main graph ${GTEST_LIBRARIES})
+target_link_libraries(main ${GTEST_LIBRARIES})

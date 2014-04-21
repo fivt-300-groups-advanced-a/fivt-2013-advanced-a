@@ -29,7 +29,7 @@ TEST(handmade, vectorInt) {
     EXPECT_TRUE(g.isConnected(2, 0));
     
     std::set<int> s;
-    for (auto i = g.getIncidents(1)->begin(); !i->end(); ++(*i)) {
+    for (auto i = g.getIncedents(1)->begin(); !i->end(); ++(*i)) {
         s.insert(**i);
     }
     EXPECT_EQ(s.size(), 2);
@@ -53,7 +53,7 @@ TEST(handmade, vectorBool) {
     EXPECT_TRUE(g.isConnected(2, 0));
     
     std::set<int> s;
-    for (auto i = g.getIncidents(1)->begin(); !i->end(); ++(*i)) {
+    for (auto i = g.getIncedents(1)->begin(); !i->end(); ++(*i)) {
         s.insert(**i);
     }
     EXPECT_EQ(s.size(), 2);
@@ -61,7 +61,7 @@ TEST(handmade, vectorBool) {
     EXPECT_NE(s.end(), s.find(2));
 }
 
-const int N = 20;
+const int N = 40;
 
 TEST(Random, vectorInt) {
     std::vector<int> G[N];
@@ -76,12 +76,12 @@ TEST(Random, vectorInt) {
                     v.erase(std::unique(v.begin(), v.end()), v.end());
                     std::random_shuffle(v.begin(), v.end());
                     std::copy(v.begin(), v.end(), std::back_inserter<std::vector<int> >(G[x]));
-                    return new VectorIntList(v);
+                    return new VectorIntList(std::move(v));
                 }
             ));
     for (int i = 0; i < N; i++) {
         std::vector<int> vv;
-        for (auto j = g.getIncidents(i)->begin(); !j->end(); ++(*j)) {
+        for (auto j = g.getIncedents(i)->begin(); !j->end(); ++(*j)) {
             vv.push_back(**j);
         }
         std::sort(vv.begin(), vv.end());
@@ -108,7 +108,7 @@ TEST(Random, vectorBool) {
                             G[x][i] = true;
                         }
                     }
-                    return new VectorBoolList(v);
+                    return new VectorBoolList(std::move(v));
                 }
             ));
     for (int i = 0; i < N; i++) {
@@ -116,7 +116,7 @@ TEST(Random, vectorBool) {
         int kolit = 0, kolG = 0;
         for (int j = 0; j < N; j++)
             kolG += G[i][j];
-        for (auto j = g.getIncidents(i)->begin(); !j->end(); ++(*j), kolit++) {
+        for (auto j = g.getIncedents(i)->begin(); !j->end(); ++(*j), kolit++) {
             EXPECT_TRUE(G[i][**j]);
         }
         EXPECT_EQ(kolit, kolG);
@@ -124,4 +124,67 @@ TEST(Random, vectorBool) {
             EXPECT_EQ(g.isConnected(i, j), G[i][j]);
         }
     }
+}
+
+std::vector<bool> mark;
+
+bool find(int u, int v, const Graph & g) {
+    if (mark[u]) return false;
+    mark[u] = true;
+    if (u == v) return true;
+    for (auto i = g.getIncedents(u)->begin(); !i->end(); ++*i) {
+        if (find(**i, v, g)) return true;
+    }
+    return false;
+}
+
+bool isCon(int u, int v, const Graph & g) {
+    mark.assign(g.size(), false);
+    return find(u, v, g);
+}
+
+TEST(Algorithm, StrongComps) {
+    std::vector<std::vector<int> > G(N), Gtmp;
+    for (int i = 0; i < N; i++) {
+        int Nn = rand() % (N);
+        for (int cc = 0; i < Nn; i++)
+            G[i].push_back(rand() % N);
+    }
+    Gtmp = G;
+    Graph GG(map(N, [&](int i) {
+                    return new VectorIntList(std::move(Gtmp[i])); 
+                }));
+    std::vector<int> vv = getStrongComponents(GG);
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++) {
+            EXPECT_EQ(vv[i] == vv[j], isCon(i, j, GG) && isCon(j, i, GG)) << " " << i << " " << j;
+        }
+    }
+}
+
+
+TEST(Algorithm, addEdges) {
+    std::vector<std::vector<int> > G(N), Gtmp;
+    for (int i = 0; i < N; i++) {
+        int Nn = rand() % (N);
+        for (int cc = 0; i < Nn; i++) {
+            int tt  = rand() % N;
+            G[i].push_back(tt);
+            //std::cerr << i << "--" << tt << "\n";
+        }
+    }
+    Gtmp = G;
+    Graph G1(map(N, [&](int i) {
+                    return new VectorIntList(std::move(Gtmp[i])); 
+                }));
+    std::vector<std::pair<int, int> > edg = addEdges(G1);
+    for (int i = 0; i < edg.size(); i++) {
+        G[edg[i].first].push_back(edg[i].second);
+    }
+    Graph G2(map(N, [&](int i) {
+                    return new VectorIntList(std::move(G[i])); 
+                }));
+    std::vector<int> sG = getStrongComponents(G2);
+    for (int i = 0; i < N; i++)
+        EXPECT_EQ(sG[i], 1);
 }

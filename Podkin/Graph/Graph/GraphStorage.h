@@ -17,12 +17,14 @@
 
 class Graph{
 public:
-    Graph(std::vector<std::unique_ptr<ListOfIncidentVerteces> > &_graph)
+    Graph() {}
+    
+    explicit Graph(std::vector<std::unique_ptr<ListOfIncidentVerteces> > &_graph)
     {
         graph = std::move(_graph);
     }
     
-    const ListOfIncidentVerteces& getIncidentVerteces(int vertex)
+    const ListOfIncidentVerteces& getIncidentVerteces(int vertex) const
     {
         return *graph[vertex];
     }
