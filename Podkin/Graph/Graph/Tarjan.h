@@ -17,13 +17,12 @@
 class SCCTarjan
 {
 public:
-    SCCTarjan(const Graph &gr, int n)
+    SCCTarjan(int n)
     {
-        graph = gr;
         graph_lenght = n;
     }
     
-    std::vector<std::vector<int> > scc()
+    std::vector<std::vector<int> > scc(const Graph &graph)
     {
         time = 0;
         low_link.resize(graph_lenght);
@@ -32,7 +31,7 @@ public:
         {
             if (!used[i])
             {
-                dfs(i);
+                dfs(graph, i);
             }
         }
         return components;
@@ -40,13 +39,12 @@ public:
 private:
     int time;
     int graph_lenght;
-    Graph graph;
     std::vector<int> low_link;
     std::vector<bool> used;
     std::stack<int> stack;
     std::vector <std::vector<int> > components;
     
-    void dfs(int vertex)
+    void dfs(const Graph &graph, int vertex)
     {
         low_link[vertex] = time++;
         used[vertex] = true;
@@ -59,7 +57,7 @@ private:
             int to = it->getIncidentVertex();
             if (!used[to])
             {
-                dfs(to);
+                dfs(graph, to);
             }
             if (low_link[vertex] > low_link[to]) {
                 low_link[vertex] = low_link[to];
