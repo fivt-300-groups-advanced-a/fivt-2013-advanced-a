@@ -12,16 +12,18 @@ namespace graph
 	class VectorIncidenceList : public IncidenceList
 	{
 		public:
-			VectorIncidenceList(): sorted(true) {}
-			VectorIncidenceList(std::vector<vertex_t> neighbours, bool sortNeeded = false):
-				adjList(neighbours), sorted(sortNeeded)
+			VectorIncidenceList() {}
+
+			template<typename ForwardIterator>
+			VectorIncidenceList(ForwardIterator begin, ForwardIterator end):
+				adjList(begin, end)
 			{
-				if (sortNeeded) performSort();
+				performSort();
 			}
-			VectorIncidenceList(const std::initializer_list<vertex_t> &neighbours, bool sortNeeded = false):
-				adjList(neighbours), sorted(sortNeeded)
+			VectorIncidenceList(std::initializer_list<vertex_t> neighbours):
+				adjList(neighbours)
 			{
-				if (sortNeeded) performSort();
+				performSort();
 			}
 
 			size_t size() const override
@@ -31,25 +33,24 @@ namespace graph
 
 			std::unique_ptr<IncidenceListIterator> getIterator() const override
 			{
+				// TODO: typedef maybe
 				return std::move(std::unique_ptr<IncidenceListIterator>
 								 (new StdIncidenceListIterator<std::vector<vertex_t>::const_iterator>(adjList.begin(), adjList.end())));
 			}
 
 			bool connected(vertex_t v) const override
 			{
-				if (sorted)
-					return std::binary_search(adjList.begin(), adjList.end(), v);
-				return std::find(adjList.begin(), adjList.end(), v) != adjList.end();
+				return std::binary_search(adjList.begin(), adjList.end(), v);
 			}
 
 			virtual ~VectorIncidenceList() {}
 		private:
 			std::vector<vertex_t> adjList;
-			bool sorted;
 
 			void performSort()
 			{
-				sort(adjList.begin(), adjList.end());
+				if (!is_sorted(adjList.begin(), adjList.end()))
+					sort(adjList.begin(), adjList.end());
 			}
 	};
 }

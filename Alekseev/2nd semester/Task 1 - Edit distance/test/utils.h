@@ -9,55 +9,55 @@
 
 namespace
 {
-    template<class RAIter, class Equal>
-    void checkAnswer(std::size_t ans,
-                     RAIter srcBegin, RAIter srcEnd,
-                     RAIter destBegin, RAIter destEnd,
-                     Equal equal)
+template<class RAIter, class Equal>
+void checkAnswer(std::size_t ans,
+                 RAIter srcBegin, RAIter srcEnd,
+                 RAIter destBegin, RAIter destEnd,
+                 Equal equal)
+{
+    ASSERT_EQ(calcPartial(srcBegin, srcEnd, destBegin, destEnd, equal).back(), ans);
+}
+
+template<class RAIter, class Equal>
+void checkPrescription(RAIter srcBegin, RAIter srcEnd,
+                       RAIter destBegin, RAIter destEnd,
+                       Equal equal)
+{
+    std::vector<EditInstruction> inst = editPrescription(srcBegin, srcEnd, destBegin, destEnd, equal);
+    checkAnswer(inst.size(), srcBegin, srcEnd, destBegin, destEnd, equal);
+
+    //        std::size_t srcSize = srcEnd - srcBegin;
+    std::size_t destSize = destEnd - destBegin;
+
+    std::vector<RAIter> result;
+    for (RAIter it = srcBegin; it != srcEnd; ++it)
+        result.push_back(it);
+
+    for (const EditInstruction &i : inst)
     {
-        ASSERT_EQ(calcPartial(srcBegin, srcEnd, destBegin, destEnd, equal).back(), ans);
-    }
-
-    template<class RAIter, class Equal>
-    void checkPrescription(RAIter srcBegin, RAIter srcEnd,
-                           RAIter destBegin, RAIter destEnd,
-                           Equal equal)
-    {
-        std::vector<EditInstruction> inst = editPrescription(srcBegin, srcEnd, destBegin, destEnd, equal);
-        checkAnswer(inst.size(), srcBegin, srcEnd, destBegin, destEnd, equal);
-
-//        std::size_t srcSize = srcEnd - srcBegin;
-        std::size_t destSize = destEnd - destBegin;
-
-        std::vector<RAIter> result;
-        for (RAIter it = srcBegin; it != srcEnd; ++it)
-            result.push_back(it);
-
-        for (const EditInstruction &i : inst)
+        switch (i.type)
         {
-            switch (i.type)
-            {
-            case EditInstruction::INSERT:
-                ASSERT_LE(i.oldCharPosition, result.size());
-                ASSERT_LT(i.newCharPosition, destSize);
-                result.insert(result.begin() + i.oldCharPosition, destBegin + i.newCharPosition);
-                break;
-            case EditInstruction::ERASE:
-                ASSERT_LT(i.oldCharPosition, result.size());
-                result.erase(result.begin() + i.oldCharPosition);
-                break;
-            case EditInstruction::REPLACE:
-                ASSERT_LT(i.oldCharPosition, result.size());
-                ASSERT_LT(i.newCharPosition, destSize);
-                *(result.begin() + i.oldCharPosition) = destBegin + i.newCharPosition;
-                break;
-            }
+        case EditInstruction::INSERT:
+            ASSERT_LE(i.oldCharPosition, result.size());
+            ASSERT_LT(i.newCharPosition, destSize);
+            result.insert(result.begin() + i.oldCharPosition, destBegin + i.newCharPosition);
+            break;
+        case EditInstruction::ERASE:
+            ASSERT_LT(i.oldCharPosition, result.size());
+            result.erase(result.begin() + i.oldCharPosition);
+            break;
+        case EditInstruction::REPLACE:
+            ASSERT_LT(i.oldCharPosition, result.size());
+            ASSERT_LT(i.newCharPosition, destSize);
+            *(result.begin() + i.oldCharPosition) = destBegin + i.newCharPosition;
+            break;
         }
-
-        ASSERT_EQ(result.size(), destSize);
-        for (std::size_t i = 0; i < destSize; ++i)
-            EXPECT_TRUE(equal(*result[i], *(destBegin + i)));
     }
+
+    ASSERT_EQ(result.size(), destSize);
+    for (std::size_t i = 0; i < destSize; ++i)
+        EXPECT_TRUE(equal(*result[i], *(destBegin + i)));
+}
 }
 
 struct TestCase
