@@ -14,12 +14,12 @@ public:
 class ListByDefault: public DefaultFabric
 {
 public:
-	ListByDefault(const std::vector<std::vector<unsigned int>> &edges, bool to_sort = false)
-		: edges_(edges), to_sort_(to_sort) {}
+	ListByDefault(const std::vector<std::vector<unsigned int>> &edges)
+		: edges_(edges) {}
 
 	std::unique_ptr<ListOfIncedents> getList(unsigned int i) const override
 	{
-		return std::move(std::unique_ptr<ListOfIncedents>(new StandartList(edges_[i], to_sort_)));
+		return std::move(std::unique_ptr<ListOfIncedents>(new StandartList(edges_[i])));
 	}
 	virtual ~ListByDefault() {}
 private:

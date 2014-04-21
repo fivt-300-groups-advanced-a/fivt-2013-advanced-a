@@ -65,9 +65,9 @@ class ByConnectionIterator : public Iterator {
         int last_vertex;
 };
 
-template<class T> class StdIterator : public Iterator {
+template<class Iter> class StdIterator : public Iterator {
     public:
-        StdIterator(const T _cur, const T _last) {
+        StdIterator(const Iter _cur, const Iter _last) {
             cur = _cur;
             last = _last;
         }
@@ -87,7 +87,7 @@ template<class T> class StdIterator : public Iterator {
         }
 
     private:
-        T cur, last;
+        Iter cur, last;
 };
 
 class FunctionalListOfIncidents : public ListOfIncidents {
@@ -195,7 +195,7 @@ class EmptyListOfIncidents : public ListOfIncidents {
         std::unique_ptr<Iterator> getIterator() const override {
             return std::move(
                     std::unique_ptr<Iterator>(
-                        new ByConnectionIterator(this, 1, 1))); 
+                        new ByConnectionIterator(this, 1, 0))); 
         }
 
         std::string getType() const override {
