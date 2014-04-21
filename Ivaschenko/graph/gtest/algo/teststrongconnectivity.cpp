@@ -48,6 +48,31 @@ namespace
 			}
 	};
 
+	TestCase genFullComps(std::size_t numComps, std::size_t compSize)
+	{
+		TestCase test(numComps * compSize, {});
+		for (std::size_t i = 0; i < numComps; ++i)
+			for (std::size_t j = 0; j < compSize; ++j)
+				for (std::size_t z = 0; z < compSize; ++z)
+					if (j != z)
+						test.adjList[i * compSize + j].push_back(i * compSize + z);
+		return test;
+	}
+
+	void genAllGraphs(std::size_t n, std::vector<TestCase> &v)
+	{
+		assert(n <= 5);
+		for (std::size_t msk = 0; msk < (1U << (n * n)); ++msk)
+		{
+			TestCase cur(n, {});
+			for (std::size_t i = 0; i < n; ++i)
+				for (std::size_t j = 0; j < n; ++j)
+					if ((msk >> (i * n + j)) & 1)
+						cur.adjList[i].push_back(j);
+			v.push_back(cur);
+		}
+	}
+
 	TEST(StrongConnectivity, FindComponents)
 	{
 		std::vector<TestCase> tests =
@@ -55,6 +80,7 @@ namespace
 			TestCase(4, {{0, 1}, {1, 2}, {2, 3}, {3, 0}}),
 			TestCase(4, {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {0, 2}}),
 			TestCase(5, {{0, 1}, {1, 0}, {2, 3}, {3, 4}, {2, 4}}),
+			TestCase(4, {{1, 0}, {3, 0}, {1, 2}, {2, 3}, {3, 1}}),
 			TestCase(5, 8, 1),
 			TestCase(5, 12, 2),
 			TestCase(1, 5, 3),
@@ -62,7 +88,10 @@ namespace
 			TestCase(10, 40, 5),
 			TestCase(10, 100, 6),
 			TestCase(10, 500, 7),
+			genFullComps(3, 5),
+			genFullComps(4, 2),
 		};
+		genAllGraphs(4, tests);
 
 		for (auto test : tests)
 		{
@@ -93,9 +122,12 @@ namespace
 	{
 		std::vector<TestCase> tests =
 		{
-			TestCase(5, {{0, 1}, {1, 0}, {2, 3}, {3, 4}, {2, 4}}),
+			TestCase(3, {{1, 1}, {2, 0}, {2, 1}}),
+			TestCase(3, {{0, 2}, {1, 2}}),
 			TestCase(4, {{0, 1}, {1, 2}, {2, 3}, {3, 0}}),
 			TestCase(4, {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {0, 2}}),
+			TestCase(5, {{0, 1}, {1, 0}, {2, 3}, {3, 4}, {2, 4}}),
+			TestCase(10, {}),
 			TestCase(5, 8, 1),
 			TestCase(5, 12, 2),
 			TestCase(1, 5, 3),
@@ -103,7 +135,14 @@ namespace
 			TestCase(10, 40, 5),
 			TestCase(10, 100, 6),
 			TestCase(10, 500, 7),
+			TestCase(10, 0, 8),
+			TestCase(10, 9, 9),
+			TestCase(20, 50, 10),
+			genFullComps(3, 5),
+			genFullComps(7, 2),
 		};
+		genAllGraphs(4, tests);
+
 		for (auto test : tests)
 		{
 			std::vector< std::unique_ptr<graph::IncidenceList> > lists(test.size());
@@ -129,6 +168,14 @@ namespace
 				lists.push_back(std::move(builders[v].getList()));
 
 			graph::Graph augmented(lists);
+			if (!graph::strong_connectivity::isStrongConnected(augmented))
+			{
+				std::cout << g.size() << std::endl;
+				for (graph::vertex_t v = 0; v < g.size(); ++v)
+					for (auto it = g.getEdgesFrom(v)->getIterator(); it->valid(); it->moveForward())
+						std::cout << v << " " << it->getVertex() << std::endl;
+
+			}
 			ASSERT_TRUE(graph::strong_connectivity::isStrongConnected(augmented));
 		}
 	}

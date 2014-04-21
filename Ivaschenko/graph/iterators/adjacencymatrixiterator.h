@@ -9,22 +9,16 @@ namespace graph
 	class AdjacencyMatrixIterator : public IncidenceListIterator
 	{
 		public:
-			AdjacencyMatrixIterator(const IncidenceList *list, vertex_t start, vertex_t finish):
-				matrixRow(list), current(start), last(finish)
+			AdjacencyMatrixIterator(const IncidenceList *list, vertex_t begin, vertex_t end):
+				matrixRow(list), current(begin), last(end)
 			{
 				normalize();
 			}
 
 			vertex_t operator * () const override
 			{
-				// TODO: assertion
+				assert(current < last);
 				return current;
-			}
-
-			std::unique_ptr<IncidenceListIterator> next() const override
-			{
-				return std::move(std::unique_ptr<IncidenceListIterator>(
-								 new AdjacencyMatrixIterator(matrixRow, current + 1, last)));
 			}
 
 			bool moveForward() override
@@ -36,7 +30,7 @@ namespace graph
 
 			bool valid() const override
 			{
-				return current <= last;
+				return current < last;
 			}
 
 
@@ -46,7 +40,7 @@ namespace graph
 
 			void normalize()
 			{
-				while (current <= last && !matrixRow->connected(current))
+				while (current < last && !matrixRow->connected(current))
 					++current;
 			}
 	};

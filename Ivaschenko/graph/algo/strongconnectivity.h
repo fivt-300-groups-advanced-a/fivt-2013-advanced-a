@@ -55,7 +55,7 @@ namespace graph
 				if (!g.getEdgesFrom(v)->size()) return v;
 				for (auto it = g.getEdgesFrom(v)->getIterator(); it->valid(); it->moveForward())
 				{
-					vertex_t result = findSinkPair(g, used, it->getVertex()) != g.size();
+					vertex_t result = findSinkPair(g, used, it->getVertex());
 					if (result != g.size()) return result;
 				}
 				return g.size();
@@ -71,7 +71,7 @@ namespace graph
 				impl::findComponents(g, stack, info, v, cnt);
 			std::vector<vertex_t> color(g.size());
 			for (vertex_t v = 0; v < g.size(); ++v)
-			color[v] = info[v].color;
+				color[v] = info[v].color;
 			return color;
 		}
 
@@ -105,7 +105,6 @@ namespace graph
 				if (color[v] == v)
 				{
 					if (!lists.back()->size() && !edgesTo[v]) alone.push_back(v);
-					else if (!lists.back()->size())	sinks.push_back(v);
 					else if (!edgesTo[v]) sources.push_back(v);
 				}
 			}
@@ -118,13 +117,14 @@ namespace graph
 			{
 				vertex_t matched = impl::findSinkPair(condensation, used, sources[ptr]);
 				if (matched == condensation.size()) continue;
+				sinks.push_back(matched);
 				std::swap(sources[common], sources[ptr]);
 				isGoodSink[matched] = true;
 				++common;
 			}
-			for (std::size_t i = 0, ptr = 0; i < sinks.size(); ++i)
-				if (isGoodSink[sinks[i]])
-					std::swap(sinks[ptr++], sinks[i]);
+			for (vertex_t v = 0; v < g.size(); ++v)
+				if (!condensation.getEdgesFrom(v)->size() && edgesTo[v] && !isGoodSink[v])
+					sinks.push_back(v);
 
 			std::vector< std::pair<vertex_t, vertex_t> > answer;
 			for (size_t i = 0; i + 1 < common; ++i)
@@ -142,7 +142,7 @@ namespace graph
 			{
 				for (std::size_t i = 0; i + 1 < alone.size(); ++i)
 					answer.emplace_back(alone[i], alone[i + 1]);
-				if (answer.size() > 1)
+				if (alone.size() > 1)
 					answer.emplace_back(alone.back(), alone[0]);
 			}
 

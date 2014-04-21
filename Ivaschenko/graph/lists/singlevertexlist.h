@@ -11,6 +11,8 @@ namespace graph
 	class SingleVertexList : public IncidenceList
 	{
 		public:
+			typedef AdjacencyMatrixIterator iterator_type;
+
 			explicit SingleVertexList(vertex_t v): to(v) {}
 
 			std::size_t size() const override
@@ -18,9 +20,9 @@ namespace graph
 				return 1;
 			}
 
-			std::unique_ptr<IncidenceListIterator> getIterator() const override
+			iterator_pointer getIterator() const override
 			{
-				return std::move(std::unique_ptr<IncidenceListIterator>(new AdjacencyMatrixIterator(this, to, to)));
+				return std::move(iterator_pointer(new iterator_type(this, to, to + 1)));
 			}
 
 			bool connected(vertex_t v) const override
