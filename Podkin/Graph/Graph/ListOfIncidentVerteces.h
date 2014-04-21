@@ -17,6 +17,7 @@
 class Iterator
 {
 public:
+    Iterator() {}
     virtual int getIncidentVertex() = 0;
     virtual bool nextVertexWithEdge() = 0;
     virtual ~Iterator() {}
