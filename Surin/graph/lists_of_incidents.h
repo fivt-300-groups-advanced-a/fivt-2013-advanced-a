@@ -1,8 +1,9 @@
 #ifndef LISTS_OF_ICIDENTS_H
 #define LISTS_OF_ICIDENTS_H
 #include "graph.h"
+#include <algorithm>
 
-class VectorIntList : public ListOfIncidents {
+class VectorIntList : public ListOfIncedents {
     private:
         std::vector<int> v;
     public:
@@ -24,9 +25,9 @@ class VectorIntList : public ListOfIncidents {
                     return end_it == it;
                 }
         };
-        VectorIntList(std::vector<int> _v) {
-            v = std::move(_v);
+        VectorIntList(std::vector<int> && _v): v(_v) {
             std::sort(v.begin(), v.end());
+            _v.resize(std::unique(v.begin(), v.end()) - v.begin());
         }
         virtual std::unique_ptr<IntIterator> begin() {
             return std::unique_ptr<IntIterator>((IntIterator *)(new Iterator(v.begin(), v.end())));
@@ -38,7 +39,7 @@ class VectorIntList : public ListOfIncidents {
         }
 };
 
-class VectorBoolList : public ListOfIncidents {
+class VectorBoolList : public ListOfIncedents {
     private:
         std::vector<bool> v;
     public:
@@ -65,8 +66,7 @@ class VectorBoolList : public ListOfIncidents {
                     return v.size() == it;
                 }
         };
-        VectorBoolList(std::vector<bool> _v) {
-            v = std::move(_v);
+        VectorBoolList(std::vector<bool> && _v): v(_v) {
         }
         virtual std::unique_ptr<IntIterator> begin() {
             return std::unique_ptr<IntIterator>((IntIterator*) new Iterator(v));
@@ -76,7 +76,7 @@ class VectorBoolList : public ListOfIncidents {
         }
 };
 
-class OneList : public ListOfIncidents {
+class OneList : public ListOfIncedents {
     private:
         int val;
     public:
@@ -109,7 +109,7 @@ class OneList : public ListOfIncidents {
 };
 
 
-class FunctionalList: ListOfIncidents {
+class FunctionalList: ListOfIncedents {
     private:
         std::function<bool(int)> pred;
         int n;
@@ -146,7 +146,5 @@ class FunctionalList: ListOfIncidents {
             return pred(x);
         }
 };
-
-std::vector<std::unique_ptr<ListOfIncidents> > map(int n, std::function<ListOfIncidents*(int)> pred);
 
 #endif
