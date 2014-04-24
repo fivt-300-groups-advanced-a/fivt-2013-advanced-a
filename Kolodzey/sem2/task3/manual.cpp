@@ -6,6 +6,7 @@ using graph::BaseIterator;
 using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
 using graph::GraphIterator;
+using graph::Graph;
 
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
@@ -172,4 +173,52 @@ TEST(GraphIterator, moveForvard) {
     EXPECT_EQ(values.end(), acc_it.getPos());
     EXPECT_EQ(values.end(), acc_it.getEnd());
     EXPECT_EQ(false, it.isValid());
+}
+
+TEST(Graph, isConnected) {
+  bool mval [4][4] = {{0, 1, 0, 0},
+                      {1, 0, 0, 1},
+                      {1, 1, 0, 1},
+                      {0, 0, 1, 0}};
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 4; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 4)));
+  Graph graph(std::move(vval));
+  for(int i = 0; i < 4; ++i) {
+    for (int j = 0; j < 4; ++j) {
+      EXPECT_EQ(mval[i][j], graph.isConnected(i, j));
+    }
+  }
+  EXPECT_DEATH({ graph.isConnected(5, 0); }, "");
+  EXPECT_DEATH({ graph.isConnected(-1, 0); }, "");
+  EXPECT_DEATH({ graph.isConnected(1, 5); }, "");
+  EXPECT_DEATH({ graph.isConnected(2, -1); }, "");
+}
+
+TEST(Graph, Begin) {
+  bool mval [4][4] = {{0, 1, 0, 0},
+                      {1, 0, 0, 1},
+                      {1, 1, 0, 1},
+                      {0, 0, 1, 0}};
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 4; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 4)));
+  Graph graph(std::move(vval));
+  for(int i = 0; i < 4; ++i) {
+    unique_ptr<BaseIterator> it = graph.begin(i);
+    for(int j = 0; j < 4; ++j)
+      if (mval[i][j]) {
+        EXPECT_EQ(j, it->getCurrentVertexId());
+        it->moveForvard();
+      }
+  }
+  unique_ptr<BaseIterator> it = graph.begin(-1);
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_EQ(i, it->getCurrentVertexId());
+    it->moveForvard();
+  }
+  EXPECT_DEATH({ graph.begin(5); }, "");
+  EXPECT_DEATH({ graph.begin(-2); }, "");
 }

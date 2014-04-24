@@ -161,6 +161,8 @@ class Graph {
     if ((vertex_id >= int(size())) || (vertex_id < -1)) {
       cerr << "impossible to return begin(" << vertex_id << ")" << std::endl;
       cerr << "Id out of range" << std::endl;
+      cerr << "Possible ids are 0 ... " << size() - 1 << endl;
+      cerr << "And -1 to get iterator via all vertexes" << endl;
       abort();
     }
     if (vertex_id == -1) //return Iterator via all vertexes
@@ -174,7 +176,6 @@ class Graph {
     if ((u >= int(size())) || (u < 0) || (v >= int(size())) || (v < 0)) {
       cerr << "impossible to return isConnected(" << u << ", "
                                                   << v << ")" << endl;
-      cerr << "Id out of range; size = " << size() << endl;
       cerr << "Possible ids are 0 ... " << size() - 1 << endl;
       abort();
     }
