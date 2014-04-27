@@ -14,6 +14,7 @@ using graph::AccessAdjacencyMatrixIncidence;
 
 using std::vector;
 using std::unique_ptr;
+using std::pair;
 
 class graph::AccessAdjacencyMatrixIterator {
  public:
@@ -221,4 +222,16 @@ TEST(Graph, Begin) {
   }
   EXPECT_DEATH({ graph.begin(5); }, "");
   EXPECT_DEATH({ graph.begin(-2); }, "");
+}
+
+TEST(func, isPath) {
+  bool m2[2][2] = {{0, 1},
+                   {0, 0}};
+  vector<unique_ptr<BaseIncidence>> v2;
+  for (int i = 0; i < 2; ++i)
+  v2.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(m2[i], m2[i] + 2)));
+  Graph graph2(std::move(v2));
+  EXPECT_TRUE(isPath(graph2, 0, 1));
+  EXPECT_FALSE(isPath(graph2, 1, 0));
 }

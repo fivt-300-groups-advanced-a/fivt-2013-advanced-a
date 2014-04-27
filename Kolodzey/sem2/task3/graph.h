@@ -1,5 +1,7 @@
-#include <iostream>
+#ifndef GRAPH
+#define GRAPH
 
+#include <iostream>
 #include <vector>
 
 namespace graph {
@@ -8,6 +10,7 @@ using std::unique_ptr;
 using std::vector;
 using std::cerr;
 using std::endl;
+using std::pair;
 
 class BaseIterator {
  public:
@@ -154,13 +157,15 @@ class GraphIterator : public BaseIterator {
 
 class Graph {
  public:
+  Graph(const Graph &) = delete;
+
   Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
       : incidence_(std::move(incidence)) { }
 
   unique_ptr<BaseIterator> begin(int vertex_id) const {
     if ((vertex_id >= int(size())) || (vertex_id < -1)) {
-      cerr << "impossible to return begin(" << vertex_id << ")" << std::endl;
-      cerr << "Id out of range" << std::endl;
+      cerr << "Impossible to return begin(" << vertex_id << ")" << endl;
+      cerr << "Id out of range" << endl;
       cerr << "Possible ids are 0 ... " << size() - 1 << endl;
       cerr << "And -1 to get iterator via all vertexes" << endl;
       abort();
@@ -174,8 +179,9 @@ class Graph {
 
   bool isConnected(int u, int v) const {
     if ((u >= int(size())) || (u < 0) || (v >= int(size())) || (v < 0)) {
-      cerr << "impossible to return isConnected(" << u << ", "
+      cerr << "Impossible to return isConnected(" << u << ", "
                                                   << v << ")" << endl;
+      cerr << "Id out of range" << endl;
       cerr << "Possible ids are 0 ... " << size() - 1 << endl;
       abort();
     }
@@ -190,4 +196,40 @@ class Graph {
   vector<unique_ptr<BaseIncidence>> incidence_;
 };
 
+struct Coloring {
+ public:
+  vector<int> color;
+  vector<int> representative;
+};
+
+/**
+* getStronglyConnectedComponentsDummy O((V^2)(E + V))
+*/
+Coloring getStronglyConnectedComponentsDummy(Graph graph);
+
+/**
+* getStronglyConnectedComponentsTarjan (with stack) O(E + V)
+*/
+Coloring getStronglyConnectedComponentsTarjan(Graph graph);
+
+/**
+* getCompletionToStrongСonnectivity O(E + V)
+* launches condensation and getCompletionToStrongСonnectivityInСondensed
+* returns needed egdes first -> last
+*/
+vector<pair<int,int>> getCompletionToStrongСonnectivity(Graph graph);
+
+/**
+* getCompletionToStrongСonnectivityInСondensed O(E + V)
+* is launched by getCompletionToStrongСonnectivity
+* uses Tarjan algorithm
+*/
+vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(Graph
+                                                                       graph); 
+
+/**
+* checks whether is Path from start to finish using dfs
+*/
+bool isPath(const Graph& graph, int start_id, int finish_id); //O(E + V)
 }//namespace graph
+#endif
