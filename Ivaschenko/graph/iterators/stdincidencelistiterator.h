@@ -15,12 +15,6 @@ namespace graph
 				return *it;
 			}
 
-			std::unique_ptr<IncidenceListIterator> next() const override
-			{
-				Iterator nextIt = it;
-				return std::move(std::unique_ptr<IncidenceListIterator>(new StdIncidenceListIterator(++nextIt, end)));
-			}
-
 			bool moveForward() override
 			{
 				if (!valid()) return false;
