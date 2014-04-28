@@ -111,20 +111,69 @@ vector<int> getIsolated(const Graph& graph) {
 
   return ans;
 }
-/*
+
 namespace {
-  int tarjanFindSickDFS();
+
+int tarjanFindSickDFS(int v, const Graph& graph,
+                      vector<bool>& is_visited, vector<bool>& is_sink) {
+  is_visited[v] = 1;
+  if (is_sink[v])
+    return v;
+  int found_sink = -1;
+  for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
+    if (!is_visited[it->get()]) {
+      found_sick = tarjanFindSickDFS(it->get(), graph, is_visited, is_sink);
+      if (found_sick != -1) {
+        return found_sick;
+      }
+    }
+  }
+  return found_sick;
 }
+
+}//anonymous namespace
 
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph) {
-  vector<int> source = getSource(graph);
-  vector<bool> is_sink = getIsSink(graph);
   vector<int> isolated = getIsolated(graph);
-  int lastfoundsick = -1;
+  vector<int> source = getSource(graph);
+  vector<int> sink = getSink(graph);
+  vector<bool> is_sink(graph.size(), 0);
+  for (auto it = sink.begin(); it != sink.end(); ++it) {
+    is_sink[*it] = 1;
+  }
+  vector<int> unused_source;
+  vector<int> unused_sink;
+
+  vector<pair<int, int>> completion;
+
   vector<bool> is_visited(graph.size(), 0);
-  //for (auto)
+  int last_found_sick = -1;
+  int first_source = -1;
+  
+  for (auto it = source.begin(); it != source.end(); ++it) {
+    current_found_sick = tarjanFindSickDFS(*it, graph, is_visited, is_sink);
+    if (current_found_sick != -1) {
+      if (last_found_sick == -1) {
+        first_source = *it;
+      } else {
+        completion.push_back(last_found_sick, *it);
+      }
+      last_found_sick = current_found_sick;
+    } else {
+      unused_source.push_back(*it);
+    }
+  }
+
+  for (auto it = sink.begin(); it != sink.end(); ++it) {
+    if (!is_visited[*it])
+      unused_sink.push_back(*it);
+  }
+
+  if ((isolated.size() == 1) && (first_source == -1))
+
+
 }
 
-*/
+
 }//namespace graph
