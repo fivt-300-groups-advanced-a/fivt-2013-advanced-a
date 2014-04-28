@@ -207,17 +207,22 @@ struct Coloring {
 */
 Coloring getStronglyConnectedComponentsDummy(const Graph& graph);
 
+vector<int> getSource(const Graph& graph);
+vector<int> getSink(const Graph& graph);
+vector<int> getIsolated(const Graph& graph);
+
+
 /**
 * getStronglyConnectedComponentsTarjan (with stack) O(E + V)
 */
-Coloring getStronglyConnectedComponentsTarjan(const Graph& graph);
+//Coloring getStronglyConnectedComponentsTarjan(const Graph& graph);
 
 /**
 * getCompletionToStrongСonnectivity O(E + V)
 * launches condensation and getCompletionToStrongСonnectivityInСondensed
 * returns needed egdes first -> last
 */
-vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph);
+//vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph);
 
 /**
 * getCompletionToStrongСonnectivityInСondensed O(E + V)

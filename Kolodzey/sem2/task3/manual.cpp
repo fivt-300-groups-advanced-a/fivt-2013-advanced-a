@@ -274,3 +274,108 @@ TEST(func, getStronglyConnectedComponentsDummy) {
   EXPECT_FALSE(components.color[2] == components.color[0]);
   EXPECT_FALSE(components.color[1] == components.color[0]);
 }
+
+TEST(func, getSource) {
+
+// 0 <-- 1    4    5  6
+// |     ^          \ |\
+// |     |           \| \
+// v     |           vv v 
+// 2 --> 3           7  8
+//                   |
+//                   v
+//                   9
+
+bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      
+                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
+
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 10; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 10)));
+  Graph graph(std::move(vval));
+  vector<int> source = getSource(graph);
+  sort(source.begin(), source.end());
+  EXPECT_EQ(2, source.size());
+  EXPECT_EQ(5, source[0]);
+  EXPECT_EQ(6, source[1]);
+}
+
+TEST(func, getIsSink) {
+
+// 0 <-- 1    4    5  6
+// |     ^          \ |\
+// |     |           \| \
+// v     |           vv v 
+// 2 --> 3           7  8
+//                   |
+//                   v
+//                   9
+
+bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      
+                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
+
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 10; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 10)));
+  Graph graph(std::move(vval));
+  vector<int> sink = getSink(graph);
+  sort(sink.begin(), sink.end());
+  EXPECT_EQ(2, sink.size());
+  EXPECT_EQ(8, sink[0]);
+  EXPECT_EQ(9, sink[1]);
+}
+
+TEST(func, getIsolated) {
+
+// 0 <-- 1    4    5  6
+// |     ^          \ |\
+// |     |           \| \
+// v     |           vv v 
+// 2 --> 3           7  8
+//                   |
+//                   v
+//                   9
+
+bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      
+                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
+
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 10; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 10)));
+  Graph graph(std::move(vval));
+  vector<int> isolated = getIsolated(graph);
+  sort(isolated.begin(), isolated.end());
+  EXPECT_EQ(1, isolated.size());
+  EXPECT_EQ(4, isolated[0]);
+}
+
