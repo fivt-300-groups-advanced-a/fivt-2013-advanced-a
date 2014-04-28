@@ -6,14 +6,8 @@ CONFIG -= qt
 QMAKE_CXXFLAGS += -std=gnu++0x
 
 include(gtest-lib.pri)
-include(../src/graph.pri)
+include(graph/graph-test.pri)
+include(algo/algo-test.pri)
 
+DEFINES += TEST
 
-HEADERS += \
-    utils.h
-
-SOURCES += \
-    adjacencylist-test.cpp \
-    adjacencybitset-test.cpp \
-    emptyadjacency-test.cpp \
-    singleadjacency-test.cpp

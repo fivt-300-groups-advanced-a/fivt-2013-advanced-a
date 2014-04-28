@@ -3,11 +3,12 @@ INCLUDEPATH += $$PWD
 QMAKE_CXXFLAGS += -std=gnu++11
 
 HEADERS += \
-    ../src/graph.h \
-    ../src/adjacency.h \
-    ../src/adjacencylist.h \
-    ../src/adjacencybitset.h \
-    ../src/emptyadjacency.h \
-    ../src/singleadjacency.h
+    $$PWD/graph.h \
+    $$PWD/adjacency.h \
+    $$PWD/adjacencylist.h \
+    $$PWD/adjacencybitset.h \
+    $$PWD/emptyadjacency.h \
+    $$PWD/singleadjacency.h \
+    $$PWD/defaultadjacencybuilder.h
 
 SOURCES +=

@@ -42,7 +42,7 @@ public:
         return std::unique_ptr<AdjacencyIterator>(new EmptyAdjacencyIterator());
     }
 
-    virtual bool isConnectedTo(vertex_t) const override
+    virtual bool adjacentTo(vertex_t) const override
     {
         return false;
     }

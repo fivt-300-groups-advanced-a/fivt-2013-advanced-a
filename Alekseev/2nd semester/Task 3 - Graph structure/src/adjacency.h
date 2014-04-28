@@ -18,6 +18,46 @@ public:
     virtual bool advance() = 0;
 
     virtual bool isValid() const = 0;
+/*
+    virtual bool equals(AdjacencyIterator *that) const
+    {
+        return false;
+    }
+*/
+};
+
+template<class FwdIter>
+class AdjacencyStdIterator : public AdjacencyIterator
+{
+public:
+    AdjacencyStdIterator(FwdIter it, FwdIter end):
+        it(it),
+        end(end)
+    {}
+
+    virtual ~AdjacencyStdIterator() {}
+
+    virtual vertex_t destination() const override
+    {
+        assert(isValid());
+        return *it;
+    }
+
+    virtual bool advance() override
+    {
+        if (!isValid())
+            return false;
+        ++it;
+        return true;
+    }
+
+    virtual bool isValid() const override
+    {
+        return it != end;
+    }
+
+private:
+    FwdIter it, end;
 };
 
 class Adjacency
@@ -29,7 +69,7 @@ public:
 
     virtual std::unique_ptr<AdjacencyIterator> makeIterator() const = 0;
 
-    virtual bool isConnectedTo(vertex_t vertex) const = 0;
+    virtual bool adjacentTo(vertex_t vertex) const = 0;
 };
 
 } // namespace graph

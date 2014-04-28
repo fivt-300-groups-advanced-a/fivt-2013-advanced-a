@@ -11,45 +11,6 @@
 namespace graph
 {
 
-class AdjacencyListIterator : public AdjacencyIterator
-{
-    typedef std::vector<vertex_t>::const_iterator vectorIter;
-
-public:
-    virtual ~AdjacencyListIterator() {}
-
-    virtual vertex_t destination() const override
-    {
-        assert(isValid());
-        return *it;
-    }
-
-    virtual bool advance() override
-    {
-        if (!isValid())
-            return false;
-        ++it;
-        return true;
-    }
-
-    virtual bool isValid() const override
-    {
-        return it != end;
-    }
-
-protected:
-    friend class AdjacencyList;
-
-    AdjacencyListIterator(const vectorIter &it,
-                          const vectorIter &end):
-        it(it),
-        end(end)
-    {}
-
-private:
-    vectorIter it, end;
-};
-
 class AdjacencyList : public Adjacency
 {
     typedef std::vector<vertex_t> IdVector;
@@ -72,12 +33,12 @@ public:
 
     virtual std::unique_ptr<AdjacencyIterator> makeIterator() const override
     {
-        return std::unique_ptr<AdjacencyIterator>(new AdjacencyListIterator(
+        return std::unique_ptr<AdjacencyIterator>(new AdjacencyStdIterator<std::vector<vertex_t>::const_iterator>(
                                                       vertices.cbegin(),
                                                       vertices.cend()));
     }
 
-    virtual bool isConnectedTo(vertex_t vertex) const override
+    virtual bool adjacentTo(vertex_t vertex) const override
     {
         return std::binary_search(vertices.cbegin(), vertices.cend(), vertex);
     }
@@ -85,9 +46,10 @@ public:
 private:
     IdVector prepared(IdVector &&vert)
     {
-        sort(vert.begin(), vert.end());
-        assert(std::unique(vert.begin(), vert.end()) == vert.end());
-        return std::move(vert);
+        if (!std::is_sorted(vert.begin(), vert.end()))
+            std::sort(vert.begin(), vert.end());
+//        assert(std::unique(vert.begin(), vert.end()) == vert.end());
+        return vert;
     }
 
     const std::vector<vertex_t> vertices;

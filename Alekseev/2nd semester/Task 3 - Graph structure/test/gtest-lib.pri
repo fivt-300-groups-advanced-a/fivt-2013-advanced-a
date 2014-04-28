@@ -1,3 +1,5 @@
+DEFINES += GT
+
 unix:{
     LIBS += -lpthread
     QMAKE_LIBS += /usr/local/lib/gtest.a
