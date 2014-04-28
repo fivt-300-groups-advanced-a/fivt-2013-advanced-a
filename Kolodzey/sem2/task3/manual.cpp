@@ -7,6 +7,7 @@ using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
 using graph::GraphIterator;
 using graph::Graph;
+using graph::Coloring;
 
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
@@ -53,17 +54,17 @@ TEST(AdjacencyMatrixIterator, Constructor) {
   AccessAdjacencyMatrixIterator acc_it(&it);
   EXPECT_EQ(values.begin(), acc_it.getPos());
   EXPECT_EQ(values.end(), acc_it.getEnd());
-  EXPECT_EQ(0, it.getCurrentVertexId());
+  EXPECT_EQ(0, it.get());
 }
 
 
-TEST(AdjacencyMatrixIterator, getCurrentVertexId) {
+TEST(AdjacencyMatrixIterator, get) {
   vector<bool> values = {0, 0, 1, 1, 0, 1};
   
   AdjacencyMatrixIterator it0(0, values.begin(), values.end());
-  EXPECT_EQ(0, it0.getCurrentVertexId());
+  EXPECT_EQ(0, it0.get());
   AdjacencyMatrixIterator it3(3, values.begin(), values.end());
-  EXPECT_EQ(3, it3.getCurrentVertexId());
+  EXPECT_EQ(3, it3.get());
 }
 
 TEST(AdjacencyMatrixIterator, isValid) {
@@ -83,18 +84,18 @@ TEST(AdjacencyMatrixIterator, moveForvard) {
 
   for (vector<bool>::iterator it = values.begin(); it != values.end(); ++it) {
     if (*it == true) {
-      EXPECT_EQ(val, matrix_it.getCurrentVertexId());
+      EXPECT_EQ(val, matrix_it.get());
       EXPECT_EQ(it, acc_matrix_it.getPos());
       EXPECT_EQ(values.end(), acc_matrix_it.getEnd());
       matrix_it.moveForvard();
     }
     ++val;
   }
-  EXPECT_EQ(-1, matrix_it.getCurrentVertexId());
+  EXPECT_EQ(-1, matrix_it.get());
   EXPECT_EQ(values.end(), acc_matrix_it.getPos());
   EXPECT_EQ(values.end(), acc_matrix_it.getEnd());
   matrix_it.moveForvard();
-  EXPECT_EQ(-1, matrix_it.getCurrentVertexId());
+  EXPECT_EQ(-1, matrix_it.get());
   EXPECT_EQ(values.end(), acc_matrix_it.getPos());
   EXPECT_EQ(values.end(), acc_matrix_it.getEnd());
 }
@@ -120,10 +121,10 @@ TEST(AdjacencyMatrixIncidence, Begin) {
 
   AdjacencyMatrixIncidence li1(vector<bool>(init, init + 6));
   std::unique_ptr<BaseIterator> ptr_it1 = li1.begin();
-  EXPECT_EQ(2, ptr_it1->getCurrentVertexId());
+  EXPECT_EQ(2, ptr_it1->get());
   AdjacencyMatrixIncidence li2(vector<bool>(init + 2, init + 6));
   std::unique_ptr<BaseIterator> ptr_it2 = li2.begin();
-  EXPECT_EQ(0, ptr_it2->getCurrentVertexId());
+  EXPECT_EQ(0, ptr_it2->get());
 }
 
 TEST(GraphIterator, Constructor) {
@@ -132,16 +133,16 @@ TEST(GraphIterator, Constructor) {
   AccessGraphIterator acc_it(&it);
   EXPECT_EQ(values.begin(), acc_it.getPos());
   EXPECT_EQ(values.end(), acc_it.getEnd());
-  EXPECT_EQ(0, it.getCurrentVertexId());
+  EXPECT_EQ(0, it.get());
 }
 
-TEST(GraphIterator, getCurrentVertexId) {
+TEST(GraphIterator, get) {
   vector<unique_ptr<BaseIncidence>> values(10);
   
   GraphIterator it0(0, values.begin(), values.end());
-  EXPECT_EQ(0, it0.getCurrentVertexId());
+  EXPECT_EQ(0, it0.get());
   GraphIterator it3(3, values.begin(), values.end());
-  EXPECT_EQ(3, it3.getCurrentVertexId());
+  EXPECT_EQ(3, it3.get());
 }
 
 TEST(GraphIterator, isValid) {
@@ -159,18 +160,18 @@ TEST(GraphIterator, moveForvard) {
   AccessGraphIterator acc_it(&it);
   vector<unique_ptr<BaseIncidence>>::const_iterator v_it = values.begin();
   for (int i = 0; i < 10; ++i, ++v_it) {
-    EXPECT_EQ(i, it.getCurrentVertexId());
+    EXPECT_EQ(i, it.get());
     EXPECT_EQ(v_it, acc_it.getPos());
     EXPECT_EQ(values.end(), acc_it.getEnd());
     EXPECT_EQ(true, it.isValid());
     it.moveForvard();
   }
-    EXPECT_EQ(-1, it.getCurrentVertexId());
+    EXPECT_EQ(-1, it.get());
     EXPECT_EQ(values.end(), acc_it.getPos());
     EXPECT_EQ(values.end(), acc_it.getEnd());
     EXPECT_EQ(false, it.isValid());
     it.moveForvard();
-    EXPECT_EQ(-1, it.getCurrentVertexId());
+    EXPECT_EQ(-1, it.get());
     EXPECT_EQ(values.end(), acc_it.getPos());
     EXPECT_EQ(values.end(), acc_it.getEnd());
     EXPECT_EQ(false, it.isValid());
@@ -211,13 +212,13 @@ TEST(Graph, Begin) {
     unique_ptr<BaseIterator> it = graph.begin(i);
     for(int j = 0; j < 4; ++j)
       if (mval[i][j]) {
-        EXPECT_EQ(j, it->getCurrentVertexId());
+        EXPECT_EQ(j, it->get());
         it->moveForvard();
       }
   }
   unique_ptr<BaseIterator> it = graph.begin(-1);
   for (int i = 0; i < 4; ++i) {
-    EXPECT_EQ(i, it->getCurrentVertexId());
+    EXPECT_EQ(i, it->get());
     it->moveForvard();
   }
   EXPECT_DEATH({ graph.begin(5); }, "");
@@ -234,4 +235,42 @@ TEST(func, isPath) {
   Graph graph2(std::move(v2));
   EXPECT_TRUE(isPath(graph2, 0, 1));
   EXPECT_FALSE(isPath(graph2, 1, 0));
+
+  bool m4cycle[4][4] = {{0, 1, 0, 0},
+                        {0, 0, 1, 0},
+                        {0, 0, 0, 1},
+                        {1, 0, 0, 0}};
+  vector<unique_ptr<BaseIncidence>> v4cycle;
+  for (int i = 0; i < 4; ++i)
+  v4cycle.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(m4cycle[i], m4cycle[i] + 4)));
+  Graph graph4cycle(std::move(v4cycle));
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      EXPECT_TRUE(isPath(graph4cycle, i, j));
+}
+
+TEST(func, getStronglyConnectedComponentsDummy) {
+  // 0 <-- 2 <-
+  // |     |   \
+  // v     v    \
+  // 1 <-- 3 --> 4 
+  // ans = 0; 1; 2 + 3 + 4 
+  bool mval [5][5] = {{0, 1, 0, 0, 0},
+                      {0, 0, 0, 0, 0},
+                      {1, 0, 0, 1, 0},
+                      {0, 1, 0, 0, 1},
+                      {0, 0, 1, 0, 0}};
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 5; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 5)));
+  Graph graph(std::move(vval));
+  Coloring components = getStronglyConnectedComponentsDummy(graph);
+  EXPECT_EQ(3, components.representative.size());
+  EXPECT_EQ(components.color[2], components.color[3]);
+  EXPECT_EQ(components.color[2], components.color[4]);
+  EXPECT_FALSE(components.color[2] == components.color[1]);
+  EXPECT_FALSE(components.color[2] == components.color[0]);
+  EXPECT_FALSE(components.color[1] == components.color[0]);
 }

@@ -15,7 +15,7 @@ using std::pair;
 class BaseIterator {
  public:
   virtual void moveForvard() = 0;
-  virtual int getCurrentVertexId() const = 0;
+  virtual int get() const = 0;
   virtual bool isValid() const = 0;
   virtual ~BaseIterator() {}
 };
@@ -49,7 +49,7 @@ class AdjacencyMatrixIterator : public BaseIterator {
     }
   }
 
-  virtual int getCurrentVertexId() const override {
+  virtual int get() const override {
     if (isValid())
       return vertex_id_;
     return -1;
@@ -102,7 +102,7 @@ class AdjacencyMatrixIncidence : public BaseIncidence {
 class AdjacencyListIterator : public BaseIterator {
  public: 
   override void moveForvard();
-  override int getCurrentVertexId() const;
+  override int get() const;
   override bool isValid() const;
   ~BaseIterator();
 };
@@ -136,7 +136,7 @@ class GraphIterator : public BaseIterator {
       }
   }
 
-  virtual int getCurrentVertexId() const override {
+  virtual int get() const override {
     if (isValid())
       return vertex_id_;
     return -1;
@@ -205,27 +205,27 @@ struct Coloring {
 /**
 * getStronglyConnectedComponentsDummy O((V^2)(E + V))
 */
-Coloring getStronglyConnectedComponentsDummy(Graph graph);
+Coloring getStronglyConnectedComponentsDummy(const Graph& graph);
 
 /**
 * getStronglyConnectedComponentsTarjan (with stack) O(E + V)
 */
-Coloring getStronglyConnectedComponentsTarjan(Graph graph);
+Coloring getStronglyConnectedComponentsTarjan(const Graph& graph);
 
 /**
 * getCompletionToStrongСonnectivity O(E + V)
 * launches condensation and getCompletionToStrongСonnectivityInСondensed
 * returns needed egdes first -> last
 */
-vector<pair<int,int>> getCompletionToStrongСonnectivity(Graph graph);
+vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph);
 
 /**
 * getCompletionToStrongСonnectivityInСondensed O(E + V)
 * is launched by getCompletionToStrongСonnectivity
 * uses Tarjan algorithm
 */
-vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(Graph
-                                                                       graph); 
+vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
+                                                         const Graph& graph); 
 
 /**
 * checks whether is Path from start to finish using dfs

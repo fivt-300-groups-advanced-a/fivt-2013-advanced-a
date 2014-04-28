@@ -32,11 +32,15 @@ gtest.a: gtest-all.o
 gtest_main.a: gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
+#graph binaries
+func.o: func.cpp graph.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
 #building manual
 manual.o: manual.cpp graph.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-manual: manual.o  gtest_main.a
+manual: manual.o func.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 
