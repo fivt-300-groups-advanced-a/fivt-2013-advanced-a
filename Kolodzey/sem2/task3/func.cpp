@@ -46,7 +46,7 @@ Coloring getStronglyConnectedComponentsDummy(const Graph& graph) {
     if (strong_components.color[it->get()] == -1)
     {
       strong_components.color[it->get()] = currentColor;
-      strong_components.representative.push_back(it->get());
+      strong_components.delegate.push_back(it->get());
       for (auto jt = graph.begin(-1); jt->isValid(); jt->moveForvard()) {
         if ((isPath(graph, jt->get(), it->get())) &&
             (isPath(graph, it->get(), jt->get()))) {

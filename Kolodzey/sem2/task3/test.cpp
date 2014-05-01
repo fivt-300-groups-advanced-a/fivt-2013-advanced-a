@@ -14,7 +14,7 @@ using graph::getSink;
 using graph::getIsolated;
 using graph::hasSelfLoop;
 
-using graph::simpleAdjacencyMatrixFabric;
+using graph::buildSimpleAdjacencyMatrix;
 
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
@@ -208,15 +208,11 @@ TEST(Graph, isConnected) {
 }
 
 TEST(Graph, Begin) {
-  bool mval [4][4] = {{0, 1, 0, 0},
-                      {1, 0, 0, 1},
-                      {1, 1, 0, 1},
-                      {0, 0, 1, 0}};
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 4; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 4)));
-  Graph graph(std::move(vval));
+  vector<vector<bool>> mval = {{0, 1, 0, 0},
+                               {1, 0, 0, 1},
+                               {1, 1, 0, 1},
+                               {0, 0, 1, 0}};
+  Graph graph = buildSimpleAdjacencyMatrix(mval);
   for(int i = 0; i < 4; ++i) {
     unique_ptr<BaseIterator> it = graph.begin(i);
     for(int j = 0; j < 4; ++j)
@@ -235,83 +231,48 @@ TEST(Graph, Begin) {
 }
 
 TEST(func, isPath) {
-  bool m2[2][2] = {{0, 1},
-                   {0, 0}};
-  vector<unique_ptr<BaseIncidence>> v2;
-  for (int i = 0; i < 2; ++i)
-  v2.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(m2[i], m2[i] + 2)));
-  Graph graph2(std::move(v2));
+  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 1},      //0->1
+                                             {0, 0}}); 
   EXPECT_TRUE(isPath(graph2, 0, 1));
   EXPECT_FALSE(isPath(graph2, 1, 0));
 
-  bool m4cycle[4][4] = {{0, 1, 0, 0},
-                        {0, 0, 1, 0},
-                        {0, 0, 0, 1},
-                        {1, 0, 0, 0}};
-  vector<unique_ptr<BaseIncidence>> v4cycle;
-  for (int i = 0; i < 4; ++i)
-  v4cycle.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(m4cycle[i], m4cycle[i] + 4)));
-  Graph graph4cycle(std::move(v4cycle));
+  Graph graph4 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
+                                             {0, 0, 1, 0},     // ^   |
+                                             {0, 0, 0, 1},     // |   v  
+                                             {1, 0, 0, 0}});   // 3<--2
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j)
-      EXPECT_TRUE(isPath(graph4cycle, i, j));
+      EXPECT_TRUE(isPath(graph4, i, j));
 }
 
 TEST(func, getStronglyConnectedComponentsDummy) {
-  // 0 <-- 2 <-
-  // |     |   \
-  // v     v    \
-  // 1 <-- 3 --> 4 
-  // ans = 0; 1; 2 + 3 + 4 
-  bool mval [5][5] = {{0, 1, 0, 0, 0},
-                      {0, 0, 0, 0, 0},
-                      {1, 0, 0, 1, 0},
-                      {0, 1, 0, 0, 1},
-                      {0, 0, 1, 0, 0}};
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 5; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 5)));
-  Graph graph(std::move(vval));
+  Graph graph = buildSimpleAdjacencyMatrix({{0, 1, 0, 0, 0},
+     /* 0 <-- 2 <-    */                    {0, 0, 0, 0, 0},
+     /* |     |   \   */                    {1, 0, 0, 1, 0},
+     /* v     v    \  */                    {0, 1, 0, 0, 1},
+     /* 1 <-- 3 --> 4 */                    {0, 0, 1, 0, 0}});  
   Coloring components = getStronglyConnectedComponentsDummy(graph);
-  EXPECT_EQ(3, components.representative.size());
-  EXPECT_EQ(components.color[2], components.color[3]);
-  EXPECT_EQ(components.color[2], components.color[4]);
-  EXPECT_FALSE(components.color[2] == components.color[1]);
-  EXPECT_FALSE(components.color[2] == components.color[0]);
-  EXPECT_FALSE(components.color[1] == components.color[0]);
+  //expected division into components: 0; 1; 2 + 3 + 4 
+  EXPECT_EQ(3, components.getNumberOfColors());
+  EXPECT_EQ(components.getColorOf(2), components.getColorOf(3));
+  EXPECT_EQ(components.getColorOf(2), components.getColorOf(4));
+  EXPECT_FALSE(components.getColorOf(2) == components.getColorOf(1));
+  EXPECT_FALSE(components.getColorOf(2) == components.getColorOf(0));
+  EXPECT_FALSE(components.getColorOf(1) == components.getColorOf(0));
 }
 
 TEST(func, getSource) {
-
-// 0 <-- 1    4    5  6
-// |     ^          \ |\
-// |     |           \| \
-// v     |           vv v 
-// 2 --> 3           7  8
-//                   |
-//                   v
-//                   9
-
-bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      
-                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
-
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 10; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 10)));
-  Graph graph(std::move(vval));
+Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* v     |           vv v  */
+   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
   vector<int> source = getSource(graph);
   sort(source.begin(), source.end());
   EXPECT_EQ(2, source.size());
@@ -320,33 +281,17 @@ bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 }
 
 TEST(func, getIsSink) {
-
-// 0 <-- 1    4    5  6
-// |     ^          \ |\
-// |     |           \| \
-// v     |           vv v 
-// 2 --> 3           7  8
-//                   |
-//                   v
-//                   9
-
-bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      
-                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
-
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 10; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 10)));
-  Graph graph(std::move(vval));
+Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* v     |           vv v  */
+   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
   vector<int> sink = getSink(graph);
   sort(sink.begin(), sink.end());
   EXPECT_EQ(2, sink.size());
@@ -355,33 +300,17 @@ bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 }
 
 TEST(func, getIsolated) {
-
-// 0 <-- 1    4    5  6
-// |     ^          \ |\
-// |     |           \| \
-// v     |           vv v 
-// 2 --> 3           7  8
-//                   |
-//                   v
-//                   9
-
-bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                      {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-                      {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      
-                      {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}};
-
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 10; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 10)));
-  Graph graph(std::move(vval));
+Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* v     |           vv v  */
+   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
   vector<int> isolated = getIsolated(graph);
   sort(isolated.begin(), isolated.end());
   EXPECT_EQ(1, isolated.size());
@@ -389,74 +318,38 @@ bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 }
 
 TEST(func, hasSelfLoop) {
-  bool mval0 [4][4] = {{0, 1, 0, 0},
-                       {1, 0, 0, 1},
-                       {1, 1, 0, 1},
-                       {0, 0, 1, 0}};
-  vector<unique_ptr<BaseIncidence>> vval0;
-  for (int i = 0; i < 4; ++i)
-  vval0.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval0[i], mval0[i] + 4)));
-  Graph graph0(std::move(vval0));
+  Graph graph0 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                             {1, 0, 0, 1},
+                                             {1, 1, 0, 1},
+                                             {0, 0, 1, 0}});
   EXPECT_FALSE(hasSelfLoop(graph0));
-
-  bool mval1 [4][4] = {{0, 1, 0, 0},
-                       {1, 0, 0, 1},
-                       {1, 1, 1, 1},
-                       {0, 0, 1, 0}};
-  vector<unique_ptr<BaseIncidence>> vval1;
-  for (int i = 0; i < 4; ++i)
-  vval1.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval1[i], mval1[i] + 4)));
-  Graph graph1(std::move(vval1));
+  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                             {1, 0, 0, 1},
+                                             {1, 1, 1, 1},
+                                             {0, 0, 1, 0}});
   EXPECT_TRUE(hasSelfLoop(graph1));
-
-  bool mval2 [4][4] = {{0, 0, 0, 0},
-                       {1, 1, 0, 1},
-                       {1, 1, 1, 1},
-                       {0, 0, 1, 0}};
-  vector<unique_ptr<BaseIncidence>> vval2;
-  for (int i = 0; i < 4; ++i)
-  vval2.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval2[i], mval2[i] + 4)));
-  Graph graph2(std::move(vval2));
+  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
+                                             {1, 1, 0, 1},
+                                             {1, 1, 1, 1},
+                                             {0, 0, 1, 0}});
   EXPECT_TRUE(hasSelfLoop(graph2));
 }
 
 
 TEST(func, getCompletionToStrongСonnectivityInСondensed) {
-
-//  0    1  2
-//        \ |\
-//         \| \
-//         vv v 
-//         3  4
-//            |
-//            v
-//            5
-
-vector<vector<bool>> mval = {{0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 1, 0, 0},
-                    {0, 0, 0, 1, 1, 0},
-                    {0, 0, 0, 0, 0, 0},
-                    {0, 0, 0, 0, 0, 1},
-                    {0, 0, 0, 0, 0, 0}};
-
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 6; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i].begin(), mval[i].end())));
-  Graph graph(std::move(vval));
+  vector<vector<bool>> matrix = {{0, 0, 0, 0, 0, 0},
+  /*  0  1--->3           */     {0, 0, 0, 1, 0, 0},
+  /*          ^           */     {0, 0, 0, 1, 1, 0},
+  /*          |           */     {0, 0, 0, 0, 0, 0},
+  /*          2--->4--->5 */     {0, 0, 0, 0, 0, 1},
+                                 {0, 0, 0, 0, 0, 0}};
+  Graph graph = buildSimpleAdjacencyMatrix(matrix);
   vector<pair<int,int>> completion;
   completion = getCompletionToStrongСonnectivityInСondensed(graph);
-  cout << "getCompletionToStrongСonnectivityInСondensed" << endl;
-  for (size_t i = 0; i < completion.size(); ++i)
-    cout << completion[i].first << " " << completion[i].second << endl;
+  EXPECT_EQ(3, completion.size());
+  for (auto it = completion.begin(); it != completion.end(); ++it)
+    matrix[it->first][it->second] = 1;
+  Graph completed_graph = buildSimpleAdjacencyMatrix(matrix);
+  Coloring components = getStronglyConnectedComponentsDummy(completed_graph);
+  EXPECT_EQ(1, components.getNumberOfColors());
 }
-/*
-TEST(fabric, simpleAdjacencyMatrixFabric) {
-  Graph graph = simpleAdjacencyMatrixFabric(4, {0, 0, 1, 0,
-                                                1, 0, 1, 1,
-                                                0, 1, 0, 0,
-                                                0, 0, 0, 0});
-}*/

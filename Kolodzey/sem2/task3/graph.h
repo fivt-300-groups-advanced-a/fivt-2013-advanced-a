@@ -202,7 +202,11 @@ class Graph {
 struct Coloring {
  public:
   vector<int> color;
-  vector<int> representative;
+  vector<int> delegate;
+  int getColorOf(int vertex_id) const { return color[vertex_id]; }
+  int getRepresentativeOf(int color_id) const { return delegate[color_id]; }
+  int getNumberOfColors() const { return delegate.size(); }
+  int getNumberOfVertexes() const { return color.size(); }
 };
 
 
@@ -242,7 +246,7 @@ bool isPath(const Graph& graph, int start_id, int finish_id); //O(E + V)
 
 //-----Fabrics, Builders, etc. Declared in fabric.cpp----//
 //=======================================================//
-Graph simpleAdjacencyMatrixFabric(int size, bool matrix[]);
+Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix);
 
 }//namespace graph
 #endif
