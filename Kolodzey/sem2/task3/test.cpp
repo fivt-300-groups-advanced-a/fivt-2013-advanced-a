@@ -14,6 +14,8 @@ using graph::getSink;
 using graph::getIsolated;
 using graph::hasSelfLoop;
 
+using graph::simpleAdjacencyMatrixFabric;
+
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
 using graph::AccessAdjacencyMatrixIncidence;
@@ -433,7 +435,7 @@ TEST(func, getCompletionToStrongСonnectivityInСondensed) {
 //            v
 //            5
 
-bool mval [6][6] = {{0, 0, 0, 0, 0, 0},
+vector<vector<bool>> mval = {{0, 0, 0, 0, 0, 0},
                     {0, 0, 0, 1, 0, 0},
                     {0, 0, 0, 1, 1, 0},
                     {0, 0, 0, 0, 0, 0},
@@ -443,7 +445,7 @@ bool mval [6][6] = {{0, 0, 0, 0, 0, 0},
   vector<unique_ptr<BaseIncidence>> vval;
   for (int i = 0; i < 6; ++i)
   vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 6)));
+                              vector<bool>(mval[i].begin(), mval[i].end())));
   Graph graph(std::move(vval));
   vector<pair<int,int>> completion;
   completion = getCompletionToStrongСonnectivityInСondensed(graph);
@@ -451,3 +453,10 @@ bool mval [6][6] = {{0, 0, 0, 0, 0, 0},
   for (size_t i = 0; i < completion.size(); ++i)
     cout << completion[i].first << " " << completion[i].second << endl;
 }
+/*
+TEST(fabric, simpleAdjacencyMatrixFabric) {
+  Graph graph = simpleAdjacencyMatrixFabric(4, {0, 0, 1, 0,
+                                                1, 0, 1, 1,
+                                                0, 1, 0, 0,
+                                                0, 0, 0, 0});
+}*/

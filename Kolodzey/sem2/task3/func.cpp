@@ -143,18 +143,18 @@ int tarjanFindsinkDFS(int v, const Graph& graph,
 
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph) {
-  vector<pair<int, int>> completion; //ans will be here
+  //declare variable to hold answer
+  vector<pair<int, int>> completion;
 
+  //check whether the call is correct and initialize isolated, source, sink 
   if (hasSelfLoop(graph)) {
     cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
          << "graph has self-loop" << endl;
          abort();
   }
-
   vector<int> isolated = getIsolated(graph);
   vector<int> source = getSource(graph);
   vector<int> sink = getSink(graph);
-  
   if(source.size() > sink.size()) {
     cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
          << "source.size() = " << source.size() << " > "
@@ -162,27 +162,29 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
     abort();
   }
 
+  //trivial case = just isolated vertexes
   if (source.empty() && sink.empty()) {  
     if (isolated.size() <= 1)
-      return vector<pair<int, int>>(); //nothing to do there
+      return vector<pair<int, int>>();
     else {
       for(size_t i = 0; i < isolated.size(); ++i)
         completion.emplace_back(i, (i + 1) % isolated.size());
       return completion;
     }
   }
+
+  //declaration of some useful values
   vector<bool> is_sink(graph.size(), 0);
   for (auto it = sink.begin(); it != sink.end(); ++it) {
     is_sink[*it] = 1;
-  }
-  
+  }  
+  vector<bool> is_visited(graph.size(), 0);
   vector<int> unused_source;
   vector<int> unused_sink;
-
-  vector<bool> is_visited(graph.size(), 0);
   int last_found_sink = -1;
   int first_source = -1;
   
+  //launches of the main dfs in algorithm
   for (auto it = source.begin(); it != source.end(); ++it) {
     int current_found_sink = tarjanFindsinkDFS(*it, graph, is_visited, is_sink);
     if (current_found_sink != -1) {
@@ -197,11 +199,13 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
     }
   }
 
+  //fill the array of unused sinks (not reached in dfs)
   for (auto it = sink.begin(); it != sink.end(); ++it) {
     if (!is_visited[*it])
       unused_sink.push_back(*it);
   }
 
+  //adding edges between sources and sinks
   for (size_t i = 0; i < unused_source.size(); ++i) {
     completion.emplace_back(unused_sink[i], unused_source[i]);
   }
@@ -210,6 +214,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   }
   completion.emplace_back(last_found_sink, first_source);
 
+  //adding isolated vertexes
   if (!isolated.empty()) {
     pair<int,int> last_added_edge = completion.back();
     completion.pop_back();
@@ -220,8 +225,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
     }
   }
 
+  //tadam! return result
   return completion;
 }
-
-
 }//namespace graph

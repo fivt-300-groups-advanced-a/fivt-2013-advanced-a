@@ -12,6 +12,9 @@ using std::cerr;
 using std::endl;
 using std::pair;
 
+//----Classes----//
+//===============//
+
 class BaseIterator {
  public:
   virtual void moveForvard() = 0;
@@ -117,7 +120,6 @@ class AdjacencyListIncidence : public BaseIncidence {
 */
 
 class AccessGraphIterator;
-
 class GraphIterator : public BaseIterator {
 
  public:
@@ -159,6 +161,7 @@ class Graph {
  public:
   Graph(const Graph &) = delete;
 
+  Graph(Graph&& graph) : incidence_(std::move(graph.incidence_)) {}
   Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
       : incidence_(std::move(incidence)) { }
 
@@ -202,6 +205,9 @@ struct Coloring {
   vector<int> representative;
 };
 
+
+//----Algorithms to work with graph. Declared in func.cpp----//
+//===========================================================//
 /**
 * getStronglyConnectedComponentsDummy O((V^2)(E + V))
 */
@@ -211,19 +217,16 @@ vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
 bool hasSelfLoop(const Graph& graph);
-
 /**
 * getStronglyConnectedComponentsTarjan (with stack) O(E + V)
 */
 //Coloring getStronglyConnectedComponentsTarjan(const Graph& graph);
-
 /**
 * getCompletionToStrongСonnectivity O(E + V)
 * launches condensation and getCompletionToStrongСonnectivityInСondensed
 * returns needed egdes first -> last
 */
 //vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph);
-
 /**
 * getCompletionToStrongСonnectivityInСondensed O(E + V)
 * is launched by getCompletionToStrongСonnectivity
@@ -231,10 +234,15 @@ bool hasSelfLoop(const Graph& graph);
 */
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
-
 /**
 * checks whether is Path from start to finish using dfs
 */
 bool isPath(const Graph& graph, int start_id, int finish_id); //O(E + V)
+
+
+//-----Fabrics, Builders, etc. Declared in fabric.cpp----//
+//=======================================================//
+Graph simpleAdjacencyMatrixFabric(int size, bool matrix[]);
+
 }//namespace graph
 #endif
