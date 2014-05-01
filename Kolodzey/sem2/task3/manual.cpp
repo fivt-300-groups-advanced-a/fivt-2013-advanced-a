@@ -9,6 +9,11 @@ using graph::GraphIterator;
 using graph::Graph;
 using graph::Coloring;
 
+using graph::getSource;
+using graph::getSink;
+using graph::getIsolated;
+using graph::hasSelfLoop;
+
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
 using graph::AccessAdjacencyMatrixIncidence;
@@ -16,6 +21,8 @@ using graph::AccessAdjacencyMatrixIncidence;
 using std::vector;
 using std::unique_ptr;
 using std::pair;
+using std::cout;
+using std::endl;
 
 class graph::AccessAdjacencyMatrixIterator {
  public:
@@ -379,3 +386,68 @@ bool mval [10][10] = {{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
   EXPECT_EQ(4, isolated[0]);
 }
 
+TEST(func, hasSelfLoop) {
+  bool mval0 [4][4] = {{0, 1, 0, 0},
+                       {1, 0, 0, 1},
+                       {1, 1, 0, 1},
+                       {0, 0, 1, 0}};
+  vector<unique_ptr<BaseIncidence>> vval0;
+  for (int i = 0; i < 4; ++i)
+  vval0.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval0[i], mval0[i] + 4)));
+  Graph graph0(std::move(vval0));
+  EXPECT_FALSE(hasSelfLoop(graph0));
+
+  bool mval1 [4][4] = {{0, 1, 0, 0},
+                       {1, 0, 0, 1},
+                       {1, 1, 1, 1},
+                       {0, 0, 1, 0}};
+  vector<unique_ptr<BaseIncidence>> vval1;
+  for (int i = 0; i < 4; ++i)
+  vval1.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval1[i], mval1[i] + 4)));
+  Graph graph1(std::move(vval1));
+  EXPECT_TRUE(hasSelfLoop(graph1));
+
+  bool mval2 [4][4] = {{0, 0, 0, 0},
+                       {1, 1, 0, 1},
+                       {1, 1, 1, 1},
+                       {0, 0, 1, 0}};
+  vector<unique_ptr<BaseIncidence>> vval2;
+  for (int i = 0; i < 4; ++i)
+  vval2.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval2[i], mval2[i] + 4)));
+  Graph graph2(std::move(vval2));
+  EXPECT_TRUE(hasSelfLoop(graph2));
+}
+
+
+TEST(func, getCompletionToStrongСonnectivityInСondensed) {
+
+//  0    1  2
+//        \ |\
+//         \| \
+//         vv v 
+//         3  4
+//            |
+//            v
+//            5
+
+bool mval [6][6] = {{0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 1, 0, 0},
+                    {0, 0, 0, 1, 1, 0},
+                    {0, 0, 0, 0, 0, 0},
+                    {0, 0, 0, 0, 0, 1},
+                    {0, 0, 0, 0, 0, 0}};
+
+  vector<unique_ptr<BaseIncidence>> vval;
+  for (int i = 0; i < 6; ++i)
+  vval.emplace_back(new AdjacencyMatrixIncidence(
+                              vector<bool>(mval[i], mval[i] + 6)));
+  Graph graph(std::move(vval));
+  vector<pair<int,int>> completion;
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  cout << "getCompletionToStrongСonnectivityInСondensed" << endl;
+  for (size_t i = 0; i < completion.size(); ++i)
+    cout << completion[i].first << " " << completion[i].second << endl;
+}

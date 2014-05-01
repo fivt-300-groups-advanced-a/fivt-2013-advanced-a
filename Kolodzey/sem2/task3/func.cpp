@@ -112,9 +112,17 @@ vector<int> getIsolated(const Graph& graph) {
   return ans;
 }
 
+bool hasSelfLoop(const Graph& graph) {
+  bool ans = 0;
+  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard())
+    ans = ans || graph.isConnected(it->get(), it->get());
+  return ans;
+}
+
+
 namespace {
 
-int tarjanFindSickDFS(int v, const Graph& graph,
+int tarjanFindsinkDFS(int v, const Graph& graph,
                       vector<bool>& is_visited, vector<bool>& is_sink) {
   is_visited[v] = 1;
   if (is_sink[v])
@@ -122,44 +130,68 @@ int tarjanFindSickDFS(int v, const Graph& graph,
   int found_sink = -1;
   for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
     if (!is_visited[it->get()]) {
-      found_sick = tarjanFindSickDFS(it->get(), graph, is_visited, is_sink);
-      if (found_sick != -1) {
-        return found_sick;
+      found_sink = tarjanFindsinkDFS(it->get(), graph, is_visited, is_sink);
+      if (found_sink != -1) {
+        return found_sink;
       }
     }
   }
-  return found_sick;
+  return found_sink;
 }
 
 }//anonymous namespace
 
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph) {
+  vector<pair<int, int>> completion; //ans will be here
+
+  if (hasSelfLoop(graph)) {
+    cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
+         << "graph has self-loop" << endl;
+         abort();
+  }
+
   vector<int> isolated = getIsolated(graph);
   vector<int> source = getSource(graph);
   vector<int> sink = getSink(graph);
+  
+  if(source.size() > sink.size()) {
+    cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
+         << "source.size() = " << source.size() << " > "
+         << "sink.size() = " << sink.size() << endl;
+    abort();
+  }
+
+  if (source.empty() && sink.empty()) {  
+    if (isolated.size() <= 1)
+      return vector<pair<int, int>>(); //nothing to do there
+    else {
+      for(size_t i = 0; i < isolated.size(); ++i)
+        completion.emplace_back(i, (i + 1) % isolated.size());
+      return completion;
+    }
+  }
   vector<bool> is_sink(graph.size(), 0);
   for (auto it = sink.begin(); it != sink.end(); ++it) {
     is_sink[*it] = 1;
   }
+  
   vector<int> unused_source;
   vector<int> unused_sink;
 
-  vector<pair<int, int>> completion;
-
   vector<bool> is_visited(graph.size(), 0);
-  int last_found_sick = -1;
+  int last_found_sink = -1;
   int first_source = -1;
   
   for (auto it = source.begin(); it != source.end(); ++it) {
-    current_found_sick = tarjanFindSickDFS(*it, graph, is_visited, is_sink);
-    if (current_found_sick != -1) {
-      if (last_found_sick == -1) {
+    int current_found_sink = tarjanFindsinkDFS(*it, graph, is_visited, is_sink);
+    if (current_found_sink != -1) {
+      if (last_found_sink == -1) {
         first_source = *it;
       } else {
-        completion.push_back(last_found_sick, *it);
+        completion.emplace_back(last_found_sink, *it);
       }
-      last_found_sick = current_found_sick;
+      last_found_sink = current_found_sink;
     } else {
       unused_source.push_back(*it);
     }
@@ -170,9 +202,25 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
       unused_sink.push_back(*it);
   }
 
-  if ((isolated.size() == 1) && (first_source == -1))
+  for (size_t i = 0; i < unused_source.size(); ++i) {
+    completion.emplace_back(unused_sink[i], unused_source[i]);
+  }
+  for (size_t i = unused_source.size(); i < unused_sink.size(); ++i) {
+    completion.emplace_back(unused_sink[i], first_source);
+  }
+  completion.emplace_back(last_found_sink, first_source);
 
+  if (!isolated.empty()) {
+    pair<int,int> last_added_edge = completion.back();
+    completion.pop_back();
+    completion.emplace_back(last_added_edge.first, isolated.front());
+    completion.emplace_back(isolated.back(), last_added_edge.second);
+    for (size_t i = 0; i < (isolated.size() - 1); ++i) {
+      completion.emplace_back(isolated[i], isolated[i + 1]);
+    }
+  }
 
+  return completion;
 }
 
 

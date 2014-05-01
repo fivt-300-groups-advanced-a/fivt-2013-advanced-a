@@ -210,7 +210,7 @@ Coloring getStronglyConnectedComponentsDummy(const Graph& graph);
 vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
-
+bool hasSelfLoop(const Graph& graph);
 
 /**
 * getStronglyConnectedComponentsTarjan (with stack) O(E + V)
