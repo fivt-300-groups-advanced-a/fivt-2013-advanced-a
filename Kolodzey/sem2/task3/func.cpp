@@ -122,7 +122,7 @@ bool hasSelfLoop(const Graph& graph) {
 
 namespace {
 
-int tarjanFindsinkDFS(int v, const Graph& graph,
+int tarjanFindSinkDFS(int v, const Graph& graph,
                       vector<bool>& is_visited, vector<bool>& is_sink) {
   is_visited[v] = 1;
   if (is_sink[v])
@@ -130,7 +130,7 @@ int tarjanFindsinkDFS(int v, const Graph& graph,
   int found_sink = -1;
   for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
     if (!is_visited[it->get()]) {
-      found_sink = tarjanFindsinkDFS(it->get(), graph, is_visited, is_sink);
+      found_sink = tarjanFindSinkDFS(it->get(), graph, is_visited, is_sink);
       if (found_sink != -1) {
         return found_sink;
       }
@@ -186,7 +186,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   
   //launches of the main dfs in algorithm
   for (auto it = source.begin(); it != source.end(); ++it) {
-    int current_found_sink = tarjanFindsinkDFS(*it, graph, is_visited, is_sink);
+    int current_found_sink = tarjanFindSinkDFS(*it, graph, is_visited, is_sink);
     if (current_found_sink != -1) {
       if (last_found_sink == -1) {
         first_source = *it;

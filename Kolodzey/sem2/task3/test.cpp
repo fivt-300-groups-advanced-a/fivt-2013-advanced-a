@@ -336,7 +336,7 @@ TEST(func, hasSelfLoop) {
 }
 
 
-TEST(func, getCompletionToStrongСonnectivityInСondensed) {
+TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
   vector<vector<bool>> matrix = {{0, 0, 0, 0, 0, 0},
   /*  0  1--->3           */     {0, 0, 0, 1, 0, 0},
   /*          ^           */     {0, 0, 0, 1, 1, 0},
@@ -352,4 +352,17 @@ TEST(func, getCompletionToStrongСonnectivityInСondensed) {
   Graph completed_graph = buildSimpleAdjacencyMatrix(matrix);
   Coloring components = getStronglyConnectedComponentsDummy(completed_graph);
   EXPECT_EQ(1, components.getNumberOfColors());
+}
+
+TEST(func, death_getCompletionToStrongСonnectivityInСondensed) {
+  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                             {1, 0, 0, 1},
+        /* has self-loops */                 {1, 1, 1, 1},
+                                             {0, 0, 1, 0}});
+  EXPECT_DEATH({getCompletionToStrongСonnectivityInСondensed(graph1);}, "");
+  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
+                                             {0, 0, 0, 1},
+      /*  0      1--->3<---2     */          {0, 0, 0, 1},
+      /* more sources than sinks */          {0, 0, 0, 0}});
+  EXPECT_DEATH({getCompletionToStrongСonnectivityInСondensed(graph2);}, "");
 }
