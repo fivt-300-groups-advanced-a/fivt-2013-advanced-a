@@ -221,6 +221,8 @@ vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
 bool hasSelfLoop(const Graph& graph);
+/**true if there is any loop in graph, including self-loop*/
+bool hasLoop(const Graph& graph);
 /**
 * getStronglyConnectedComponentsTarjan (with stack) O(E + V)
 */

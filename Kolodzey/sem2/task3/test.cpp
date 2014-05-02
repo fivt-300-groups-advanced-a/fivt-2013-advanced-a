@@ -317,6 +317,7 @@ Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
   EXPECT_EQ(4, isolated[0]);
 }
 
+//Currently function isn't in use
 TEST(func, hasSelfLoop) {
   Graph graph0 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
                                              {1, 0, 0, 1},
@@ -335,6 +336,33 @@ TEST(func, hasSelfLoop) {
   EXPECT_TRUE(hasSelfLoop(graph2));
 }
 
+TEST(func, hasLoop) {
+  Graph graph0 = buildSimpleAdjacencyMatrix({{0, 0, 0},
+         /* 1    0    2 */                   {0, 0, 0},
+                                             {0, 0, 0}});
+  EXPECT_FALSE(hasLoop(graph0));
+  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 1},
+         /* 1<---0--->2 */                   {0, 0, 0},
+                                             {0, 0, 0}});
+  EXPECT_FALSE(hasLoop(graph1));
+  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 1},
+         /* 1<-->0 */                        {1, 0}});
+  EXPECT_TRUE(hasLoop(graph2));
+  Graph graph3 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
+                                             {0, 0, 1, 0},     //   
+                                             {0, 0, 0, 1},     // 2<->3
+                                             {1, 0, 0, 0}});   
+  EXPECT_TRUE(hasLoop(graph3));
+  Graph graph4 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
+                                             {0, 0, 1, 0},     // ^   |
+                                             {0, 0, 0, 1},     // |   v  
+                                             {1, 0, 0, 0}});   // 3<--2
+  EXPECT_TRUE(hasLoop(graph4));
+  Graph graph5 = buildSimpleAdjacencyMatrix({{1}});
+  EXPECT_TRUE(hasLoop(graph5));
+  Graph graph6 = buildSimpleAdjacencyMatrix({{0}});
+  EXPECT_FALSE(hasLoop(graph6));
+}
 
 TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
   vector<vector<bool>> matrix = {{0, 0, 0, 0, 0, 0},
