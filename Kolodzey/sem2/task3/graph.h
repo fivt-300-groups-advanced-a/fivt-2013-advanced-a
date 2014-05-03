@@ -159,9 +159,18 @@ class GraphIterator : public BaseIterator {
 
 class Graph {
  public:
-  Graph(const Graph &) = delete;
+  Graph() {}
 
+  Graph(const Graph&) = delete;
+  Graph& operator = (const Graph&) = delete;
+  
+  //Don't use explicit here!
   Graph(Graph&& graph) : incidence_(std::move(graph.incidence_)) {}
+  Graph& operator = (Graph&& graph) {
+    incidence_ = std::move(graph.incidence_);
+    return *this;
+  }
+
   Graph(vector<unique_ptr<BaseIncidence>> &&incidence)
       : incidence_(std::move(incidence)) { }
 

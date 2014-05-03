@@ -187,15 +187,12 @@ TEST(GraphIterator, moveForvard) {
 }
 
 TEST(Graph, isConnected) {
-  bool mval [4][4] = {{0, 1, 0, 0},
-                      {1, 0, 0, 1},
-                      {1, 1, 0, 1},
-                      {0, 0, 1, 0}};
-  vector<unique_ptr<BaseIncidence>> vval;
-  for (int i = 0; i < 4; ++i)
-  vval.emplace_back(new AdjacencyMatrixIncidence(
-                              vector<bool>(mval[i], mval[i] + 4)));
-  Graph graph(std::move(vval));
+  vector<vector<bool>> mval = {{0, 1, 0, 0},
+                               {1, 0, 0, 1},
+                               {1, 1, 0, 1},
+                               {0, 0, 1, 0}};
+  Graph graph = buildSimpleAdjacencyMatrix(mval);
+  cout << graph.size() << endl;
   for(int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
       EXPECT_EQ(mval[i][j], graph.isConnected(i, j));
@@ -212,7 +209,7 @@ TEST(Graph, Begin) {
                                {1, 0, 0, 1},
                                {1, 1, 0, 1},
                                {0, 0, 1, 0}};
-  Graph graph = buildSimpleAdjacencyMatrix(mval);
+  Graph graph(buildSimpleAdjacencyMatrix(mval));
   for(int i = 0; i < 4; ++i) {
     unique_ptr<BaseIterator> it = graph.begin(i);
     for(int j = 0; j < 4; ++j)
@@ -231,26 +228,26 @@ TEST(Graph, Begin) {
 }
 
 TEST(func, isPath) {
-  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 1},      //0->1
-                                             {0, 0}}); 
+  Graph graph2(buildSimpleAdjacencyMatrix({{0, 1},      //0->1
+                                           {0, 0}})); 
   EXPECT_TRUE(isPath(graph2, 0, 1));
   EXPECT_FALSE(isPath(graph2, 1, 0));
 
-  Graph graph4 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
-                                             {0, 0, 1, 0},     // ^   |
-                                             {0, 0, 0, 1},     // |   v  
-                                             {1, 0, 0, 0}});   // 3<--2
+  Graph graph4(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},      // 0-->1
+                                           {0, 0, 1, 0},      // ^   |
+                                           {0, 0, 0, 1},      // |   v  
+                                           {1, 0, 0, 0}}));   // 3<--2
   for (int i = 0; i < 4; ++i)
     for (int j = 0; j < 4; ++j)
       EXPECT_TRUE(isPath(graph4, i, j));
 }
 
 TEST(func, getStronglyConnectedComponentsDummy) {
-  Graph graph = buildSimpleAdjacencyMatrix({{0, 1, 0, 0, 0},
-     /* 0 <-- 2 <-    */                    {0, 0, 0, 0, 0},
-     /* |     |   \   */                    {1, 0, 0, 1, 0},
-     /* v     v    \  */                    {0, 1, 0, 0, 1},
-     /* 1 <-- 3 --> 4 */                    {0, 0, 1, 0, 0}});  
+  Graph graph(buildSimpleAdjacencyMatrix({{0, 1, 0, 0, 0},
+     /* 0 <-- 2 <-    */                  {0, 0, 0, 0, 0},
+     /* |     |   \   */                  {1, 0, 0, 1, 0},
+     /* v     v    \  */                  {0, 1, 0, 0, 1},
+     /* 1 <-- 3 --> 4 */                  {0, 0, 1, 0, 0}}));  
   Coloring components = getStronglyConnectedComponentsDummy(graph);
   //expected division into components: 0; 1; 2 + 3 + 4 
   EXPECT_EQ(3, components.getNumberOfColors());
@@ -262,17 +259,17 @@ TEST(func, getStronglyConnectedComponentsDummy) {
 }
 
 TEST(func, getSource) {
-Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                        {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */        {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */        {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
    /* v     |           vv v  */
-   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
+   /* 2 --> 3           7  8  */        {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */        {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}}));
   vector<int> source = getSource(graph);
   sort(source.begin(), source.end());
   EXPECT_EQ(2, source.size());
@@ -281,17 +278,17 @@ Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 }
 
 TEST(func, getIsSink) {
-Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                        {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */        {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */        {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
    /* v     |           vv v  */
-   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
+   /* 2 --> 3           7  8  */        {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */        {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}}));
   vector<int> sink = getSink(graph);
   sort(sink.begin(), sink.end());
   EXPECT_EQ(2, sink.size());
@@ -300,17 +297,17 @@ Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 }
 
 TEST(func, getIsolated) {
-Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* 0 <-- 1    4    5  6    */          {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-   /* |     ^          \ |\   */          {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* |     |           \| \  */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
+                                        {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* 0 <-- 1    4    5  6    */        {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+   /* |     ^          \ |\   */        {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+   /* |     |           \| \  */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
    /* v     |           vv v  */
-   /* 2 --> 3           7  8  */          {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-   /*                   |     */          {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-   /*                   v     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-   /*                   9     */          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}});
+   /* 2 --> 3           7  8  */        {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+   /*                   |     */        {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+   /*                   v     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+   /*                   9     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}}));
   vector<int> isolated = getIsolated(graph);
   sort(isolated.begin(), isolated.end());
   EXPECT_EQ(1, isolated.size());
@@ -319,48 +316,48 @@ Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
 
 //Currently function isn't in use
 TEST(func, hasSelfLoop) {
-  Graph graph0 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
-                                             {1, 0, 0, 1},
-                                             {1, 1, 0, 1},
-                                             {0, 0, 1, 0}});
+  Graph graph0(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                           {1, 0, 0, 1},
+                                           {1, 1, 0, 1},
+                                           {0, 0, 1, 0}}));
   EXPECT_FALSE(hasSelfLoop(graph0));
-  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
-                                             {1, 0, 0, 1},
-                                             {1, 1, 1, 1},
-                                             {0, 0, 1, 0}});
+  Graph graph1(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                           {1, 0, 0, 1},
+                                           {1, 1, 1, 1},
+                                           {0, 0, 1, 0}}));
   EXPECT_TRUE(hasSelfLoop(graph1));
-  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
-                                             {1, 1, 0, 1},
-                                             {1, 1, 1, 1},
-                                             {0, 0, 1, 0}});
+  Graph graph2(buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
+                                           {1, 1, 0, 1},
+                                           {1, 1, 1, 1},
+                                           {0, 0, 1, 0}}));
   EXPECT_TRUE(hasSelfLoop(graph2));
 }
 
 TEST(func, hasLoop) {
-  Graph graph0 = buildSimpleAdjacencyMatrix({{0, 0, 0},
-         /* 1    0    2 */                   {0, 0, 0},
-                                             {0, 0, 0}});
+  Graph graph0(buildSimpleAdjacencyMatrix({{0, 0, 0},
+         /* 1    0    2 */                 {0, 0, 0},
+                                           {0, 0, 0}}));
   EXPECT_FALSE(hasLoop(graph0));
-  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 1},
-         /* 1<---0--->2 */                   {0, 0, 0},
-                                             {0, 0, 0}});
+  Graph graph1(buildSimpleAdjacencyMatrix({{0, 1, 1},
+         /* 1<---0--->2 */                 {0, 0, 0},
+                                           {0, 0, 0}}));
   EXPECT_FALSE(hasLoop(graph1));
-  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 1},
-         /* 1<-->0 */                        {1, 0}});
+  Graph graph2(buildSimpleAdjacencyMatrix({{0, 1},
+         /* 1<-->0 */                      {1, 0}}));
   EXPECT_TRUE(hasLoop(graph2));
-  Graph graph3 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
-                                             {0, 0, 1, 0},     //   
-                                             {0, 0, 0, 1},     // 2<->3
-                                             {1, 0, 0, 0}});   
+  Graph graph3(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
+                                           {0, 0, 1, 0},     //   
+                                           {0, 0, 0, 1},     // 2<->3
+                                           {1, 0, 0, 0}}));   
   EXPECT_TRUE(hasLoop(graph3));
-  Graph graph4 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
-                                             {0, 0, 1, 0},     // ^   |
-                                             {0, 0, 0, 1},     // |   v  
-                                             {1, 0, 0, 0}});   // 3<--2
+  Graph graph4(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},     // 0-->1
+                                           {0, 0, 1, 0},     // ^   |
+                                           {0, 0, 0, 1},     // |   v  
+                                           {1, 0, 0, 0}}));  // 3<--2
   EXPECT_TRUE(hasLoop(graph4));
-  Graph graph5 = buildSimpleAdjacencyMatrix({{1}});
+  Graph graph5(buildSimpleAdjacencyMatrix({{1}}));
   EXPECT_TRUE(hasLoop(graph5));
-  Graph graph6 = buildSimpleAdjacencyMatrix({{0}});
+  Graph graph6(buildSimpleAdjacencyMatrix({{0}}));
   EXPECT_FALSE(hasLoop(graph6));
 }
 
@@ -371,26 +368,63 @@ TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
   /*          |           */     {0, 0, 0, 0, 0, 0},
   /*          2--->4--->5 */     {0, 0, 0, 0, 0, 1},
                                  {0, 0, 0, 0, 0, 0}};
-  Graph graph = buildSimpleAdjacencyMatrix(matrix);
+  Graph graph(buildSimpleAdjacencyMatrix(matrix));
   vector<pair<int,int>> completion;
   completion = getCompletionToStrongСonnectivityInСondensed(graph);
   EXPECT_EQ(3, completion.size());
   for (auto it = completion.begin(); it != completion.end(); ++it)
     matrix[it->first][it->second] = 1;
-  Graph completed_graph = buildSimpleAdjacencyMatrix(matrix);
+  Graph completed_graph(buildSimpleAdjacencyMatrix(matrix));
   Coloring components = getStronglyConnectedComponentsDummy(completed_graph);
   EXPECT_EQ(1, components.getNumberOfColors());
 }
 
 TEST(func, death_getCompletionToStrongСonnectivityInСondensed) {
-  Graph graph1 = buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
-                                             {1, 0, 0, 1},
-        /* has self-loops */                 {1, 1, 1, 1},
-                                             {0, 0, 1, 0}});
+  Graph graph1(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
+                                           {1, 0, 0, 1},
+        /* has loops */                    {1, 1, 1, 1},
+                                           {0, 0, 1, 0}}));
   EXPECT_DEATH({getCompletionToStrongСonnectivityInСondensed(graph1);}, "");
-  Graph graph2 = buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
-                                             {0, 0, 0, 1},
-      /*  0      1--->3<---2     */          {0, 0, 0, 1},
-      /* more sources than sinks */          {0, 0, 0, 0}});
+  Graph graph2(buildSimpleAdjacencyMatrix({{0, 0, 0, 0},
+                                           {0, 0, 0, 1},
+      /*  0      1--->3<---2     */        {0, 0, 0, 1},
+      /* more sources than sinks */        {0, 0, 0, 0}}));
   EXPECT_DEATH({getCompletionToStrongСonnectivityInСondensed(graph2);}, "");
+}
+
+TEST(func, s1_getCompletionToStrongСonnectivityInСondensed) {
+  Graph graph(buildSimpleAdjacencyMatrix({{0}}));
+  vector<pair<int,int>> completion;
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  EXPECT_EQ(0, completion.size());
+}
+
+TEST(func, s2_getCompletionToStrongСonnectivityInСondensed) {
+  vector<pair<int,int>> completion;
+  pair<int,int> e01(0, 1);
+  pair<int,int> e10(1, 0);
+  Graph graph(buildSimpleAdjacencyMatrix({{0, 0},
+                                          {0, 0}})); 
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  sort(completion.begin(), completion.end());
+  EXPECT_EQ(2, completion.size()); 
+  EXPECT_EQ(e01, completion[0]);
+  EXPECT_EQ(e10, completion[1]);
+
+  graph = buildSimpleAdjacencyMatrix({{0, 1},
+                                      {0, 0}}); 
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  EXPECT_EQ(1, completion.size()); 
+  EXPECT_EQ(e10, completion[0]);
+
+  graph = buildSimpleAdjacencyMatrix({{0, 0},
+                                      {1, 0}}); 
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  EXPECT_EQ(1, completion.size()); 
+  EXPECT_EQ(e01, completion[0]);
+
+  graph = buildSimpleAdjacencyMatrix({{0, 1},
+                                      {1, 0}}); 
+  completion = getCompletionToStrongСonnectivityInСondensed(graph);
+  EXPECT_EQ(0, completion.size()); 
 }
