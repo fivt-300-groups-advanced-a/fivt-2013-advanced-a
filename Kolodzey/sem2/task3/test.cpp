@@ -192,7 +192,6 @@ TEST(Graph, isConnected) {
                                {1, 1, 0, 1},
                                {0, 0, 1, 0}};
   Graph graph = buildSimpleAdjacencyMatrix(mval);
-  cout << graph.size() << endl;
   for(int i = 0; i < 4; ++i) {
     for (int j = 0; j < 4; ++j) {
       EXPECT_EQ(mval[i][j], graph.isConnected(i, j));
@@ -359,6 +358,17 @@ TEST(func, hasLoop) {
   EXPECT_TRUE(hasLoop(graph5));
   Graph graph6(buildSimpleAdjacencyMatrix({{0}}));
   EXPECT_FALSE(hasLoop(graph6));
+  Graph graph7akaS3t40(buildSimpleAdjacencyMatrix({{0, 0, 0},      //0
+                                                   {0, 0, 1},      //
+                                                   {0, 1, 0}}));   //1<-->2
+  EXPECT_TRUE(hasLoop(graph7akaS3t40));
+  Graph graph8akaManual(buildSimpleAdjacencyMatrix({{0, 0, 0, 0, 0, 0},
+      /*  0  1--->3           */                    {0, 0, 0, 1, 0, 0},
+      /*          ^           */                    {0, 0, 0, 1, 1, 0},
+      /*          |           */                    {0, 0, 0, 0, 0, 0},
+      /*          2--->4--->5 */                    {0, 0, 0, 0, 0, 1},
+                                                    {0, 0, 0, 0, 0, 0}}));
+  EXPECT_FALSE(hasLoop(graph8akaManual));
 }
 
 TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
@@ -422,9 +432,38 @@ TEST(func, s2_getCompletionToStrongСonnectivityInСondensed) {
   completion = getCompletionToStrongСonnectivityInСondensed(graph);
   EXPECT_EQ(1, completion.size()); 
   EXPECT_EQ(e01, completion[0]);
+}
 
-  graph = buildSimpleAdjacencyMatrix({{0, 1},
-                                      {1, 0}}); 
-  completion = getCompletionToStrongСonnectivityInСondensed(graph);
-  EXPECT_EQ(0, completion.size()); 
+TEST(func, s3_getCompletionToStrongСonnectivityInСondensed) {
+  vector<vector<bool>> matrix = {{0, 0, 0},
+                                 {0, 0, 0},
+                                 {0, 0, 0}};
+  for (unsigned int testcase = 0; testcase < (1 << 6); ++testcase)
+  {
+    int k = 0;
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
+        if (i != j) {
+          matrix[i][j] = (((1 << k) & (testcase)) > 0);
+          ++k;
+        }
+        else {
+          matrix[i][j] = 0;
+        }
+    Graph graph = buildSimpleAdjacencyMatrix(matrix);
+    vector<int> source = getSource(graph);
+    vector<int> sink = getSink(graph);
+    vector<int> isolated = getIsolated(graph);
+    if ((!hasLoop(graph)) && (source.size() <= sink.size())) {
+      vector<pair<int,int>> completion;
+      completion = getCompletionToStrongСonnectivityInСondensed(graph);
+      for (auto it = completion.begin(); it != completion.end(); ++it) {
+        matrix[(*it).first][(*it).second] = 1;
+      }
+      Graph completed = buildSimpleAdjacencyMatrix(matrix);
+      Coloring components = getStronglyConnectedComponentsDummy(completed);
+      EXPECT_EQ(isolated.size() + sink.size(), completion.size()) << testcase;
+      EXPECT_EQ(1, components.getNumberOfColors()) << testcase;
+    }
+  }
 }

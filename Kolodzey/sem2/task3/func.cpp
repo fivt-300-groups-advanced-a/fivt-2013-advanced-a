@@ -120,14 +120,15 @@ bool hasSelfLoop(const Graph& graph) {
 }
 
 namespace {
-bool innerHasLoop(int v, const Graph& graph, vector<bool>& visited) {
-  visited[v] = true;
+bool innerHasLoop(int v, const Graph& graph, vector<int>& visited, int color) {
+  visited[v] = color;
   bool ans = false;
   for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
-    if (!visited[it->get()])
-      ans = ans || innerHasLoop(it->get(), graph, visited);
+    if (visited[it->get()] == 0)
+      ans = ans || innerHasLoop(it->get(), graph, visited, color);
     else
-      return 1;
+      if (visited[it->get()] == color)
+        return 1;
   }
   return ans;
 }
@@ -137,10 +138,13 @@ bool hasLoop(const Graph& graph) {
   if (graph.size() == 0)
     return 0;
   bool ans = false;
-  vector<bool> visited(graph.size(), 0);
+  vector<int> visited(graph.size(), 0);
+  int color = 1;
   for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
-    if (!visited[it->get()])
-      ans = ans || innerHasLoop(0, graph, visited);
+    if (visited[it->get()] == 0) {
+      ans = ans || innerHasLoop(it->get(), graph, visited, color);
+      ++color;
+    }
   }
   return ans;
 }
@@ -174,7 +178,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   //check whether the call is correct and initialize isolated, source, sink 
   if (hasLoop(graph)) {
     cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
-         << "graph has self-loop" << endl;
+         << "graph has loop" << endl;
          abort();
   }
   vector<int> isolated = getIsolated(graph);
