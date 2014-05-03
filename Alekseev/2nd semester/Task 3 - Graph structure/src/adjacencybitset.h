@@ -2,6 +2,7 @@
 #define ADJACENCYBITSET_H
 
 #include <vector>
+#include <algorithm>
 
 #include "adjacency.h"
 
@@ -55,12 +56,12 @@ class AdjacencyBitSet : public Adjacency
 {
 public:
     template<class FwdIter>
-    explicit AdjacencyBitSet(FwdIter begin, FwdIter end):
+    AdjacencyBitSet(FwdIter begin, FwdIter end):
         bits(makeBitSet(begin, end)),
         size_(std::distance(begin, end))
     {}
     explicit AdjacencyBitSet(std::vector<bool> &&bits):
-        bits(std::forward<std::vector<bool> >(bits)),
+        bits(bits),
         size_(std::count(this->bits.cbegin(), this->bits.cend(), true))
     {}
 
@@ -77,8 +78,9 @@ public:
         return std::unique_ptr<AdjacencyIterator>(new AdjacencyBitSetIterator(0, bits));
     }
 
-    virtual bool isConnectedTo(vertex_t vertex) const override
+    virtual bool adjacentTo(vertex_t vertex) const override
     {
+//        assert(vertex < bits.size());
         return vertex < bits.size() && bits[vertex];
     }
 
