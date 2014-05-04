@@ -1,3 +1,4 @@
+#define TESTING
 #include <iostream>
 #include <queue>
 #include <gtest/gtest.h>
@@ -6,6 +7,7 @@
 #include <map>
 #include "graph.h"
 #include <algorithm>
+#include "algo.h"
 
 using namespace std;
 
@@ -140,6 +142,90 @@ TEST(ListIncidents, Stress1)
     EXPECT_EQ(k, m);
 }
 
+TEST (Tarjan, Hand1)
+{
+    int n = 100;
+    int k = 5;
+    vector<unique_ptr<Incidents>> v(n);
+    vector<ListFactory> lf(n);
+    for (int i = 0; i < n; i += k)
+    {
+        for (int j = 1; j < k; ++j)
+            if (i + j < n)
+            {
+                lf[i].addEdge(i + j);
+                lf[i + j].addEdge(i);
+            }
+    }
+    for (int i = 0; i < n; ++i)
+        v[i] = lf[i].get();
+    Graph g(v);
+    vector<int> tmp;
+    EXPECT_EQ(getStrongCon(g, tmp), n / k);
+}
+
+TEST (ALGO, Stress1)
+{
+    for (int qwe = 0; qwe < 100; qwe++)
+    {
+        int n = 1000;
+        int m = 1000;
+        vector<unique_ptr<Incidents>> v(n);
+        vector<ListFactory> lf(n);
+        for (int i = 0; i < m; ++i)
+        {
+            int q = 0, w = 0;
+            while (q != w)
+            {
+                q = rand() % n;
+                w = rand() % n;
+            }
+            lf[q].addEdge(w);
+        }
+        for (int i = 0; i < n; ++i)
+            v[i] = lf[i].get();
+        Graph g(v);
+        vector<pair<int, int>> res = StrongConnectivityAugmentation(g);
+        for (int i = 0; i < res.size(); ++i)
+            lf[res[i].first].addEdge(res[i].second);
+        for (int i = 0; i < n; ++i)
+            v[i] = lf[i].get();
+        Graph f(v);
+        vector<int> tmp;
+        EXPECT_EQ(1, getStrongCon(f, tmp));
+    }
+}
+TEST (ALGO, Stress2)
+{
+    for (int qwe = 0; qwe < 100; qwe++)
+    {
+        int n = 100;
+        int m = 1000;
+        vector<unique_ptr<Incidents>> v(n);
+        vector<ListFactory> lf(n);
+        for (int i = 0; i < m; ++i)
+        {
+            int q = 0, w = 0;
+            while (q != w)
+            {
+                q = rand() % n;
+                w = rand() % n;
+            }
+            lf[q].addEdge(w);
+        }
+        for (int i = 0; i < n; ++i)
+            v[i] = lf[i].get();
+        Graph g(v);
+        vector<pair<int, int>> res = StrongConnectivityAugmentation(g);
+        for (int i = 0; i < res.size(); ++i)
+            lf[res[i].first].addEdge(res[i].second);
+        for (int i = 0; i < n; ++i)
+            v[i] = lf[i].get();
+        Graph f(v);
+        vector<int> tmp;
+        EXPECT_EQ(1, getStrongCon(f, tmp));
+    }
+}
 
 TEST(BitsetIncidents, Stress1)
 {
