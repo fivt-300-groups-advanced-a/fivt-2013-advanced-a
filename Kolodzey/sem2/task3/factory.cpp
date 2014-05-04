@@ -1,6 +1,9 @@
 #include "graph.h"
 
 namespace graph {
+
+using std::cout;
+
 Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix) {
   vector<unique_ptr<BaseIncidence>> vval;
   for (auto it = matrix.begin(); it != matrix.end(); ++it)
@@ -8,5 +11,4 @@ Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix) {
   Graph graph(std::move(vval));
   return std::move(graph);
 }
-
 }//namespace graph

@@ -11,6 +11,7 @@ using std::vector;
 using std::cerr;
 using std::endl;
 using std::pair;
+using std::tuple;
 
 //----Classes----//
 //===============//
@@ -258,6 +259,5 @@ bool isPath(const Graph& graph, int start_id, int finish_id); //O(E + V)
 //-----Fabrics, Builders, etc. Declared in fabric.cpp----//
 //=======================================================//
 Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix);
-
 }//namespace graph
 #endif

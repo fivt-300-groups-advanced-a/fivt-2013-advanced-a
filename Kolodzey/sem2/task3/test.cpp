@@ -1,3 +1,4 @@
+#include <tuple>
 #include "gtest/gtest.h"
 #include "graph.h"
 
@@ -23,8 +24,13 @@ using graph::AccessAdjacencyMatrixIncidence;
 using std::vector;
 using std::unique_ptr;
 using std::pair;
+using std::tuple;
 using std::cout;
 using std::endl;
+
+using ::testing::Values;
+using ::testing::Range;
+using ::testing::Combine;
 
 class graph::AccessAdjacencyMatrixIterator {
  public:
@@ -434,36 +440,94 @@ TEST(func, s2_getCompletionToStrongСonnectivityInСondensed) {
   EXPECT_EQ(e01, completion[0]);
 }
 
-TEST(func, s3_getCompletionToStrongСonnectivityInСondensed) {
-  vector<vector<bool>> matrix = {{0, 0, 0},
-                                 {0, 0, 0},
-                                 {0, 0, 0}};
-  for (unsigned int testcase = 0; testcase < (1 << 6); ++testcase)
-  {
-    int k = 0;
-    for (int i = 0; i < 3; ++i)
-      for (int j = 0; j < 3; ++j)
-        if (i != j) {
-          matrix[i][j] = (((1 << k) & (testcase)) > 0);
-          ++k;
-        }
-        else {
-          matrix[i][j] = 0;
-        }
-    Graph graph = buildSimpleAdjacencyMatrix(matrix);
-    vector<int> source = getSource(graph);
-    vector<int> sink = getSink(graph);
-    vector<int> isolated = getIsolated(graph);
-    if ((!hasLoop(graph)) && (source.size() <= sink.size())) {
-      vector<pair<int,int>> completion;
-      completion = getCompletionToStrongСonnectivityInСondensed(graph);
-      for (auto it = completion.begin(); it != completion.end(); ++it) {
-        matrix[(*it).first][(*it).second] = 1;
-      }
-      Graph completed = buildSimpleAdjacencyMatrix(matrix);
-      Coloring components = getStronglyConnectedComponentsDummy(completed);
-      EXPECT_EQ(isolated.size() + sink.size(), completion.size()) << testcase;
-      EXPECT_EQ(1, components.getNumberOfColors()) << testcase;
+/** genMatrixByBoolMask(tuple<int,int> mask) Generates matrix by given mask
+*
+* get<0>(mask) -> size of graph
+* get<1>(mask) -> bitmask, that describes graph
+*
+* for example, mask = 749, size = 4
+*
+* 749 = 1011101101
+*      #9876543210
+* we enumerate bits from the lowest
+*
+*   bits correspond to the   |   so adjacency matrix for (4; 749)
+* adjacency matrix like this |        will look like this
+*    12  0  1  2             |              0 1 0 1
+*     6 13  3  4             |              1 0 1 0
+*     7  8 14  5             |              1 0 0 1
+*     9 10 11 15             |              1 0 0 0
+*
+* So, masks from [0; 2 ^ (size * (size - 1) / 2) ) = topsorted masks
+* all upper triangular adjacency matrixes with zeros on the main diagonal
+*
+* masks from [0; 2 ^ (size * (size - 1)) ) = masks without self-loops
+* all adjacency matrixes with zeros on the main diagonal
+*/
+vector<vector<bool>> genMatrixByBoolMask(tuple<int,int> mask) {
+  int size = std::get<0>(mask);
+  int bitmask = std::get<1>(mask);
+  vector<vector<bool>> matrix(size, vector<bool>(size, 0));
+  int currentbit = 0;
+  for(int i = 0; i < size; ++i)
+    for (int j = i + 1; j < size; ++j) {
+      matrix[i][j] = (bitmask & (1 << currentbit)) > 0;
+      ++currentbit;
     }
+  for(int i = 0; i < size; ++i)
+    for (int j = 0; j < i; ++j) {
+      matrix[i][j] = (bitmask & (1 << currentbit)) > 0;
+      ++currentbit;
+    }
+  for (int i = 0; i < size; ++i) {
+     matrix[i][i] = (bitmask & (1 << currentbit)) > 0;
+     ++currentbit;
+  }
+  return matrix;
+}
+
+TEST(helpers, genMatrixByBoolMask) {
+  tuple<int,int> mask_from_comments_to_source(4, 749);
+  vector<vector<bool>> expected_matix = {{0, 1, 0, 1},
+                                         {1, 0, 1, 0},
+                                         {1, 0, 0, 1},
+                                         {1, 0, 0, 0}};
+  EXPECT_EQ(expected_matix, genMatrixByBoolMask(mask_from_comments_to_source));
+}
+
+typedef ::testing::TestWithParam<std::tuple<int,int>> BoolMatrixStress;
+
+TEST_P(BoolMatrixStress, getCompletionToStrongСonnectivityInСondensed) {
+  vector<vector<bool>> matrix = genMatrixByBoolMask(GetParam());
+  Graph graph = buildSimpleAdjacencyMatrix(matrix);
+  vector<int> source = getSource(graph);
+  vector<int> sink = getSink(graph);
+  vector<int> isolated = getIsolated(graph);
+  if ((!hasLoop(graph)) && (source.size() <= sink.size())) {
+    vector<pair<int,int>> completion;
+    completion = getCompletionToStrongСonnectivityInСondensed(graph);
+    for (auto it = completion.begin(); it != completion.end(); ++it) {
+      matrix[(*it).first][(*it).second] = 1;
+    }
+    Graph completed = buildSimpleAdjacencyMatrix(matrix);
+    Coloring components = getStronglyConnectedComponentsDummy(completed);
+    EXPECT_EQ(isolated.size() + sink.size(), completion.size());
+    EXPECT_EQ(1, components.getNumberOfColors());
   }
 }
+
+#define NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(size) \
+  INSTANTIATE_TEST_CASE_P(NoSelfLoopMask##size, BoolMatrixStress, \
+                          Combine(Values(size), \
+                                  Range(0, 1 << ((size)*((size)-1)))))
+#define TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(size) \
+  INSTANTIATE_TEST_CASE_P(TopsortedMask##size, BoolMatrixStress, \
+                          Combine(Values(size), \
+                                  Range(0, 1 << ((size)*((size)-1)/2))))
+
+NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(3);
+NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(4);
+NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(5);
+TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(6);
+TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(7);
+//TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(8);
