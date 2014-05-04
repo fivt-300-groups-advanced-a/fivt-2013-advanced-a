@@ -495,10 +495,15 @@ TEST(helpers, genMatrixByBoolMask) {
   EXPECT_EQ(expected_matix, genMatrixByBoolMask(mask_from_comments_to_source));
 }
 
-typedef ::testing::TestWithParam<std::tuple<int,int>> BoolMatrixStress;
+namespace std {
+std::ostream& operator << (std::ostream& os, const tuple<int,int>& val) {
+  os << std::get<0>(val) << " " << std::get<1>(val);
+  return os;
+}
+}//namespace std
 
-TEST_P(BoolMatrixStress, getCompletionToStrongСonnectivityInСondensed) {
-  vector<vector<bool>> matrix = genMatrixByBoolMask(GetParam());
+void runGetCompletionToStrongСonnectivityInСondensed(tuple<int,int> mask) {
+  vector<vector<bool>> matrix = genMatrixByBoolMask(mask);
   Graph graph = buildSimpleAdjacencyMatrix(matrix);
   vector<int> source = getSource(graph);
   vector<int> sink = getSink(graph);
@@ -511,23 +516,25 @@ TEST_P(BoolMatrixStress, getCompletionToStrongСonnectivityInСondensed) {
     }
     Graph completed = buildSimpleAdjacencyMatrix(matrix);
     Coloring components = getStronglyConnectedComponentsDummy(completed);
-    EXPECT_EQ(isolated.size() + sink.size(), completion.size());
-    EXPECT_EQ(1, components.getNumberOfColors());
+    ASSERT_EQ(isolated.size() + sink.size(), completion.size()) << mask;
+    ASSERT_EQ(1, components.getNumberOfColors()) << mask;
   }
 }
 
-#define NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(size) \
-  INSTANTIATE_TEST_CASE_P(NoSelfLoopMask##size, BoolMatrixStress, \
-                          Combine(Values(size), \
-                                  Range(0, 1 << ((size)*((size)-1)))))
-#define TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(size) \
-  INSTANTIATE_TEST_CASE_P(TopsortedMask##size, BoolMatrixStress, \
-                          Combine(Values(size), \
-                                  Range(0, 1 << ((size)*((size)-1)/2))))
+typedef ::testing::TestWithParam<int> StressNoSelfLoops;
+TEST_P(StressNoSelfLoops, getCompletionToStrongСonnectivityInСondensed) {
+  int size = GetParam();
+  int maxmask = 1 << (size * (size - 1));
+  for (int i = 0; i < maxmask; ++i)
+    runGetCompletionToStrongСonnectivityInСondensed(tuple<int,int>(size, i));
+}
+INSTANTIATE_TEST_CASE_P(func, StressNoSelfLoops, Range(3, 6));
 
-NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(3);
-NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(4);
-NO_SELF_LOOP_MASK_FOR_BOOL_MATRIX_STRESS(5);
-TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(6);
-TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(7);
-//TOPSORTED_MASK_FOR_BOOL_MATRIX_STRESS(8);
+typedef ::testing::TestWithParam<int> StressTopsorted;
+TEST_P(StressTopsorted, getCompletionToStrongСonnectivityInСondensed) {
+  int size = GetParam();
+  int maxmask = 1 << (size * (size - 1) / 2);
+  for (int i = 0; i < maxmask; ++i)
+    runGetCompletionToStrongСonnectivityInСondensed(tuple<int,int>(size, i));
+}
+INSTANTIATE_TEST_CASE_P(func, StressTopsorted, Range(6, 8));
