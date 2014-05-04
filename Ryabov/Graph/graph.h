@@ -19,7 +19,7 @@ public:
         {}
     };
 
-    virtual Iterator* begin() = 0;
+    virtual std::unique_ptr<Iterator> begin() = 0;
     virtual bool isConnected(int) = 0;
     virtual ~Incidents()
     {}
@@ -34,18 +34,6 @@ public:
         return vertexes.size();
     }
 
-    class IncidentsIterator
-    {
-    public:
-        IncidentsIterator(std::vector<std::unique_ptr<Incidents>>::iterator it) : it(it)
-        {
-        }
-    private:
-        std::vector<std::unique_ptr<Incidents> > :: iterator it;
-    };
-
-    
-    
     Graph(std::vector<std::unique_ptr<Incidents> > &v)
     {
         for (int i = 0; i < v.size(); ++i)
@@ -100,9 +88,9 @@ public:
     };
 
 
-    Iterator* begin()
+    std::unique_ptr<Iterator> begin()
     {
-        return (Iterator*)(new BitsetIterator(mlist.begin(), mlist.end()));
+        return std::move(std::unique_ptr<Iterator>(new BitsetIterator(mlist.begin(), mlist.end())));
     }
 
     bool isConnected(int v)
@@ -161,9 +149,9 @@ public:
     private:
         int val;
     };
-    Iterator* begin()
+    std::unique_ptr<Iterator> begin()
     {
-        return (Iterator*)(new OneIterator(val));
+        return std::move(std::unique_ptr<Iterator>(new OneIterator(val)));
     }
 
     bool isConnected(int v)
@@ -221,9 +209,9 @@ public:
     private:
         std::vector<int>::iterator end, it;
     };
-    Iterator* begin()
+    std::unique_ptr<Iterator> begin()
     {
-        return (Iterator*)(new ListIterator(mlist.begin(), mlist.end()));
+        return std::move(std::unique_ptr<Iterator>(new ListIterator(mlist.begin(), mlist.end())));
     }
     bool isConnected(int v)
     {
@@ -291,16 +279,4 @@ private:
     std::vector<int> vint;
     std::vector<bool> vbool;
 };
-
-//------------------------------------
-//------------ALGORITHMS--------------
-//------------------------------------
-
-std::vector<int> getStrongCon(Graph &g)
-{
-    std::vector<int> ans(g.size());
-
-    return ans;   
-}
-
 #endif

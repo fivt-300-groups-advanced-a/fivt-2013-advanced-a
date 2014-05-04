@@ -24,7 +24,7 @@ public:
         graph = std::move(_graph);
     }
     
-    const ListOfIncidentVerteces& getIncidentVerteces(int vertex)
+    const ListOfIncidentVerteces& getIncidentVerteces(int vertex) const
     {
         return *graph[vertex];
     }

@@ -62,7 +62,7 @@ public:
         return std::unique_ptr<AdjacencyIterator>(new SingleAdjacencyIterator(dest));
     }
 
-    virtual bool isConnectedTo(vertex_t vertex) const override
+    virtual bool adjacentTo(vertex_t vertex) const override
     {
         return vertex == dest;
     }

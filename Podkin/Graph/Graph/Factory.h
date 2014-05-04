@@ -26,7 +26,7 @@ public:
         number_of_verteces = cnt;
     }
     
-    explicit Factory(const std::vector<int> &to, int cnt)
+    Factory(std::vector<int> to, int cnt)
     {
         incident_verteces = to;
         number_of_verteces = cnt;
@@ -52,7 +52,7 @@ public:
             }
             return std::move(std::unique_ptr<ListOfIncidentVerteces>(new BitSetMethod(bitset)));
         }
-        return std::move(std::unique_ptr<ListOfIncidentVerteces>(new StandartListMethod(to, 0)))
+        return std::move(std::unique_ptr<ListOfIncidentVerteces>(new StandartListMethod(incident_verteces, 0)));
     }
 private:
     std::vector<int> incident_verteces;
