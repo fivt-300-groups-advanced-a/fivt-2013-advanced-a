@@ -33,18 +33,19 @@ public:
 			for (uint j = 0; j < v.size(); j++)
 				bitset[v[j]] = true;
 			v.clear();
+			v.shrink_to_fit();
 		}
 		return true;
 	}
 	LIPtr getLI() override
 	{
 		if (v.empty() && !flagBitset)
-			return LIPtr((AbstractLI *) new EmptyLI());
+			return LIPtr(new EmptyLI());
 		if (v.size() == 1)
-			return LIPtr((AbstractLI *) new FuncLI(v[0]));
+			return LIPtr(new FuncLI(v[0]));
 		if (flagBitset)
-			return LIPtr((AbstractLI *) new BitsetLI(bitset));
-		else return LIPtr((AbstractLI *) new StandardLI(v));
+			return LIPtr(new BitsetLI(bitset));
+		else return LIPtr(new StandardLI(v));
 	}
 private:
 	uint n;

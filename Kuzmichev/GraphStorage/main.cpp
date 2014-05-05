@@ -1,5 +1,6 @@
 #include "Graph.h"
 #include "Factory.h"
+#include "GraphAlgo.h"
 
 #include "gtest/gtest.h"
 
@@ -36,7 +37,7 @@ TEST(handy_tests, checking_types)
 	}
 }
 
-TEST(condensate_tests, handy_test)
+TEST(condensate_tests, handy_test_1)
 {
 	vectorLI v;
 	vector <StandardFactory> fact(6, StandardFactory(6));
@@ -50,30 +51,36 @@ TEST(condensate_tests, handy_test)
 	for (int j = 0; j <= 5; j++)
 		v.push_back(move(fact[j].getLI()));
 	Graph G(v);
+	GraphAlgo GAlgo(&G);
 	vector <uint> injection;
-	Graph C = G.condensate(injection);
-	ASSERT_TRUE(C.checkConnection());
+	Graph C = GAlgo.condensate(injection);
+	GraphAlgo CAlgo(&C);
+	//ASSERT_TRUE(CAlgo.checkConnection());
 	ASSERT_EQ(C.getN(), 3);
-	ASSERT_EQ(injection[0], 2);
-	ASSERT_EQ(injection[1], 0);
-	ASSERT_EQ(injection[2], 2);
-	ASSERT_EQ(injection[3], 0);
+	ASSERT_EQ(injection[0], 0);
+	ASSERT_EQ(injection[1], 2);
+	ASSERT_EQ(injection[2], 0);
+	ASSERT_EQ(injection[3], 2);
 	ASSERT_EQ(injection[4], 1);
-	ASSERT_EQ(injection[5], 0);
+	ASSERT_EQ(injection[5], 2);
 	ASSERT_FALSE(C.getIncidents(0).isConnected(0));
-	ASSERT_TRUE(C.getIncidents(0).isConnected(1));
-	ASSERT_TRUE(C.getIncidents(0).isConnected(2));
+	ASSERT_FALSE(C.getIncidents(0).isConnected(1));
+	ASSERT_FALSE(C.getIncidents(0).isConnected(2));
 
 	ASSERT_FALSE(C.getIncidents(1).isConnected(0));
 	ASSERT_FALSE(C.getIncidents(1).isConnected(1));
 	ASSERT_FALSE(C.getIncidents(1).isConnected(2));
 
-	ASSERT_FALSE(C.getIncidents(2).isConnected(0));
-	ASSERT_FALSE(C.getIncidents(2).isConnected(1));
+	ASSERT_TRUE(C.getIncidents(2).isConnected(0));
+	ASSERT_TRUE(C.getIncidents(2).isConnected(1));
 	ASSERT_FALSE(C.getIncidents(2).isConnected(2));
+
+	ASSERT_FALSE(CAlgo.findCycles());
 }
 
-TEST(connectivity_tests, handy_test)
+
+
+TEST(connectivity_tests, handy_test_1)
 {
 	vectorLI v;
 	vector <StandardFactory> fact(6, StandardFactory(6));
@@ -87,11 +94,14 @@ TEST(connectivity_tests, handy_test)
 	for (int j = 0; j <= 5; j++)
 		v.push_back(move(fact[j].getLI()));
 	Graph G(v);
+	
 	vector <uint> injection;
 	vector < pair <uint, uint> > addedEdges;
-	int optimalAnswer;
-	G.connectivityProblem(addedEdges, optimalAnswer);
-	//ASSERT_EQ(addedEdges.size(), G.getOptimalAnswer());
+	GraphAlgo GAlgo(&G);
+	int optimalAnswer = GAlgo.getEdgesToConnectCnt();
+	
+	GAlgo.connectivityProblem(addedEdges);
+	
 	ASSERT_EQ(addedEdges.size(), optimalAnswer);
 	for (uint i = 0; i < addedEdges.size(); i++)
 		fact[addedEdges[i].first].addEdge(addedEdges[i].second);
@@ -99,17 +109,39 @@ TEST(connectivity_tests, handy_test)
 	for (int j = 0; j <= 5; j++)
 		v.push_back(move(fact[j].getLI()));
 	Graph newG(v);
-	newG.checkConnection();
+	GraphAlgo newGAlgo(&newG);
+	ASSERT_TRUE(newGAlgo.checkConnection());
+	
 }
 
+TEST(connectivity_tests, handy_test_2)
+{
+	vectorLI v;
+	vector <StandardFactory> fact(6, StandardFactory(6));
+	for (int j = 0; j <= 5; j++)
+		v.push_back(move(fact[j].getLI()));
+	Graph G(v);
+	vector <uint> injection;
+	vector < pair <uint, uint> > addedEdges;
+	GraphAlgo GAlgo(&G);
+	int optimalAnswer = GAlgo.getEdgesToConnectCnt();
+	GAlgo.connectivityProblem(addedEdges);
+	ASSERT_EQ(addedEdges.size(), optimalAnswer);
+	for (uint i = 0; i < addedEdges.size(); i++)
+		fact[addedEdges[i].first].addEdge(addedEdges[i].second);
+	v.clear();
+	for (int j = 0; j <= 5; j++)
+		v.push_back(move(fact[j].getLI()));
+	Graph newG(v);
+	GraphAlgo newGAlgo(&newG);
+	ASSERT_TRUE(newGAlgo.checkConnection());
+
+}
 
 inline void condensate_test_func(int n, int it_count)
 {
+	it_count = min(it_count, n * (n - 1) / 2);
 	vector <StandardFactory> fact(n, StandardFactory(n));
-	//for (int i = 0; i < n; i++)
-	//fact.push_back(StandardFactory(n));
-
-	//vector < pair <int, int> > edges(it_count);
 	vector < vector <bool > > a(n);
 	for (int it = 0; it < n; it++)
 		a[it].assign(n, false);
@@ -136,33 +168,68 @@ inline void condensate_test_func(int n, int it_count)
 		fact_li[v] = move(tmp);
 	}
 	Graph G(fact_li);
+	GraphAlgo GAlgo(&G);
 	vector <uint> injection;
-	Graph C = G.condensate(injection);
-	//ASSERT_TRUE(C.checkConnection());
+	Graph C = GAlgo.condensate(injection);
 	vector < vector <uint>> groups(n);
 	for (int v = 0; v < n; v++)
 		groups[injection[v]].push_back(v);
 	vector <bool> was(n, false);
 	vector <uint> order;
-	for (int v = 0; v < C.getN(); v++)
+	for (uint v = 0; v < C.getN(); v++)
 	{
 		if (!was[groups[v][0]])
-			G.go(groups[v][0], was, order);
-		for (int j = 1; j < groups[v].size(); j++)
+			GAlgo.dfs(groups[v][0], was, order);
+		for (uint j = 1; j < groups[v].size(); j++)
 			ASSERT_TRUE(was[groups[v][j]]);
 	}
+	for (uint i = 0; i < n; i++)
+	{
+		uint iCond = injection[i];
+		IterPtr iterPtr = G.getIncidents(i).getIterator();
+		while (!iterPtr->isEnd())
+		{
+			uint u = iterPtr->getCurrentVertex();
+			uint uCond = injection[u];
+			if (uCond != iCond)
+				ASSERT_TRUE(C.getIncidents(iCond).isConnected(uCond));
+			iterPtr->next();
+		}
+	}
+	GraphAlgo CAlgo(&C);
+	bool cyclesFound = CAlgo.findCycles();
+	ASSERT_FALSE(cyclesFound);
+}
+
+TEST(condensate_tests, medium_test_1)
+{
+	for (int j = 0; j < 10; j++)
+		condensate_test_func(rand() % 80, rand() % 6000);
 }
 
 TEST(condensate_tests, big_test_1)
 {
-	for (int j = 0; j < 10; j++)
-		condensate_test_func(100, rand() % 10000);
-	//condensate_test_func(2, 2);
+	for (int j = 0; j < 5; j++)
+		condensate_test_func(rand() % 150, rand() % 15000);
 }
+
+TEST(condensate_tests, lots_of_small_tests)
+{
+	for (int j = 0; j < 100; j++)
+		condensate_test_func(rand() % 10 + 1, rand() % 100);
+}
+
+TEST(condensate_tests, graphs_with_4_vertex)
+{
+	for (int j = 0; j < 2000; j++)
+		condensate_test_func(4, rand() % 6);
+}
+
 
 
 inline void connectivity_test_func(int n, int it_count)
 {
+	it_count = min(it_count, n * (n - 1) / 2);
 	vector <StandardFactory> fact(n, StandardFactory(n));
 	//for (int i = 0; i < n; i++)
 	//fact.push_back(StandardFactory(n));
@@ -195,31 +262,53 @@ inline void connectivity_test_func(int n, int it_count)
 	}
 	Graph G(fact_li);
 	vector < pair <uint, uint > > addedEdges;
-	int optimalAnswer;
-	G.connectivityProblem(addedEdges, optimalAnswer);
-	//ASSERT_EQ(addedEdges.size(), G.getOptimalAnswer());
+	GraphAlgo GAlgo(&G);
+	int optimalAnswer = GAlgo.getEdgesToConnectCnt();
+	GAlgo.connectivityProblem(addedEdges);
+	//ASSERT_EQ(addedEdges.size(), G.getEdgesToConnectCnt());
 	ASSERT_EQ(addedEdges.size(), optimalAnswer);
 	//printf("%d\n", optimalAnswer);
 	for (uint i = 0; i < addedEdges.size(); i++)
 		fact[addedEdges[i].first].addEdge(addedEdges[i].second);
 	vectorLI v;
-	v.clear();
 	for (int j = 0; j < n; j++)
 		v.push_back(move(fact[j].getLI()));
 	Graph newG(v);
-	newG.checkConnection();
+	GraphAlgo newGAlgo(&newG);
+	ASSERT_TRUE(newGAlgo.checkConnection());
 }
 
 TEST(connectivity_tests, big_test_1)
 {
 	for (int j = 0; j < 10; j++)
-		connectivity_test_func(100, rand() % 10000);
+		connectivity_test_func(rand() % 150, rand() % 1500);
 }
 
 TEST(connectivity_tests, big_test_2)
 {
-	//for (int j = 0; j < 10; j++)
 	connectivity_test_func(1000, rand() % 10000);
+}
+
+TEST(connectivity_tests, graphs_with_almost_no_edges)
+{
+	for (int j = 0; j < 1000; j++)
+		connectivity_test_func(rand() % 20 + 1, rand() % 4);
+}
+
+TEST(connectivity_tests, graphs_with_4_vertex)
+{
+	for (int j = 0; j < 2000; j++)
+		connectivity_test_func(4, rand() % 6);
+}
+
+TEST(connectivity_tests, lots_of_small_tests)
+{
+	for (int j = 0; j < 1000; j++)
+	{
+		int nj = rand() % 10 + 1;
+		connectivity_test_func(nj, rand() % 50);
+		//connectivity_test_func(10, 50);
+	}
 }
 
 TEST(factory_tests, factory_test_1)
@@ -264,6 +353,7 @@ TEST(factory_tests, factory_test_1)
 
 inline void factory_test_func(int n, int it_count)
 {
+	it_count = min(it_count, n * (n - 1) / 2);
 	vector <StandardFactory> fact(n, StandardFactory(n));
 	//for (int i = 0; i < n; i++)
 		//fact.push_back(StandardFactory(n));
@@ -322,7 +412,7 @@ inline void factory_test_func(int n, int it_count)
 
 TEST(factory_tests, factory_test_2)
 {
-	factory_test_func(10, 100);
+	factory_test_func(50, 200);
 }
 
 TEST(factory_tests, factory_test_3)
@@ -336,9 +426,10 @@ TEST(factory_tests, factory_test_4)
 }
 
 
-TEST(factory_tests, factory_test_5)
+TEST(factory_tests, lots_of_small_tests)
 {
-	factory_test_func(1500, 10000);
+	for (int i = 0; i < 2000; i++)
+		factory_test_func(rand() % 10, rand() % 100);
 }
 
 TEST(handy_tests, li_and_dfs_check)
@@ -370,7 +461,8 @@ TEST(handy_tests, li_and_dfs_check)
 
 	Graph G(v);
 	vector <uint> order;
-	G.dfs(order);
+	GraphAlgo GAlgo(&G);
+	GAlgo.dfsFromAllVertex(order);
 	ASSERT_EQ(order.size(), 5);
 	ASSERT_EQ(order[0], 4);
 	ASSERT_EQ(order[1], 2);
