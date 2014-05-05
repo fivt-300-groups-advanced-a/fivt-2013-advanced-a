@@ -8,8 +8,9 @@ using graph::AdjacencyMatrixIterator;
 using graph::AdjacencyListIterator;
 using graph::GraphIterator;
 using graph::Graph;
-using graph::Coloring;
 
+using graph::Coloring;
+using graph::IncidenceFactory;
 
 using std::vector;
 using std::unique_ptr;
@@ -60,11 +61,23 @@ class AccessAdjacencyListIncidence {
   AccessAdjacencyListIncidence(AdjacencyListIncidence* li_ptr)
       : li_ptr_(li_ptr) {}
   vector<int>& getVectorInt() { return li_ptr_->adjdata_; }
-  
+
   AdjacencyListIncidence* li_ptr_;
 };
-}
+class AccessIncidenceFactory {
+ public:
+  AccessIncidenceFactory(IncidenceFactory* factory_ptr)
+        : factory_ptr_(factory_ptr) {}
+  size_t& getGraphSize() { return factory_ptr_->graph_size_; }
+  vector<bool>& getBit() { return factory_ptr_->bit_; }
+  vector<int>& getList() { return factory_ptr_->list_; }
+  void changeListToBit() { factory_ptr_->changeListToBit(); }
+  size_t getCurrentSize() { return factory_ptr_->getCurrentSize(); }
+  bool isBit() { return factory_ptr_->isBit(); }
 
+  IncidenceFactory* factory_ptr_;
+};
+}
 // Algorithms on graph //
 // =================== //
 bool findFinishDFS(const Graph& graph,

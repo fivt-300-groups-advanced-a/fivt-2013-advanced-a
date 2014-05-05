@@ -14,7 +14,9 @@ using graph::OneVertexIncidence;
 using graph::OneVertexIterator;
 using graph::GraphIterator;
 using graph::Graph;
+
 using graph::Coloring;
+using graph::IncidenceFactory;
 
 //func
 using graph::getSource;
@@ -29,6 +31,7 @@ using graph::AccessAdjacencyMatrixIterator;
 using graph::AccessAdjacencyListIterator;
 using graph::AccessAdjacencyMatrixIncidence;
 using graph::AccessAdjacencyListIncidence;
+using graph::AccessIncidenceFactory;
 
 //useful std
 using std::vector;
@@ -325,8 +328,18 @@ TEST(Graph, Begin) {
   EXPECT_DEATH({ graph.begin(-2); }, "");
 }
 
-//   Testing accessory algorithms  //
-//   ============================  //
+//  Testing IncidenceFactory  //
+//  ========================  //
+TEST(IncidenceFactory, Constructor) {
+  IncidenceFactory factory(13);
+  AccessIncidenceFactory acc_f(&factory);
+  EXPECT_EQ(13, acc_f.getGraphSize());
+  EXPECT_EQ(vector<bool>(), acc_f.getBit());
+  EXPECT_EQ(vector<int>(), acc_f.getList());
+}
+
+//  Testing accessory algorithms  //
+//  ============================  //
 TEST(func, getSource) {
   Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
                                           {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
