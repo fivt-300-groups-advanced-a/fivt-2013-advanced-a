@@ -294,9 +294,9 @@ vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
 bool hasLoop(const Graph& graph); //even for self-loop
+Coloring getStronglyConnectedComponents(const Graph& graph);
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
-
 //  Factories, Builders, etc. Declared in factory.cpp  //
 //  ================================================  //
 class AccessIncidenceFactory;

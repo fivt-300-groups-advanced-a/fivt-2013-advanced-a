@@ -191,4 +191,43 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   return completion;
 }
 
+namespace {
+void dfsStronglyConnected(int v, const Graph& graph, int& entertime, vector<bool>& visited,
+                          vector<int>& lowlink, vector<int>&stack,
+                          Coloring components) {
+  visited[v] = true;
+  lowlink[v] = ++entertime;
+  stack.push_back(v);
+
+  for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
+    dfsStronglyConnected(v, graph, entertime, visited, lowlink, stack, components);
+  }
+
+  bool isRoot = true;
+  for (auto it = graph.begin(v); it->isValid(); it->moveForvard())
+    if (lowlink[it->get()] < lowlink[v])
+    {  
+      isRoot = false;
+      lowlink[v] = lowlink[it->get()];
+    }
+  if (isRoot) {
+    //while (stack.back() != v) {
+
+    //}
+  }
+}
+}//anonymous namespace
+Coloring getStronglyConnectedComponents(const Graph& graph) {
+  int entertime = 0;
+  vector<bool> visited(graph.size(), 0);
+  vector<int> lowlink(graph.size());
+  vector<int> stack;
+  Coloring components;
+  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
+    if (!visited[it->get()])
+      dfsStronglyConnected(it->get(), graph, entertime, visited,
+                           lowlink, stack, components);
+  }
+  return components;
+}
 }//namespace graph
