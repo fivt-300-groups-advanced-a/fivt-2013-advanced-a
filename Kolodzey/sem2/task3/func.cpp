@@ -57,16 +57,16 @@ vector<int> getIsolated(const Graph& graph) {
 }
 
 namespace {
-bool innerHasLoop(int v, const Graph& graph, vector<int>& visited, int color) {
-  visited[v] = color;
+bool innerHasLoop(int v, const Graph& graph, vector<int>& visited) {
+  visited[v] = 1;
   bool ans = false;
   for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
-    if (visited[it->get()] == 0)
-      ans = ans || innerHasLoop(it->get(), graph, visited, color);
-    else
-      if (visited[it->get()] == color)
-        return 1;
+    if (visited[it->get()] == 1)
+      return 1;
+    else if (visited[it->get()] == 0)
+      ans = ans || innerHasLoop(it->get(), graph, visited);
   }
+  visited[v] = 2;
   return ans;
 }
 }//anonymous namespace
@@ -75,11 +75,9 @@ bool hasLoop(const Graph& graph) {
     return 0;
   bool ans = false;
   vector<int> visited(graph.size(), 0);
-  int color = 1;
   for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
     if (visited[it->get()] == 0) {
-      ans = ans || innerHasLoop(it->get(), graph, visited, color);
-      ++color;
+      ans = ans || innerHasLoop(it->get(), graph, visited);
     }
   }
   return ans;

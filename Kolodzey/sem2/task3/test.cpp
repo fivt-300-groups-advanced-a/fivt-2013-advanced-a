@@ -414,7 +414,7 @@ TEST(func, getIsolated) {
   EXPECT_EQ(1, isolated.size());
   EXPECT_EQ(4, isolated[0]);
 }
-TEST(func, hasLoop) {
+TEST(func, hasLoopManual) {
   Graph graph0(buildSimpleAdjacencyMatrix({{0, 0, 0},
          /* 1    0    2 */                 {0, 0, 0},
                                            {0, 0, 0}}));
@@ -452,7 +452,13 @@ TEST(func, hasLoop) {
                                                     {0, 0, 0, 0, 0, 0}}));
   EXPECT_FALSE(hasLoop(graph8akaManual));
 }
-
+TEST(func, hasLoopStress) {
+  for (int mask = 0; mask < (1 << 20); ++mask) {
+    vector<vector<bool>> matrix = genMatrixByBoolMask(tuple<int,int>(5, mask));
+    Graph g = buildSimpleAdjacencyMatrix(matrix);
+    ASSERT_EQ(hasLoopDummy(g),hasLoop(g)) << mask;
+  }
+}
 //     Testing of getCompletionToStrongСonnectivityInСondensed     //
 //     =======================================================     //
 //  Some manual tests  //

@@ -129,6 +129,19 @@ bool hasSelfLoop(const Graph& graph) {
     ans = ans || graph.isConnected(it->get(), it->get());
   return ans;
 }
+bool hasLoopDummy(const Graph& graph) {
+  if (hasSelfLoop(graph))
+    return 1;
+  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
+    for (auto jt = graph.begin(-1); jt->isValid(); jt->moveForvard()) {
+      if ((it->get() != jt->get()) &&
+          isPath(graph, it->get(), jt->get()) &&
+          isPath(graph, jt->get(), it->get()))
+        return 1;
+    }
+  }
+  return 0;
+}
 
 //  Generators  //
 //  ==========  //
