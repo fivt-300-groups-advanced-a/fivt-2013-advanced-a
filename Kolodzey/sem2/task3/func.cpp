@@ -57,16 +57,21 @@ vector<int> getIsolated(const Graph& graph) {
 }
 
 namespace {
-bool innerHasLoop(int v, const Graph& graph, vector<int>& visited) {
-  visited[v] = 1;
+struct EnviromentForInnerHasLoop {
+  EnviromentForInnerHasLoop() : graph_(nullptr), visited_(nullptr) {}
+  const Graph* graph_;
+  vector<int>* visited_;
+};
+bool innerHasLoop(int v, EnviromentForInnerHasLoop env) {
+  (*(env.visited_))[v] = 1;
   bool ans = false;
-  for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
-    if (visited[it->get()] == 1)
+  for (auto it = (*(env.graph_)).begin(v); it->isValid(); it->moveForvard()) {
+    if ((*(env.visited_))[it->get()] == 1)
       return 1;
-    else if (visited[it->get()] == 0)
-      ans = ans || innerHasLoop(it->get(), graph, visited);
+    else if ((*(env.visited_))[it->get()] == 0)
+      ans = ans || innerHasLoop(it->get(), env);
   }
-  visited[v] = 2;
+  (*(env.visited_))[v] = 2;
   return ans;
 }
 }//anonymous namespace
@@ -75,9 +80,12 @@ bool hasLoop(const Graph& graph) {
     return 0;
   bool ans = false;
   vector<int> visited(graph.size(), 0);
+  EnviromentForInnerHasLoop env;
+  env.graph_ = &graph;
+  env.visited_ = &visited;
   for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
     if (visited[it->get()] == 0) {
-      ans = ans || innerHasLoop(it->get(), graph, visited);
+      ans = ans || innerHasLoop(it->get(), env);
     }
   }
   return ans;
