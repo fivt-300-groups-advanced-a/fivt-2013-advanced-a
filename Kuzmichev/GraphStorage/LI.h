@@ -124,7 +124,6 @@ public:
 class AbstractLI
 {
 public:
-	//AbstractLI(){}
 	virtual const bool isConnected(const uint u) = 0;
 	virtual const IterPtr getIterator() = 0;
 	const string getClass()
@@ -189,7 +188,8 @@ public:
 	}
 	const IterPtr getIterator() override
 	{
-		return IterPtr((AbstractIter *) new BitsetIter(bitset.begin(), bitset.end()));
+		//return IterPtr((AbstractIter *) new BitsetIter(bitset.begin(), bitset.end()));
+		return IterPtr(new BitsetIter(bitset.begin(), bitset.end()));
 	}
 private:
 	vector <bool> bitset;

@@ -13,8 +13,8 @@ public:
 
 class ListOfIncedents {
     public:
-       virtual std::unique_ptr<IntIterator> begin() = 0;
-       virtual bool isConnected(int x) = 0;
+       virtual std::unique_ptr<IntIterator> begin() const = 0;
+       virtual bool isConnected(int x) const = 0;
        virtual ~ListOfIncedents() {}
 };
 
