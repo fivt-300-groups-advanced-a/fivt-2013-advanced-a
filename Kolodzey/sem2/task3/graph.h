@@ -160,6 +160,23 @@ class AdjacencyListIncidence : public BaseIncidence {
   vector<int> adjdata_;
  friend class AccessAdjacencyListIncidence;
 };
+// OneVertex //
+// --------- //
+class OneVertexIterator : public BaseIterator {
+ public:
+  OneVertexIterator(int vertex_id) : is_valid_(1), vertex_id_(vertex_id) {}
+  void moveForvard() override { is_valid_ = 0; }
+  int get() const override {
+    if (isValid())
+      return vertex_id_;
+    return -1;
+  }
+  bool isValid() const override { return is_valid_; }
+  virtual ~OneVertexIterator() {}
+ private:
+  bool is_valid_;
+  int vertex_id_;
+};
 // Graph //
 // ----- //
 class AccessGraphIterator;
@@ -260,8 +277,8 @@ struct Coloring {
   int getNumberOfVertexes() const { return color.size(); }
 };
 
-//   Algorithms to work with graph. Declared in func.cpp  //
-//   ===================================================  //
+//  Algorithms to work with graph. Declared in func.cpp  //
+//  ===================================================  //
 vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);

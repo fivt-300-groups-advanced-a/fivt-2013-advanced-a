@@ -10,6 +10,7 @@ using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
 using graph::AdjacencyListIncidence;
 using graph::AdjacencyListIterator;
+using graph::OneVertexIterator;
 using graph::GraphIterator;
 using graph::Graph;
 using graph::Coloring;
@@ -208,6 +209,19 @@ TEST(AdjacencyListIncidence, isConnected) {
       ++it;
     EXPECT_EQ(i == (*it), li.isConnected(i)) << i;
   }
+}
+// OneVertexIterator  //
+// -----------------  //
+TEST(OneVertexIterator, AllExeptMoveForvard) {
+  OneVertexIterator it(3);
+  EXPECT_EQ(true, it.isValid());
+  EXPECT_EQ(3, it.get());
+}
+TEST(OneVertexIterator, MoveForvard) {
+  OneVertexIterator it(3);
+  it.moveForvard();
+  EXPECT_EQ(false, it.isValid());
+  EXPECT_EQ(-1, it.get());
 }
 //  Testing interface of Graph  //
 //  ==========================  //
