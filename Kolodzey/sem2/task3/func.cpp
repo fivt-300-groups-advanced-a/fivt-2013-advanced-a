@@ -84,16 +84,26 @@ bool hasLoop(const Graph& graph) {
 }
 
 namespace {
-int tarjanFindSinkDFS(int v, const Graph& graph,
-                      vector<bool>& is_visited, vector<bool>& is_sink)
+struct EnviromentForTarjanFindSinkDFS {
+  EnviromentForTarjanFindSinkDFS()
+    : graph_(nullptr), is_visited_(nullptr), is_sink_(nullptr) {}
+  EnviromentForTarjanFindSinkDFS (const Graph* graph,
+                                  vector<bool>* is_visited,
+                                  vector<bool>* is_sink)
+    : graph_(graph), is_visited_(is_visited), is_sink_(is_sink) {}
+  const Graph* graph_;
+  vector<bool>* is_visited_;
+  vector<bool>* is_sink_;
+};
+int tarjanFindSinkDFS(int v, EnviromentForTarjanFindSinkDFS env)
 {
-  is_visited[v] = 1;
-  if (is_sink[v])
+  (*(env.is_visited_))[v] = 1;
+  if ((*(env.is_sink_))[v])
     return v;
   int found_sink = -1;
-  for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
-    if (!is_visited[it->get()]) {
-      found_sink = tarjanFindSinkDFS(it->get(), graph, is_visited, is_sink);
+  for (auto it = (*(env.graph_)).begin(v); it->isValid(); it->moveForvard()) {
+    if (!((*(env.is_visited_))[it->get()])) {
+      found_sink = tarjanFindSinkDFS(it->get(), env);
       if (found_sink != -1) {
         return found_sink;
       }
@@ -146,9 +156,13 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   int last_found_sink = -1;
   int first_source = -1;
   
+  EnviromentForTarjanFindSinkDFS env;
+  env.graph_ = &graph;
+  env.is_visited_ = &is_visited;
+  env.is_sink_ = &is_sink;
   //launches of the main dfs in algorithm
   for (auto it = source.begin(); it != source.end(); ++it) {
-    int current_found_sink = tarjanFindSinkDFS(*it, graph, is_visited, is_sink);
+    int current_found_sink = tarjanFindSinkDFS(*it, env);
     if (current_found_sink != -1) {
       if (last_found_sink == -1) {
         first_source = *it;
@@ -190,7 +204,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   //tadam! return result
   return completion;
 }
-
+/*
 namespace {
 void dfsStronglyConnected(int v, const Graph& graph, int& entertime, vector<bool>& visited,
                           vector<int>& lowlink, vector<int>&stack,
@@ -230,4 +244,5 @@ Coloring getStronglyConnectedComponents(const Graph& graph) {
   }
   return components;
 }
+*/
 }//namespace graph
