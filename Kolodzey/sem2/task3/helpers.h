@@ -5,6 +5,7 @@ using graph::BaseIncidence;
 using graph::BaseIterator;
 using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
+using graph::AdjacencyListIterator;
 using graph::GraphIterator;
 using graph::Graph;
 using graph::Coloring;
@@ -34,6 +35,14 @@ class AccessAdjacencyMatrixIncidence {
       : li_ptr_(li_ptr) {}
   vector<bool>& getVectorBool() { return li_ptr_->adjdata_; }
   AdjacencyMatrixIncidence* li_ptr_;
+};
+class AccessAdjacencyListIterator {
+ public:
+  AccessAdjacencyListIterator(AdjacencyListIterator* it_ptr)
+       : it_ptr_(it_ptr) {}
+   vector<int>::const_iterator getPos() { return it_ptr_->pos_; }
+   vector<int>::const_iterator getEnd() { return it_ptr_->end_; }
+   AdjacencyListIterator* it_ptr_;
 };
 class AccessGraphIterator {
  public:

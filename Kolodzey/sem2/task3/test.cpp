@@ -8,6 +8,7 @@ using graph::BaseIncidence;
 using graph::BaseIterator;
 using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
+using graph::AdjacencyListIterator;
 using graph::GraphIterator;
 using graph::Graph;
 using graph::Coloring;
@@ -22,6 +23,7 @@ using graph::getCompletionToStrongСonnectivityInСondensed;
 //access classes
 using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
+using graph::AccessAdjacencyListIterator;
 using graph::AccessAdjacencyMatrixIncidence;
 
 //useful std
@@ -117,7 +119,59 @@ TEST(AdjacencyMatrixIncidence, Begin) {
   std::unique_ptr<BaseIterator> ptr_it2 = li2.begin();
   EXPECT_EQ(0, ptr_it2->get());
 }
+TEST(AdjacencyMatrixIncidence, isConnected) {
+  vector<bool> values = {0, 0, 1, 0, 1, 0, 1, 0};
+  AdjacencyMatrixIncidence li(values);
+  for (int i = 0; i < (int)(values.size()); ++i)
+    EXPECT_EQ(values[i], li.isConnected(i));
+}
+//  AdjacencyListIterator  //
+//  ---------------------  //
+TEST(AdjacencyListIterator, Constructor) {
+  vector<int> values = {1, 2, 3, 5, 0, 7};
 
+  AdjacencyListIterator it(values.begin(), values.end());
+  
+  AccessAdjacencyListIterator acc_it(&it);
+  EXPECT_EQ(values.begin(), acc_it.getPos());
+  EXPECT_EQ(values.end(), acc_it.getEnd());
+}
+TEST(AdjacencyListIterator, get) {
+  vector<int> values = {1, 2, 3, 5, 0, 7};
+  for (auto it = values.cbegin(); it != values.cend(); ++it) {
+    AdjacencyListIterator listIt(it, values.cend());
+    EXPECT_EQ(*it, listIt.get());
+  }
+  AdjacencyListIterator listIt(values.cend(), values.cend());
+  EXPECT_EQ(-1, listIt.get());
+}
+TEST(AdjacencyListIterator, isValid) {
+  vector<int> values = {1, 2, 3, 5, 0, 7};
+  for (auto it = values.cbegin(); it != values.cend(); ++it) {
+    AdjacencyListIterator listIt(it, values.cend());
+    EXPECT_EQ(true, listIt.isValid());
+  }
+  AdjacencyListIterator listIt(values.cend(), values.cend());
+  EXPECT_EQ(false, listIt.isValid());
+}
+TEST(AdjacencyListIterator, moveForvard) {
+  vector<int> values = {1, 2, 3, 5, 0, 7};
+  AdjacencyListIterator it(values.begin(), values.cend());
+  AccessAdjacencyListIterator acc_it(&it);
+  for (size_t i = 0; i < values.size(); ++i) {
+    EXPECT_EQ(values.begin() + i, acc_it.getPos());
+    EXPECT_EQ(values.end(), acc_it.getEnd());
+    EXPECT_EQ(values[i], it.get());
+    it.moveForvard();
+  }
+  EXPECT_EQ(values.end(), acc_it.getPos());
+  EXPECT_EQ(values.end(), acc_it.getEnd());
+  EXPECT_EQ(-1, it.get());
+  it.moveForvard();
+  EXPECT_EQ(values.end(), acc_it.getPos());
+  EXPECT_EQ(values.end(), acc_it.getEnd());
+  EXPECT_EQ(-1, it.get());
+}
 //  Testing interface of Graph  //
 //  ==========================  //
 //  GraphIterator  //

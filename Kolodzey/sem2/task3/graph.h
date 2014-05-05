@@ -101,14 +101,30 @@ class AdjacencyMatrixIncidence : public BaseIncidence {
 };
 // AdjacencyList //
 // ------------- //
-/* 
+class AccessAdjacencyListIterator;
 class AdjacencyListIterator : public BaseIterator {
- public: 
-  override void moveForvard();
-  override int get() const;
-  override bool isValid() const;
-  ~BaseIterator();
+ public:
+  AdjacencyListIterator(vector<int>::const_iterator pos,
+                        vector<int>::const_iterator end) : pos_(pos),
+                                                           end_(end) {}
+  void moveForvard() override {
+    if (isValid())
+      ++pos_;
+  }
+  int get() const override { 
+    if (isValid())
+      return *pos_;
+    return -1;
+  }
+  bool isValid() const override { return (pos_ != end_); }
+  virtual ~AdjacencyListIterator(){}
+ private:
+  vector<int>::const_iterator pos_;
+  vector<int>::const_iterator end_;
+ friend class AccessAdjacencyListIterator;
 };
+
+/*
 class AdjacencyListIncidence : public BaseIncidence {
  public:
   override unique_ptr<BaseIterator> begin() const;
@@ -226,7 +242,7 @@ bool hasLoop(const Graph& graph); //even for self-loop
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
 
-//  Factories, Builders, etc. Declared in fabric.cpp  //
+//  Factories, Builders, etc. Declared in factory.cpp  //
 //  ================================================  //
 }//namespace graph
 #endif
