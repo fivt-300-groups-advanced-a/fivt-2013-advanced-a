@@ -55,6 +55,14 @@ class AccessGraphIterator {
   }
   GraphIterator* it_ptr_;
 };
+class AccessAdjacencyListIncidence {
+ public:
+  AccessAdjacencyListIncidence(AdjacencyListIncidence* li_ptr)
+      : li_ptr_(li_ptr) {}
+  vector<int>& getVectorInt() { return li_ptr_->adjdata_; }
+  
+  AdjacencyListIncidence* li_ptr_;
+};
 }
 
 // Algorithms on graph //

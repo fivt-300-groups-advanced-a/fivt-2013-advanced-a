@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 namespace graph {
 
@@ -12,6 +13,8 @@ using std::cerr;
 using std::endl;
 using std::pair;
 using std::tuple;
+using std::sort;
+using std::unique;
 
 //  Classes  //
 //  =======  //
@@ -123,16 +126,40 @@ class AdjacencyListIterator : public BaseIterator {
   vector<int>::const_iterator end_;
  friend class AccessAdjacencyListIterator;
 };
-
-/*
+class AccessAdjacencyListIncidence;
 class AdjacencyListIncidence : public BaseIncidence {
  public:
-  override unique_ptr<BaseIterator> begin() const;
-  override int outdegree() const;
-  override bool isConnected(int v) const;
-  override ~VertexList();
+  explicit AdjacencyListIncidence(const vector<int>& adjdata)
+                                                   : adjdata_(adjdata) {
+    sort(adjdata_.begin(), adjdata_.end());
+    adjdata_.erase(unique(adjdata_.begin(), adjdata_.end()), adjdata_.end());
+  }
+  explicit AdjacencyListIncidence(vector<int>&& adjdata)
+                                              : adjdata_(std::move(adjdata)) {
+    sort(adjdata_.begin(), adjdata_.end());
+    adjdata_.erase(unique(adjdata_.begin(), adjdata_.end()), adjdata_.end());
+  }
+  unique_ptr<BaseIterator> begin() const override {
+    return unique_ptr<BaseIterator>(new AdjacencyListIterator
+                                          (adjdata_.begin(), adjdata_.end()));
+  }
+  virtual bool isConnected(int v) const override {
+    int l = 0;
+    int r = adjdata_.size();
+    while ((r - l) > 1) {
+      int m = (l + r) / 2;
+      if (adjdata_[m] <= v)
+        l = m;
+      else
+        r = m;
+    }
+    return (v == adjdata_[l]);
+  }
+  virtual ~AdjacencyListIncidence() {}
+ private:
+  vector<int> adjdata_;
+ friend class AccessAdjacencyListIncidence;
 };
-*/
 // Graph //
 // ----- //
 class AccessGraphIterator;

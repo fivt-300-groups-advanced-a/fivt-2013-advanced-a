@@ -8,6 +8,7 @@ using graph::BaseIncidence;
 using graph::BaseIterator;
 using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
+using graph::AdjacencyListIncidence;
 using graph::AdjacencyListIterator;
 using graph::GraphIterator;
 using graph::Graph;
@@ -25,6 +26,7 @@ using graph::AccessGraphIterator;
 using graph::AccessAdjacencyMatrixIterator;
 using graph::AccessAdjacencyListIterator;
 using graph::AccessAdjacencyMatrixIncidence;
+using graph::AccessAdjacencyListIncidence;
 
 //useful std
 using std::vector;
@@ -171,6 +173,41 @@ TEST(AdjacencyListIterator, moveForvard) {
   EXPECT_EQ(values.end(), acc_it.getPos());
   EXPECT_EQ(values.end(), acc_it.getEnd());
   EXPECT_EQ(-1, it.get());
+}
+//  AdjacencyListIncidence  //
+//  ----------------------  //
+TEST(AdjacencyListIncidence, Constructor) {
+  int init[6] = {0, 5, 7, 8, 10, 11};
+  vector<int> values(init, init + 6);
+  //Constructor which copies vector<bool>
+  AdjacencyListIncidence li1(values);
+  AccessAdjacencyListIncidence access_li(&li1);
+  EXPECT_EQ(vector<int>(init, init + 6), access_li.getVectorInt());
+  EXPECT_EQ(vector<int>(init, init + 6), values);
+
+  //Constructor which moves vector<bool>
+  AdjacencyListIncidence li2(std::move(values));
+  access_li.li_ptr_ = &li2;
+  EXPECT_EQ(vector<int>(init, init + 6), access_li.getVectorInt());
+  EXPECT_EQ(vector<int>(), values);
+}
+TEST(AdjacencyListIncidence, Begin) {
+  vector<int> data = {1, 3, 5, 7};
+  AdjacencyListIncidence li(data);
+  auto it = li.begin();
+  EXPECT_EQ(1, it->get());
+  it->moveForvard();
+  EXPECT_EQ(3, it->get());
+}
+TEST(AdjacencyListIncidence, isConnected) {
+  vector<int> data = {1, 3, 5, 7};
+  AdjacencyListIncidence li(data);
+  auto it = data.begin();
+  for (int i = 0; i <= 8; ++i) {
+    while ((*it) < i)
+      ++it;
+    EXPECT_EQ(i == (*it), li.isConnected(i)) << i;
+  }
 }
 //  Testing interface of Graph  //
 //  ==========================  //
