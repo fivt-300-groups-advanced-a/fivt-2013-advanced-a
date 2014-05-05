@@ -164,6 +164,30 @@ TEST (Tarjan, Hand1)
     EXPECT_EQ(getStrongCon(g, tmp), n / k);
 }
 
+TEST (Tarjan, Hand2)
+{
+    int n = 100;
+    int k = 5;
+    vector<unique_ptr<Incidents>> v(n);
+    vector<ListFactory> lf(n);
+    for (int i = 0; i < n; i += k)
+    {
+        if (i != 0)
+            lf[i].addEdge(i - 1);
+        for (int j = 1; j < k; ++j)
+            if (i + j < n)
+            {
+                lf[i].addEdge(i + j);
+                lf[i + j].addEdge(i);
+            }
+    }
+    for (int i = 0; i < n; ++i)
+        v[i] = lf[i].get();
+    Graph g(v);
+    vector<int> tmp;
+    EXPECT_EQ(getStrongCon(g, tmp), n / k);
+}
+
 TEST (ALGO, Stress1)
 {
     for (int qwe = 0; qwe < 100; qwe++)
