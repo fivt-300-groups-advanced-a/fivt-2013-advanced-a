@@ -177,6 +177,17 @@ class OneVertexIterator : public BaseIterator {
   bool is_valid_;
   int vertex_id_;
 };
+class OneVertexIncidence : public BaseIncidence {
+ public:
+  OneVertexIncidence(int vertex_id) : vertex_id_(vertex_id) {}
+  unique_ptr<BaseIterator> begin() const override {
+    return unique_ptr<BaseIterator>(new OneVertexIterator(vertex_id_));
+  }
+  bool isConnected(int v) const override { return (v == vertex_id_); }
+  virtual ~OneVertexIncidence() {}
+ private:
+  int vertex_id_;
+};
 // Graph //
 // ----- //
 class AccessGraphIterator;

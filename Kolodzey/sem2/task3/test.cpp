@@ -10,6 +10,7 @@ using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
 using graph::AdjacencyListIncidence;
 using graph::AdjacencyListIterator;
+using graph::OneVertexIncidence;
 using graph::OneVertexIterator;
 using graph::GraphIterator;
 using graph::Graph;
@@ -222,6 +223,16 @@ TEST(OneVertexIterator, MoveForvard) {
   it.moveForvard();
   EXPECT_EQ(false, it.isValid());
   EXPECT_EQ(-1, it.get());
+}
+//  OneVertexIncidence  //
+//  ------------------  //
+TEST(OneVertexIncidence, Manual) {
+  OneVertexIncidence li(4);
+  for (int i = 0; i < 6; ++i)
+    EXPECT_EQ((i == 4), li.isConnected(i));
+  auto it = li.begin();
+  EXPECT_EQ(true, it->isValid());
+  EXPECT_EQ(4, it->get());
 }
 //  Testing interface of Graph  //
 //  ==========================  //
