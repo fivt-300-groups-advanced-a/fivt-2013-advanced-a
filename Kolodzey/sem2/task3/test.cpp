@@ -337,7 +337,28 @@ TEST(IncidenceFactory, Constructor) {
   EXPECT_EQ(vector<bool>(), acc_f.getBit());
   EXPECT_EQ(vector<int>(), acc_f.getList());
 }
-
+TEST(IncidenceFactory, addEdge) {
+  IncidenceFactory factory(100);  //32 * 3 < 100 < 32 * 4
+  AccessIncidenceFactory acc_f(&factory);
+  for (int i = 0; i < 3; ++i) {
+    factory.addEdge(i + 5);
+    EXPECT_EQ(i + 5, acc_f.getList().back());
+    EXPECT_EQ(i + 1, acc_f.getList().size());
+    EXPECT_TRUE(acc_f.getBit().empty());
+  }
+  factory.addEdge(8);
+  EXPECT_TRUE(acc_f.getList().empty());
+  EXPECT_EQ(acc_f.getBit().size(), 100);
+  factory.addEdge(9);
+  EXPECT_TRUE(acc_f.getList().empty());
+  EXPECT_EQ(acc_f.getBit().size(), 100);
+  for (int i = 0; i < 5; ++i)
+    EXPECT_EQ(false, acc_f.getBit()[i]);
+  for (int i = 5; i < 10; ++i)
+    EXPECT_EQ(true, acc_f.getBit()[i]);
+  for (int i = 10; i < 100; ++i)
+    EXPECT_EQ(false, acc_f.getBit()[i]);
+}
 //  Testing accessory algorithms  //
 //  ============================  //
 TEST(func, getSource) {
