@@ -13,9 +13,10 @@ using std::endl;
 using std::pair;
 using std::tuple;
 
-//----Classes----//
-//===============//
-
+//  Classes  //
+//  =======  //
+// Base Interface //
+// -------------- //
 class BaseIterator {
  public:
   virtual void moveForvard() = 0;
@@ -23,16 +24,15 @@ class BaseIterator {
   virtual bool isValid() const = 0;
   virtual ~BaseIterator() {}
 };
-
 class BaseIncidence {
  public:
   virtual unique_ptr<BaseIterator> begin() const = 0;
   virtual bool isConnected(int v) const = 0;
   virtual ~BaseIncidence() {}
 };
-
+// AdjacencyMatrix //
+// --------------- //
 class AccessAdjacencyMatrixIterator;
-
 class AdjacencyMatrixIterator : public BaseIterator {
  
  public:
@@ -70,9 +70,7 @@ class AdjacencyMatrixIterator : public BaseIterator {
 
  friend class AccessAdjacencyMatrixIterator;
 };
-
 class AccessAdjacencyMatrixIncidence;
-
 class AdjacencyMatrixIncidence : public BaseIncidence {
  
  public:
@@ -101,7 +99,8 @@ class AdjacencyMatrixIncidence : public BaseIncidence {
 
  friend class AccessAdjacencyMatrixIncidence;
 };
-
+// AdjacencyList //
+// ------------- //
 /* 
 class AdjacencyListIterator : public BaseIterator {
  public: 
@@ -110,7 +109,6 @@ class AdjacencyListIterator : public BaseIterator {
   override bool isValid() const;
   ~BaseIterator();
 };
-
 class AdjacencyListIncidence : public BaseIncidence {
  public:
   override unique_ptr<BaseIterator> begin() const;
@@ -119,7 +117,8 @@ class AdjacencyListIncidence : public BaseIncidence {
   override ~VertexList();
 };
 */
-
+// Graph //
+// ----- //
 class AccessGraphIterator;
 class GraphIterator : public BaseIterator {
 
@@ -156,8 +155,6 @@ class GraphIterator : public BaseIterator {
 
  friend class AccessGraphIterator;
 };
-
-
 class Graph {
  public:
   Graph() {}
@@ -208,7 +205,8 @@ class Graph {
  private:
   vector<unique_ptr<BaseIncidence>> incidence_;
 };
-
+// Other structures //
+// ---------------- //
 struct Coloring {
  public:
   vector<int> color;
@@ -219,45 +217,16 @@ struct Coloring {
   int getNumberOfVertexes() const { return color.size(); }
 };
 
-
-//----Algorithms to work with graph. Declared in func.cpp----//
-//===========================================================//
-/**
-* getStronglyConnectedComponentsDummy O((V^2)(E + V))
-*/
-Coloring getStronglyConnectedComponentsDummy(const Graph& graph);
-
+//   Algorithms to work with graph. Declared in func.cpp  //
+//   ===================================================  //
 vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
-bool hasSelfLoop(const Graph& graph);
-/**true if there is any loop in graph, including self-loop*/
-bool hasLoop(const Graph& graph);
-/**
-* getStronglyConnectedComponentsTarjan (with stack) O(E + V)
-*/
-//Coloring getStronglyConnectedComponentsTarjan(const Graph& graph);
-/**
-* getCompletionToStrongСonnectivity O(E + V)
-* launches condensation and getCompletionToStrongСonnectivityInСondensed
-* returns needed egdes first -> last
-*/
-//vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph);
-/**
-* getCompletionToStrongСonnectivityInСondensed O(E + V)
-* is launched by getCompletionToStrongСonnectivity
-* uses Tarjan algorithm
-*/
+bool hasLoop(const Graph& graph); //even for self-loop
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
-/**
-* checks whether is Path from start to finish using dfs
-*/
-bool isPath(const Graph& graph, int start_id, int finish_id); //O(E + V)
 
-
-//-----Fabrics, Builders, etc. Declared in fabric.cpp----//
-//=======================================================//
-Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix);
+//  Factories, Builders, etc. Declared in fabric.cpp  //
+//  ================================================  //
 }//namespace graph
 #endif

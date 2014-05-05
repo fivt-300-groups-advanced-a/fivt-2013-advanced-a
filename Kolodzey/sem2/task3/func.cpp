@@ -7,60 +7,6 @@ using std::vector;
 
 namespace graph {
 
-namespace {
-
-bool findFinishDFS(const Graph& graph,
-                   int vertex_id, int finish_id, 
-                   vector<bool>& is_visited) {
-  
-  is_visited[vertex_id] = true;
-
-  if (vertex_id == finish_id)
-    return 1;
-
-  bool is_found = false;
-  for (auto it = graph.begin(vertex_id); it->isValid(); it->moveForvard()) {
-    if (!is_visited[it->get()]) {
-      is_found = is_found || findFinishDFS(graph,
-                                           it->get(),
-                                           finish_id,
-                                           is_visited);
-    }
-  }
-  return is_found;
-} 
-
-}//anonymous namespace
-bool isPath(const Graph& graph, int start_id, int finish_id) {
-  vector<bool> is_visited(graph.size(), 0);
-  return findFinishDFS(graph, start_id, finish_id, is_visited);
-}
-
-
-
-Coloring getStronglyConnectedComponentsDummy(const Graph& graph) {
-  Coloring strong_components;
-  strong_components.color.resize(graph.size(), -1);
-  int currentColor = 0;
-  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
-    if (strong_components.color[it->get()] == -1)
-    {
-      strong_components.color[it->get()] = currentColor;
-      strong_components.delegate.push_back(it->get());
-      for (auto jt = graph.begin(-1); jt->isValid(); jt->moveForvard()) {
-        if ((isPath(graph, jt->get(), it->get())) &&
-            (isPath(graph, it->get(), jt->get()))) {
-          strong_components.color[jt->get()] = currentColor;
-        }
-      }
-      ++currentColor;
-    }
-  }
-  return strong_components;
-}
-
-
-
 vector<int> getSource(const Graph& graph) {
   
   vector<bool> is_incomeless(graph.size(), 1);
@@ -77,7 +23,6 @@ vector<int> getSource(const Graph& graph) {
 
   return ans;
 }
-
 vector<int> getSink(const Graph& graph) {
   
   vector<bool> has_income(graph.size(), 0);
@@ -94,7 +39,6 @@ vector<int> getSink(const Graph& graph) {
     
   return ans;
 }
-
 vector<int> getIsolated(const Graph& graph) {
   
   vector<bool> is_incomeless(graph.size(), 1);
@@ -112,13 +56,6 @@ vector<int> getIsolated(const Graph& graph) {
   return ans;
 }
 
-bool hasSelfLoop(const Graph& graph) {
-  bool ans = false;
-  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard())
-    ans = ans || graph.isConnected(it->get(), it->get());
-  return ans;
-}
-
 namespace {
 bool innerHasLoop(int v, const Graph& graph, vector<int>& visited, int color) {
   visited[v] = color;
@@ -133,7 +70,6 @@ bool innerHasLoop(int v, const Graph& graph, vector<int>& visited, int color) {
   return ans;
 }
 }//anonymous namespace
-
 bool hasLoop(const Graph& graph) {
   if (graph.size() == 0)
     return 0;
@@ -150,9 +86,9 @@ bool hasLoop(const Graph& graph) {
 }
 
 namespace {
-
 int tarjanFindSinkDFS(int v, const Graph& graph,
-                      vector<bool>& is_visited, vector<bool>& is_sink) {
+                      vector<bool>& is_visited, vector<bool>& is_sink)
+{
   is_visited[v] = 1;
   if (is_sink[v])
     return v;
@@ -167,11 +103,10 @@ int tarjanFindSinkDFS(int v, const Graph& graph,
   }
   return found_sink;
 }
-
 }//anonymous namespace
-
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
-                                                         const Graph& graph) {
+                                                         const Graph& graph)
+{
   //declare variable to hold answer
   vector<pair<int, int>> completion;
 
@@ -179,7 +114,7 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   if (hasLoop(graph)) {
     cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
          << "graph has loop" << endl;
-         abort();
+    abort();
   }
   vector<int> isolated = getIsolated(graph);
   vector<int> source = getSource(graph);
@@ -257,4 +192,5 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   //tadam! return result
   return completion;
 }
+
 }//namespace graph

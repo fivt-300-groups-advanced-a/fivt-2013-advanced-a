@@ -8,7 +8,7 @@ CXXFLAGS += -O2 -g -Wall -Wextra -pthread
 #for c++11
 CXXFLAGS += -stdlib=libc++ -std=c++11
 
-all: test
+all: test testfortest
 
 #building gtest
 GTEST_HEADERS = gtest-1.7.0/include/gtest/*.h \
@@ -40,10 +40,15 @@ factory.o: factory.cpp graph.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 #building test
-test.o: test.cpp graph.h $(GTEST_HEADERS)
+test.o: test.cpp graph.h helpers.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
 test: test.o func.o factory.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
+#building testfortest
+testfortest.o: testfortest.cpp graph.h helpers.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
+testfortest: testfortest.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
