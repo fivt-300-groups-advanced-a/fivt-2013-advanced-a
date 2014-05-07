@@ -3,7 +3,7 @@ CXX = clang++
 
 #for gtest
 CPPFLAGS += -isystem gtest-1.7.0/include 
-CXXFLAGS += -O2 -g -Wall -Wextra -pthread
+CXXFLAGS += -ggdb -Wall -Wextra -pthread
 
 #for c++11
 CXXFLAGS += -stdlib=libc++ -std=c++11

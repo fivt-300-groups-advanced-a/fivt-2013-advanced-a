@@ -62,16 +62,16 @@ struct EnviromentForInnerHasLoop {
   const Graph* graph_;
   vector<int>* visited_;
 };
-bool innerHasLoop(int v, EnviromentForInnerHasLoop env) {
-  (*(env.visited_))[v] = 1;
+bool innerHasLoop(int v, const EnviromentForInnerHasLoop& env) {
+  env.visited_->at(v) = 1;
   bool ans = false;
-  for (auto it = (*(env.graph_)).begin(v); it->isValid(); it->moveForvard()) {
-    if ((*(env.visited_))[it->get()] == 1)
+  for (auto it = env.graph_->begin(v); it->isValid(); it->moveForvard()) {
+    if (env.visited_->at(it->get()) == 1)
       return 1;
-    else if ((*(env.visited_))[it->get()] == 0)
+    else if (env.visited_->at(it->get()) == 0)
       ans = ans || innerHasLoop(it->get(), env);
   }
-  (*(env.visited_))[v] = 2;
+  env.visited_->operator[](v) = 2;
   return ans;
 }
 }//anonymous namespace
@@ -103,14 +103,13 @@ struct EnviromentForTarjanFindSinkDFS {
   vector<bool>* is_visited_;
   vector<bool>* is_sink_;
 };
-int tarjanFindSinkDFS(int v, EnviromentForTarjanFindSinkDFS env)
-{
-  (*(env.is_visited_))[v] = 1;
-  if ((*(env.is_sink_))[v])
+int tarjanFindSinkDFS(int v, const EnviromentForTarjanFindSinkDFS& env) {
+  env.is_visited_->at(v) = 1;
+  if (env.is_sink_->at(v))
     return v;
   int found_sink = -1;
-  for (auto it = (*(env.graph_)).begin(v); it->isValid(); it->moveForvard()) {
-    if (!((*(env.is_visited_))[it->get()])) {
+  for (auto it = env.graph_->begin(v); it->isValid(); it->moveForvard()) {
+    if (!(env.is_visited_->at(it->get()))) {
       found_sink = tarjanFindSinkDFS(it->get(), env);
       if (found_sink != -1) {
         return found_sink;
@@ -212,45 +211,68 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   //tadam! return result
   return completion;
 }
-/*
-namespace {
-void dfsStronglyConnected(int v, const Graph& graph, int& entertime, vector<bool>& visited,
-                          vector<int>& lowlink, vector<int>&stack,
-                          Coloring components) {
-  visited[v] = true;
-  lowlink[v] = ++entertime;
-  stack.push_back(v);
 
-  for (auto it = graph.begin(v); it->isValid(); it->moveForvard()) {
-    dfsStronglyConnected(v, graph, entertime, visited, lowlink, stack, components);
+namespace {
+struct EnviromentForDfsStronglyConnected {
+  const Graph* graph_;
+  int* entertime_;
+  vector<bool>* visited_;
+  vector<int>* lowlink_;
+  vector<int>* stack_;
+  Coloring* components_;
+};
+void dfsStronglyConnected(int v, const EnviromentForDfsStronglyConnected& env) {
+  int INF = (env.graph_)->size() + 100500;
+
+  (env.visited_)->at(v) = true;
+  (env.lowlink_)->at(v) = ++(*(env.entertime_));
+  (env.stack_)->push_back(v);
+
+  for (auto it = env.graph_->begin(v); it->isValid(); it->moveForvard()) {
+    if (!(env.visited_->at(it->get())))
+      dfsStronglyConnected(it->get(), env);
   }
 
   bool isRoot = true;
-  for (auto it = graph.begin(v); it->isValid(); it->moveForvard())
-    if (lowlink[it->get()] < lowlink[v])
+  for (auto it = env.graph_->begin(v); it->isValid(); it->moveForvard())
+    if (env.lowlink_->at(it->get()) < env.lowlink_->at(v))
     {  
       isRoot = false;
-      lowlink[v] = lowlink[it->get()];
+      env.lowlink_->at(v) = env.lowlink_->at(it->get());
     }
   if (isRoot) {
-    //while (stack.back() != v) {
-
-    //}
+    int color = env.components_->getNumberOfColors();
+    env.components_->color[v] = color;
+    env.components_->delegate.push_back(v);
+    int u = v;
+    do {
+      u = env.stack_->back();
+      env.stack_->pop_back();
+      env.components_->color[u] = color;
+      env.lowlink_->at(u) = INF;
+    } while (u != v);
   }
 }
 }//anonymous namespace
+
 Coloring getStronglyConnectedComponents(const Graph& graph) {
   int entertime = 0;
   vector<bool> visited(graph.size(), 0);
   vector<int> lowlink(graph.size());
   vector<int> stack;
   Coloring components;
+  components.color.resize(graph.size());
+  EnviromentForDfsStronglyConnected env;
+  env.graph_ = &graph;
+  env.entertime_ = &entertime;
+  env.visited_ = &visited;
+  env.lowlink_ = &lowlink;
+  env.stack_ = &stack;
+  env.components_ = &components;
   for (auto it = graph.begin(-1); it->isValid(); it->moveForvard()) {
     if (!visited[it->get()])
-      dfsStronglyConnected(it->get(), graph, entertime, visited,
-                           lowlink, stack, components);
+      dfsStronglyConnected(it->get(), env);
   }
   return components;
 }
-*/
 }//namespace graph

@@ -209,4 +209,15 @@ Graph buildSimpleAdjacencyMatrix(const vector<vector<bool>>& matrix) {
     return os;
   }
 }//namespace std
+
+namespace std {
+std::ostream& operator << (std::ostream& os, const vector<vector<bool>>& val) {
+  for (auto it = val.begin(); it != val.end(); ++it) {
+    for (auto jt = it->begin(); jt != it->end(); ++jt)
+      os << ((int)(*jt));
+    os << endl;
+  }
+  return os;
+}
+}//namespace std
 #endif

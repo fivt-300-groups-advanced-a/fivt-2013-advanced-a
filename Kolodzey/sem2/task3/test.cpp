@@ -459,6 +459,54 @@ TEST(func, hasLoopStress) {
     ASSERT_EQ(hasLoopDummy(g),hasLoop(g)) << mask;
   }
 }
+TEST(func, getStronglyConnectedComponentsManual) {
+  Graph graph(buildSimpleAdjacencyMatrix({{0, 1, 0, 0, 0},
+     /* 0 <-- 2 <-    */                  {0, 0, 0, 0, 0},
+     /* |     |   \   */                  {1, 0, 0, 1, 0},
+     /* v     v    \  */                  {0, 1, 0, 0, 1},
+     /* 1 <-- 3 --> 4 */                  {0, 0, 1, 0, 0}}));  
+  Coloring components = getStronglyConnectedComponents(graph);
+  //expected division into components: 0; 1; 2 + 3 + 4 
+  EXPECT_EQ(3, components.getNumberOfColors());
+  EXPECT_EQ(components.getColorOf(2), components.getColorOf(3));
+  EXPECT_EQ(components.getColorOf(2), components.getColorOf(4));
+  EXPECT_FALSE(components.getColorOf(2) == components.getColorOf(1));
+  EXPECT_FALSE(components.getColorOf(2) == components.getColorOf(0));
+  EXPECT_FALSE(components.getColorOf(1) == components.getColorOf(0));
+}
+//  Stress for strong components  //
+//  ----------------------------  //
+typedef ::testing::TestWithParam<tuple<int,int>> StressByMask;
+void checkColoring(const Coloring& expected, const Coloring& value,
+            const vector<vector<bool>>& matrix)
+{
+  ASSERT_EQ(expected.getNumberOfVertexes(),
+               value.getNumberOfVertexes()) << matrix;
+  ASSERT_EQ(expected.getNumberOfColors(),
+               value.getNumberOfColors()) << matrix;
+  for (size_t i = 0; i < value.delegate.size(); ++i)
+    ASSERT_EQ(i, value.color[value.delegate[i]]);
+  for (size_t i = 0; i < value.color.size(); ++i)
+    for (size_t j = 0; j < value.color.size(); ++j)
+      EXPECT_EQ(expected.color[i] == expected.color[j],
+                value.color[i] == value.color[j]);
+}
+TEST_P(StressByMask, getStronglyConnectedComponentsStress) {
+  int size = std::get<0>(GetParam());
+  int maxmask = std::get<1>(GetParam());
+  for (int mask = 0; mask < maxmask; ++mask) {
+    vector<vector<bool>> matrix(genMatrixByBoolMask(tuple<int,int>(size,
+                                                                   mask)));
+    Graph graph(buildSimpleAdjacencyMatrix(matrix));
+    Coloring components = getStronglyConnectedComponents(graph);
+    Coloring dummy_components = getStronglyConnectedComponentsDummy(graph);
+    checkColoring(dummy_components, components, matrix);
+  }
+}
+INSTANTIATE_TEST_CASE_P(func, StressByMask,
+                        Values(tuple<int,int>(4, 1 << 16),
+                               tuple<int,int>(5, 1 << 20)));
+
 //     Testing of getCompletionToStrongСonnectivityInСondensed     //
 //     =======================================================     //
 //  Some manual tests  //
