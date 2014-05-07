@@ -315,14 +315,16 @@ bool hasLoop(const Graph& graph); //even for self-loop
 Coloring getStronglyConnectedComponents(const Graph& graph);
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
-//  Factories, Builders, etc. Declared in factory.cpp  //
-//  ================================================  //
+//  Factories, Builders, etc.  //
+//  =========================  //
 class AccessIncidenceFactory;
 class IncidenceFactory {
  public: 
   IncidenceFactory(size_t supported_size_of_graph)
                                 : graph_size_(supported_size_of_graph) { }
   unique_ptr<BaseIncidence> getIncidence() {
+    if (getCurrentSize() == 0)
+      return unique_ptr<BaseIncidence>(new EmptyIncidence());
     if (getCurrentSize() == 1)
       return unique_ptr<BaseIncidence>(new OneVertexIncidence(list_[0]));
     if (isBit())
