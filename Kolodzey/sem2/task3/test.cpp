@@ -12,6 +12,8 @@ using graph::AdjacencyListIncidence;
 using graph::AdjacencyListIterator;
 using graph::OneVertexIncidence;
 using graph::OneVertexIterator;
+using graph::EmptyIncidence;
+using graph::EmptyIterator;
 using graph::GraphIterator;
 using graph::Graph;
 
@@ -236,6 +238,26 @@ TEST(OneVertexIncidence, Manual) {
   auto it = li.begin();
   EXPECT_EQ(true, it->isValid());
   EXPECT_EQ(4, it->get());
+}
+// EmtyIterator //
+// ------------ //
+TEST(EmptyIterator, Manual) {
+  EmptyIterator it;
+  EXPECT_EQ(-1, it.get());
+  EXPECT_EQ(false, it.isValid());
+  it.moveForvard();
+  EXPECT_EQ(-1, it.get());
+  EXPECT_EQ(false, it.isValid());
+}
+// EmptyIncidence //
+// -------------- //
+TEST(EmptyIncidence, Manual) {
+  EmptyIncidence li;
+  for (int i = 0; i < 5; ++i)
+    EXPECT_FALSE(li.isConnected(i));
+  auto it = li.begin();
+  EXPECT_EQ(-1, it->get());
+  EXPECT_EQ(false, it->isValid());
 }
 //  Testing interface of Graph  //
 //  ==========================  //

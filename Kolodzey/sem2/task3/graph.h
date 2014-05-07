@@ -188,6 +188,24 @@ class OneVertexIncidence : public BaseIncidence {
  private:
   int vertex_id_;
 };
+// EmptyList //
+// --------- //
+class EmptyIterator : public BaseIterator {
+ public:
+  EmptyIterator() {}
+  void moveForvard() override {}
+  int get() const override { return -1; }
+  bool isValid() const { return false; }
+  virtual ~EmptyIterator() {}
+};
+class EmptyIncidence : public BaseIncidence {
+ public:
+  unique_ptr<BaseIterator> begin() const override {
+    return unique_ptr<BaseIterator>(new EmptyIterator());
+  }
+  bool isConnected(int /*v*/) const override { return false; }
+  virtual ~EmptyIncidence() {}
+};
 // Graph //
 // ----- //
 class AccessGraphIterator;
