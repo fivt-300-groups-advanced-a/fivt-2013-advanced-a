@@ -10,9 +10,13 @@ using graph::AdjacencyMatrixIncidence;
 using graph::AdjacencyMatrixIterator;
 using graph::AdjacencyListIncidence;
 using graph::AdjacencyListIterator;
+using graph::OneVertexIncidence;
+using graph::OneVertexIterator;
 using graph::GraphIterator;
 using graph::Graph;
+
 using graph::Coloring;
+using graph::IncidenceFactory;
 
 //func
 using graph::getSource;
@@ -27,6 +31,7 @@ using graph::AccessAdjacencyMatrixIterator;
 using graph::AccessAdjacencyListIterator;
 using graph::AccessAdjacencyMatrixIncidence;
 using graph::AccessAdjacencyListIncidence;
+using graph::AccessIncidenceFactory;
 
 //useful std
 using std::vector;
@@ -209,6 +214,29 @@ TEST(AdjacencyListIncidence, isConnected) {
     EXPECT_EQ(i == (*it), li.isConnected(i)) << i;
   }
 }
+// OneVertexIterator  //
+// -----------------  //
+TEST(OneVertexIterator, AllExeptMoveForvard) {
+  OneVertexIterator it(3);
+  EXPECT_EQ(true, it.isValid());
+  EXPECT_EQ(3, it.get());
+}
+TEST(OneVertexIterator, MoveForvard) {
+  OneVertexIterator it(3);
+  it.moveForvard();
+  EXPECT_EQ(false, it.isValid());
+  EXPECT_EQ(-1, it.get());
+}
+//  OneVertexIncidence  //
+//  ------------------  //
+TEST(OneVertexIncidence, Manual) {
+  OneVertexIncidence li(4);
+  for (int i = 0; i < 6; ++i)
+    EXPECT_EQ((i == 4), li.isConnected(i));
+  auto it = li.begin();
+  EXPECT_EQ(true, it->isValid());
+  EXPECT_EQ(4, it->get());
+}
 //  Testing interface of Graph  //
 //  ==========================  //
 //  GraphIterator  //
@@ -300,8 +328,39 @@ TEST(Graph, Begin) {
   EXPECT_DEATH({ graph.begin(-2); }, "");
 }
 
-//   Testing accessory algorithms  //
-//   ============================  //
+//  Testing IncidenceFactory  //
+//  ========================  //
+TEST(IncidenceFactory, Constructor) {
+  IncidenceFactory factory(13);
+  AccessIncidenceFactory acc_f(&factory);
+  EXPECT_EQ(13, acc_f.getGraphSize());
+  EXPECT_EQ(vector<bool>(), acc_f.getBit());
+  EXPECT_EQ(vector<int>(), acc_f.getList());
+}
+TEST(IncidenceFactory, addEdge) {
+  IncidenceFactory factory(100);  //32 * 3 < 100 < 32 * 4
+  AccessIncidenceFactory acc_f(&factory);
+  for (int i = 0; i < 3; ++i) {
+    factory.addEdge(i + 5);
+    EXPECT_EQ(i + 5, acc_f.getList().back());
+    EXPECT_EQ(i + 1, acc_f.getList().size());
+    EXPECT_TRUE(acc_f.getBit().empty());
+  }
+  factory.addEdge(8);
+  EXPECT_TRUE(acc_f.getList().empty());
+  EXPECT_EQ(acc_f.getBit().size(), 100);
+  factory.addEdge(9);
+  EXPECT_TRUE(acc_f.getList().empty());
+  EXPECT_EQ(acc_f.getBit().size(), 100);
+  for (int i = 0; i < 5; ++i)
+    EXPECT_EQ(false, acc_f.getBit()[i]);
+  for (int i = 5; i < 10; ++i)
+    EXPECT_EQ(true, acc_f.getBit()[i]);
+  for (int i = 10; i < 100; ++i)
+    EXPECT_EQ(false, acc_f.getBit()[i]);
+}
+//  Testing accessory algorithms  //
+//  ============================  //
 TEST(func, getSource) {
   Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
                                           {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
@@ -355,7 +414,7 @@ TEST(func, getIsolated) {
   EXPECT_EQ(1, isolated.size());
   EXPECT_EQ(4, isolated[0]);
 }
-TEST(func, hasLoop) {
+TEST(func, hasLoopManual) {
   Graph graph0(buildSimpleAdjacencyMatrix({{0, 0, 0},
          /* 1    0    2 */                 {0, 0, 0},
                                            {0, 0, 0}}));
@@ -393,7 +452,13 @@ TEST(func, hasLoop) {
                                                     {0, 0, 0, 0, 0, 0}}));
   EXPECT_FALSE(hasLoop(graph8akaManual));
 }
-
+TEST(func, hasLoopStress) {
+  for (int mask = 0; mask < (1 << 20); ++mask) {
+    vector<vector<bool>> matrix = genMatrixByBoolMask(tuple<int,int>(5, mask));
+    Graph g = buildSimpleAdjacencyMatrix(matrix);
+    ASSERT_EQ(hasLoopDummy(g),hasLoop(g)) << mask;
+  }
+}
 //     Testing of getCompletionToStrongСonnectivityInСondensed     //
 //     =======================================================     //
 //  Some manual tests  //

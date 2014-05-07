@@ -160,6 +160,34 @@ class AdjacencyListIncidence : public BaseIncidence {
   vector<int> adjdata_;
  friend class AccessAdjacencyListIncidence;
 };
+// OneVertex //
+// --------- //
+class OneVertexIterator : public BaseIterator {
+ public:
+  OneVertexIterator(int vertex_id) : is_valid_(1), vertex_id_(vertex_id) {}
+  void moveForvard() override { is_valid_ = 0; }
+  int get() const override {
+    if (isValid())
+      return vertex_id_;
+    return -1;
+  }
+  bool isValid() const override { return is_valid_; }
+  virtual ~OneVertexIterator() {}
+ private:
+  bool is_valid_;
+  int vertex_id_;
+};
+class OneVertexIncidence : public BaseIncidence {
+ public:
+  OneVertexIncidence(int vertex_id) : vertex_id_(vertex_id) {}
+  unique_ptr<BaseIterator> begin() const override {
+    return unique_ptr<BaseIterator>(new OneVertexIterator(vertex_id_));
+  }
+  bool isConnected(int v) const override { return (v == vertex_id_); }
+  virtual ~OneVertexIncidence() {}
+ private:
+  int vertex_id_;
+};
 // Graph //
 // ----- //
 class AccessGraphIterator;
@@ -260,16 +288,55 @@ struct Coloring {
   int getNumberOfVertexes() const { return color.size(); }
 };
 
-//   Algorithms to work with graph. Declared in func.cpp  //
-//   ===================================================  //
+//  Algorithms to work with graph. Declared in func.cpp  //
+//  ===================================================  //
 vector<int> getSource(const Graph& graph);
 vector<int> getSink(const Graph& graph);
 vector<int> getIsolated(const Graph& graph);
 bool hasLoop(const Graph& graph); //even for self-loop
+Coloring getStronglyConnectedComponents(const Graph& graph);
 vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph); 
-
 //  Factories, Builders, etc. Declared in factory.cpp  //
 //  ================================================  //
+class AccessIncidenceFactory;
+class IncidenceFactory {
+ public: 
+  IncidenceFactory(size_t supported_size_of_graph)
+                                : graph_size_(supported_size_of_graph) { }
+  unique_ptr<BaseIncidence> getIncidence() {
+    if (getCurrentSize() == 1)
+      return unique_ptr<BaseIncidence>(new OneVertexIncidence(list_[0]));
+    if (isBit())
+      return unique_ptr<BaseIncidence>(new AdjacencyMatrixIncidence(bit_));
+    return unique_ptr<BaseIncidence>(new AdjacencyListIncidence(list_));
+  }
+  void addEdge(int v) {
+    if(isBit())
+      bit_[v] = 1;
+    else
+      list_.push_back(v);
+    if((!isBit()) && (getCurrentSize() > (graph_size_ / 32)) && 
+                     (getCurrentSize() > 1))
+      changeListToBit();
+  }
+ private:
+  void changeListToBit() {
+    bit_.resize(graph_size_, 0);
+    for (auto it = list_.begin(); it != list_.end(); ++it)
+      bit_[*it] = 1;
+    list_.clear();
+  }
+  size_t getCurrentSize() const {
+    return std::max(bit_.size(),list_.size());
+  }
+  bool isBit() const {
+    return !bit_.empty();
+  }
+  size_t graph_size_;
+  vector<bool> bit_;
+  vector<int> list_;
+ friend class AccessIncidenceFactory;
+};
 }//namespace graph
 #endif

@@ -36,14 +36,11 @@ gtest_main.a: gtest-all.o gtest_main.o
 func.o: func.cpp graph.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-factory.o: factory.cpp graph.h $(GTEST_HEADERS)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
 #building test
 test.o: test.cpp graph.h helpers.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
 
-test: test.o func.o factory.o gtest_main.a
+test: test.o func.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 #building testfortest
