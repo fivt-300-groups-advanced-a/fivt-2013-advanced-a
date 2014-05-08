@@ -4,7 +4,7 @@ from queue import PriorityQueue
 
 
 class PQEntry:
-    def __init__(self, prior, value, cmp):
+    def __init__(self, prior, value, cmp=lambda prior1, prior2: prior1 < prior2):
         self.prior = prior
         self.value = value
         self.cmp = cmp
@@ -23,7 +23,7 @@ class Dijkstra:
     def get_shortest_paths(self, graph, from_vertex, init_path_value,
                            cmp=lambda weight1, weight2: weight1 < weight2,
                            add_edge=lambda path_weight, edge: path_weight + edge.weight,
-                           get_edge_vertex=lambda edge: edge.to):
+                           get_destination=lambda edge: edge.to):
         """
 
         :param graph: List of lists of Edges. Vertexes: from 0 to len(graph) - 1
@@ -31,7 +31,7 @@ class Dijkstra:
         :param init_path_value: Cost of path from from_vertex to itself
         :param cmp: cmp(weight1, weight2). Return true if weight1 < weight2, false - otherwise
         :param add_edge: add_edge(path_weight, edge). Return the cost of path if we add Edge to path_weight
-        :param get_edge_vertex: get_edge_vertex(edge). Return the sink of the edge
+        :param get_destination: get_edge_vertex(edge). Return the sink of the edge
         :return List with shortest paths to every vertex from from_vertex (None for unreachable vertexes)
         """
         self.init_dijkstra(graph)
@@ -44,23 +44,23 @@ class Dijkstra:
                 break
             self.used[cur_vertex] = True
             for edge in graph[cur_vertex]:
-                self.relax_edge(cur_vertex, edge, cmp, add_edge, get_edge_vertex)
+                self.relax_edge(cur_vertex, edge, cmp, add_edge, get_destination)
 
         return self.dist
 
     def relax_edge(self, from_vertex, edge,
                    cmp=lambda weight1, weight2: weight1 < weight2,
                    add_edge=lambda path_weight, edge: path_weight + edge.weight,
-                   get_edge_vertex=lambda edge: edge.to):
+                   get_destination=lambda edge: edge.to):
         """
 
         :param from_vertex: Vertex where the edge start
         :param edge: Edge which you want to relax
         :param cmp: cmp(weight1, weight2). Return true if weight1 < weight2, false - otherwise
         :param add_edge: add_edge(path_weight, edge). Return the cost of path if we add Edge to path_weight
-        :param get_edge_vertex: get_edge_vertex(edge). Return the sink of the edge
+        :param get_destination: get_edge_vertex(edge). Return the sink of the edge
         """
-        to_vertex = get_edge_vertex(edge)
+        to_vertex = get_destination(edge)
         if (self.dist[to_vertex] is None or
                 cmp(add_edge(self.dist[from_vertex], edge), self.dist[to_vertex])):
             self.dist[to_vertex] = add_edge(self.dist[from_vertex], edge)
@@ -71,7 +71,13 @@ class Dijkstra:
         self.used = [False] * self.cnt_vertexes
         self.dist = [None] * self.cnt_vertexes
 
-    def get_min_vertex(self, cmp):
+    def get_min_vertex(self,
+                       cmp=lambda weight1, weight2: weight1 < weight2):
+        """
+
+        :param cmp: cmp(weight1, weight2). Return true if weight1 < weight2, false - otherwise
+        :return: Vertex with minimal current distance. -1 - if the vertex pr_queue is empty
+        """
         while not self.pr_queue.empty():
             top = self.pr_queue.get()
             if (not cmp(top.prior, self.dist[top.value]) and
