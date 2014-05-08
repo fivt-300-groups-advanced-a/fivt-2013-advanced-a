@@ -1,12 +1,11 @@
 #include "graph.h"
-#include <vector>
+#include "coloring.h"
+#include "factory.h"
 
-using graph::Graph;
-using std::vector;
-
+using namespace std;
 
 namespace graph {
-
+namespace algo {
 vector<int> getSource(const Graph& graph) {
   
   vector<bool> is_incomeless(graph.size(), 1);
@@ -275,4 +274,5 @@ Coloring getStronglyConnectedComponents(const Graph& graph) {
   }
   return components;
 }
+}//namespace algo
 }//namespace graph

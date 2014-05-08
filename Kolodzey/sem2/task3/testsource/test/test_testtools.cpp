@@ -1,6 +1,12 @@
 #include "gtest/gtest.h"
 #include "graph.h"
-#include "helpers.h"
+#include "dummyalgo.h"
+#include "gen.h"
+
+using namespace std;
+using namespace graph;
+using namespace graph::testtools;
+using namespace graph::algo;
 
 //  Algorithm  //
 //  =========  //
