@@ -146,6 +146,10 @@ vector<pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
   if (hasLoop(graph)) {
     cerr << "In getCompletionToStrongСonnectivityInСondensed" << endl
          << "graph has loop" << endl;
+    for (size_t i = 0; i < graph.size(); ++i)
+      for (size_t j = 0; j < graph.size(); ++j)
+        if (graph.isConnected(i, j))
+          cerr << i << " " << j << endl;
     abort();
   }
   vector<int> isolated = getIsolated(graph);
@@ -290,6 +294,27 @@ Coloring getStronglyConnectedComponents(const Graph& graph) {
       dfsStronglyConnected(it->get(), env);
   }
   return components;
+}
+
+vector<pair<int,int>> getCompletionToStrongСonnectivity(const Graph& graph) {
+  Coloring strongComponents = getStronglyConnectedComponents(graph);
+  Graph condensed = condenceGraph(graph, strongComponents);
+  bool isReverse = false;
+  if (getSource(condensed).size() > getSink(condensed).size()) {
+    isReverse = true;
+    condensed = reverseGraph(condensed);
+  }
+  vector<pair<int,int>> ans_edges;
+  ans_edges = getCompletionToStrongСonnectivityInСondensed(condensed);
+  if (isReverse) {
+    for (auto it = ans_edges.begin(); it != ans_edges.end(); ++it)
+      swap(it->first, it->second);
+  }
+  for (auto it = ans_edges.begin(); it != ans_edges.end(); ++it) {
+    it->first = strongComponents.getRepresentativeOf(it->first);
+    it->second = strongComponents.getRepresentativeOf(it->second);
+  }
+  return ans_edges;
 }
 }//namespace algo
 }//namespace graph

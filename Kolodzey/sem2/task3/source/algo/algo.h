@@ -15,6 +15,8 @@ Graph condenceGraph(const Graph& graph, const Coloring& components);
 Coloring getStronglyConnectedComponents(const Graph& graph);
 std::vector<std::pair<int,int>> getCompletionToStrongСonnectivityInСondensed(
                                                          const Graph& graph);
+std::vector<std::pair<int,int>> getCompletionToStrongСonnectivity(
+                                                         const Graph& graph);
 }//namespace algo
 }//namespace graph
 #endif //ALGO_H

@@ -193,8 +193,32 @@ TEST_P(StressByMask, getStronglyConnectedComponentsStress) {
   }
 }
 INSTANTIATE_TEST_CASE_P(func, StressByMask,
-                        Values(tuple<int,int>(4, 1 << 16),
+                        Values(tuple<int,int>(0, 1),
+                               tuple<int,int>(1, 2),
+                               tuple<int,int>(2, 1 << 4),
+                               tuple<int,int>(3, 1 << 9), 
+                               tuple<int,int>(4, 1 << 16),
                                tuple<int,int>(5, 1 << 20)));
+
+//  Hmm, maybe the only way to test condence  //
+//  ----------------------------------------  //
+TEST_P(StressByMask, condenceGraph) {
+  int size = std::get<0>(GetParam());
+  int maxmask = std::get<1>(GetParam());
+  for (int mask = 0; mask < maxmask; ++mask) {
+    vector<vector<bool>> matrix(genMatrixByBoolMask(tuple<int,int>(size,
+                                                                   mask)));
+    Graph graph(buildSimpleAdjacencyMatrix(matrix));
+    Coloring components = getStronglyConnectedComponentsDummy(graph);
+    Graph condenced = condenceGraph(graph, components);
+    Coloring condenced_components = getStronglyConnectedComponentsDummy(
+                                                                  condenced);
+    EXPECT_FALSE(hasLoopDummy(condenced));
+    EXPECT_EQ(components.getNumberOfColors(),
+              condenced_components.getNumberOfColors());
+    EXPECT_EQ(condenced_components.getNumberOfColors(), condenced.size());
+  }
+}
 
 //     Testing of getCompletionToStrongСonnectivityInСondensed     //
 //     =======================================================     //
@@ -268,7 +292,7 @@ void runGetCompletionToStrongСonnectivityInСondensed(tuple<int,int> mask) {
   vector<int> source = getSource(graph);
   vector<int> sink = getSink(graph);
   vector<int> isolated = getIsolated(graph);
-  if ((!hasLoop(graph)) && (source.size() <= sink.size())) {
+  if ((!hasLoopDummy(graph)) && (source.size() <= sink.size())) {
     vector<pair<int,int>> completion;
     completion = getCompletionToStrongСonnectivityInСondensed(graph);
     for (auto it = completion.begin(); it != completion.end(); ++it) {
@@ -296,3 +320,79 @@ TEST_P(StressTopsorted, getCompletionToStrongСonnectivityInСondensed) {
     runGetCompletionToStrongСonnectivityInСondensed(tuple<int,int>(size, i));
 }
 INSTANTIATE_TEST_CASE_P(func, StressTopsorted, Range(6, 8));
+
+
+//  Testing getCompletionToStrongСonnectivity  //
+//  =========================================  //
+TEST(getCompletionToStrongСonnectivity, s0) {
+  Graph g = buildSimpleAdjacencyMatrix({});
+  vector<pair<int,int>> completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_TRUE(completion.empty());
+}
+TEST(getCompletionToStrongСonnectivity, s1) {
+  Graph g = buildSimpleAdjacencyMatrix({{0}});
+  vector<pair<int,int>> completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_TRUE(completion.empty());
+  g = buildSimpleAdjacencyMatrix({{1}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_TRUE(completion.empty());
+}
+TEST(getCompletionToStrongСonnectivity, s2) {
+  Graph g = buildSimpleAdjacencyMatrix({{0, 0},
+                                        {0, 0}});
+  vector<pair<int,int>> completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(2, completion.size());
+  g = buildSimpleAdjacencyMatrix({{1, 0},
+                                  {0, 0}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(2, completion.size());
+  g = buildSimpleAdjacencyMatrix({{0, 0},
+                                  {0, 1}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(2, completion.size());
+  g = buildSimpleAdjacencyMatrix({{1, 0},
+                                  {0, 1}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(2, completion.size());
+  g = buildSimpleAdjacencyMatrix({{1, 1},
+                                  {0, 1}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(1, completion.size());
+  g = buildSimpleAdjacencyMatrix({{1, 1},
+                                  {1, 0}});
+  completion = getCompletionToStrongСonnectivity(g);
+  EXPECT_EQ(0, completion.size());
+}
+void runGetCompletionToStrongСonnectivity(tuple<int,int> mask) {
+  vector<vector<bool>> matrix = genMatrixByBoolMask(mask);
+  Graph graph = buildSimpleAdjacencyMatrix(matrix);
+  Coloring strongComponents = getStronglyConnectedComponentsDummy(graph);
+  Graph condenced = condenceGraph(graph, strongComponents);
+  vector<int> source = getSource(condenced);
+  vector<int> sink = getSink(condenced);
+  vector<int> isolated = getIsolated(condenced);
+  vector<pair<int,int>> completion;
+  completion = getCompletionToStrongСonnectivity(graph);
+  for (auto it = completion.begin(); it != completion.end(); ++it) {
+    matrix[(*it).first][(*it).second] = 1;
+  }
+  Graph completed = buildSimpleAdjacencyMatrix(matrix);
+  Coloring components = getStronglyConnectedComponentsDummy(completed);
+  ASSERT_LE(completion.size(), 
+            isolated.size() + max(sink.size(), source.size())) << matrix;
+  if (get<0>(mask) == 0)
+    ASSERT_EQ(0, components.getNumberOfColors()) << matrix;
+  else
+    ASSERT_EQ(1, components.getNumberOfColors()) << matrix;
+
+}
+typedef ::testing::TestWithParam<int> AllMaskStress;
+TEST_P(AllMaskStress, getCompletionToStrongСonnectivity) {
+  int size = GetParam();
+  int maxmask = 1 << (size * size);
+  for (int i = 0; i < maxmask; ++i)
+    ASSERT_NO_FATAL_FAILURE(
+      runGetCompletionToStrongСonnectivity(tuple<int,int>(size, i)));
+}
+INSTANTIATE_TEST_CASE_P(getCompletionToStrongСonnectivity,
+                        AllMaskStress, Range(2, 5));
