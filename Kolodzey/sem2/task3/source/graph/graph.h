@@ -14,7 +14,6 @@ class BaseIterator {
   virtual ~BaseIterator() {}
 };
 class BaseIncidence {
-
  public:
   virtual std::unique_ptr<BaseIterator> begin() const = 0;
   virtual bool isConnected(int v) const = 0;

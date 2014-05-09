@@ -51,22 +51,57 @@ TEST(func, getSink) {
 }
 TEST(func, getIsolated) {
   Graph graph(buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 0,    0, 0, 0, 0, 0},
-                                        {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* 0 <-- 1    4    5  6    */        {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
-   /* |     ^          \ |\   */        {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* |     |           \| \  */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-   /* v     |           vv v  */
-   /* 2 --> 3           7  8  */        {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
-   /*                   |     */        {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
-   /*                   v     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
-   /*                   9     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
-                                        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}}));
+                                          {1, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+     /* 0 <-- 1    4    5  6    */        {0, 0, 0, 1, 0,    0, 0, 0, 0, 0},
+     /* |     ^          \ |\   */        {0, 1, 0, 0, 0,    0, 0, 0, 0, 0},
+     /* |     |           \| \  */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+     /* v     |           vv v  */
+     /* 2 --> 3           7  8  */        {0, 0, 0, 0, 0,    0, 0, 1, 0, 0},
+     /*                   |     */        {0, 0, 0, 0, 0,    0, 0, 1, 1, 0},
+     /*                   v     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 1},
+     /*                   9     */        {0, 0, 0, 0, 0,    0, 0, 0, 0, 0},
+                                          {0, 0, 0, 0, 0,    0, 0, 0, 0, 0}}));
   vector<int> isolated = getIsolated(graph);
   sort(isolated.begin(), isolated.end());
   EXPECT_EQ(1, isolated.size());
   EXPECT_EQ(4, isolated[0]);
 }
-TEST(func, hasLoopManual) {
+TEST(func, reverseGraph) {
+  vector<vector<bool>> matrix = {{0, 0, 1, 1},
+                                 {1, 0, 0, 0},
+                                 {0, 1, 1, 0},
+                                 {1, 1, 0, 0}};
+  Graph g = buildSimpleAdjacencyMatrix(matrix);
+  Graph rg = reverseGraph(g);
+  vector<vector<bool>> rmatrix(4, vector<bool>(4, 0));
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      rmatrix[i][j] = rg.isConnected(i, j);
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      EXPECT_EQ(matrix[i][j], rmatrix[j][i]) << i << " " << j;
+}
+TEST(func, condenceGraph) {                                    /*  -->4---  */
+  Graph graph = buildSimpleAdjacencyMatrix({{0, 0, 1, 0, 1},   /* |       | */ 
+  /* expected 012-->4  aka  0-->2  */       {1, 0, 0, 1, 0},   /* |       v */
+  /*           |    |       |   |  */       {0, 1, 0, 1, 0},   /* 0<--1-->3 */
+  /*           |    v       |   v  */       {0, 0, 0, 0, 0},   /* |   ^   ^ */ 
+  /*            --->3        -->1  */       {0, 0, 0, 1, 0}}); /* |   |   | */
+  Coloring components;                                         /*  -->2---  */
+  components.color = {0, 0, 0, 1, 2};
+  components.delegate = {0, 3, 4};
+  Graph condenced = condenceGraph(graph, components);
+  EXPECT_EQ(3, condenced.size());
+  vector<vector<bool>> condenced_matrix = {{0, 1, 1},
+                                           {0, 0, 0},
+                                           {0, 1, 0}};
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      EXPECT_EQ(condenced_matrix[i][j], condenced.isConnected(i, j));
+}
+//  hasLoop  //
+//  =======  //
+TEST(hasLoop, Manual) {
   Graph graph0(buildSimpleAdjacencyMatrix({{0, 0, 0},
          /* 1    0    2 */                 {0, 0, 0},
                                            {0, 0, 0}}));
@@ -104,14 +139,16 @@ TEST(func, hasLoopManual) {
                                                     {0, 0, 0, 0, 0, 0}}));
   EXPECT_FALSE(hasLoop(graph8akaManual));
 }
-TEST(func, hasLoopStress) {
+TEST(hasLoop, Stress) {
   for (int mask = 0; mask < (1 << 20); ++mask) {
     vector<vector<bool>> matrix = genMatrixByBoolMask(tuple<int,int>(5, mask));
     Graph g = buildSimpleAdjacencyMatrix(matrix);
     ASSERT_EQ(hasLoopDummy(g),hasLoop(g)) << mask;
   }
 }
-TEST(func, getStronglyConnectedComponentsManual) {
+//  getStronglyConnectedComponents  //
+//  ==============================  //
+TEST(getStronglyConnectedComponents, Manual) {
   Graph graph(buildSimpleAdjacencyMatrix({{0, 1, 0, 0, 0},
      /* 0 <-- 2 <-    */                  {0, 0, 0, 0, 0},
      /* |     |   \   */                  {1, 0, 0, 1, 0},
@@ -163,7 +200,7 @@ INSTANTIATE_TEST_CASE_P(func, StressByMask,
 //     =======================================================     //
 //  Some manual tests  //
 //  -----------------  //
-TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
+TEST(getCompletionToStrongСonnectivityInСondensed, manual) {
   vector<vector<bool>> matrix = {{0, 0, 0, 0, 0, 0},
   /*  0  1--->3           */     {0, 0, 0, 1, 0, 0},
   /*          ^           */     {0, 0, 0, 1, 1, 0},
@@ -180,7 +217,7 @@ TEST(func, manual_getCompletionToStrongСonnectivityInСondensed) {
   Coloring components = getStronglyConnectedComponentsDummy(completed_graph);
   EXPECT_EQ(1, components.getNumberOfColors());
 }
-TEST(func, death_getCompletionToStrongСonnectivityInСondensed) {
+TEST(getCompletionToStrongСonnectivityInСondensed, death) {
   Graph graph1(buildSimpleAdjacencyMatrix({{0, 1, 0, 0},
                                            {1, 0, 0, 1},
         /* has loops */                    {1, 1, 1, 1},
@@ -192,13 +229,13 @@ TEST(func, death_getCompletionToStrongСonnectivityInСondensed) {
       /* more sources than sinks */        {0, 0, 0, 0}}));
   EXPECT_DEATH({getCompletionToStrongСonnectivityInСondensed(graph2);}, "");
 }
-TEST(func, s1_getCompletionToStrongСonnectivityInСondensed) {
+TEST(getCompletionToStrongСonnectivityInСondensed, s1) {
   Graph graph(buildSimpleAdjacencyMatrix({{0}}));
   vector<pair<int,int>> completion;
   completion = getCompletionToStrongСonnectivityInСondensed(graph);
   EXPECT_EQ(0, completion.size());
 }
-TEST(func, s2_getCompletionToStrongСonnectivityInСondensed) {
+TEST(getCompletionToStrongСonnectivityInСondensed, s2) {
   vector<pair<int,int>> completion;
   pair<int,int> e01(0, 1);
   pair<int,int> e10(1, 0);

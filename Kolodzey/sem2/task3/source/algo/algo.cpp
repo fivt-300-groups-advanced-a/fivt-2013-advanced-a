@@ -54,7 +54,25 @@ vector<int> getIsolated(const Graph& graph) {
 
   return ans;
 }
-
+Graph reverseGraph(const Graph& graph) {
+  GraphFactory factory(graph.size());
+  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard())
+    for (auto jt = graph.begin(it->get()); jt->isValid(); jt->moveForvard()) {
+      factory.addEdge(jt->get(), it->get());
+    }
+  return factory.genGraph();
+}
+Graph condenceGraph(const Graph& graph, const Coloring& components) {
+  GraphFactory factory(components.getNumberOfColors());
+  for (auto it = graph.begin(-1); it->isValid(); it->moveForvard())
+    for (auto jt = graph.begin(it->get()); jt->isValid(); jt->moveForvard()) {
+      int parentcmp = components.getColorOf(it->get());
+      int childcmp = components.getColorOf(jt->get());
+      if (parentcmp != childcmp)
+        factory.addEdge(parentcmp, childcmp);
+    }
+  return factory.genGraph();
+}
 namespace {
 struct EnviromentForInnerHasLoop {
   EnviromentForInnerHasLoop() : graph_(nullptr), visited_(nullptr) {}
@@ -253,7 +271,6 @@ void dfsStronglyConnected(int v, const EnviromentForDfsStronglyConnected& env) {
   }
 }
 }//anonymous namespace
-
 Coloring getStronglyConnectedComponents(const Graph& graph) {
   int entertime = 0;
   vector<bool> visited(graph.size(), 0);
