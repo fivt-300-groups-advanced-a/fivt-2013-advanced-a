@@ -5,6 +5,7 @@
 using namespace std;
 using namespace graph;
 using namespace graph::testtools;
+using namespace testing;
 
 //  Testing IncidenceFactory  //
 //  ========================  //
@@ -21,6 +22,8 @@ class graph::testtools::AccessIncidenceFactory {
 
   IncidenceFactory* factory_ptr_;
 };
+//  Manual tests of inner structure  //
+//  -------------------------------  //
 TEST(IncidenceFactory, Constructor) {
   IncidenceFactory factory(13);
   AccessIncidenceFactory acc_f(&factory);
@@ -50,3 +53,78 @@ TEST(IncidenceFactory, addEdge) {
   for (int i = 10; i < 100; ++i)
     EXPECT_EQ(false, acc_f.getBit()[i]);
 }
+//  DeathTests, behavior after genIncidence  //
+//  ---------------------------------------  //
+
+//  Test correctness and choise of implementation  //
+//  ---------------------------------------------  //
+enum TypeOfIncidence {
+  EMPTY_INCIDENCE,
+  ONE_VERTEX_INCIDENCE,
+  ADJACENCY_LIST_INCIDENCE,
+  ADJACENCY_MATRIX_INCIDENCE,
+  BASE_INCIDENCE
+};
+TypeOfIncidence getTypeOfIncidence(BaseIncidence* ptr) {
+  if (dynamic_cast<EmptyIncidence*>(ptr) != nullptr)
+    return EMPTY_INCIDENCE;
+  if (dynamic_cast<OneVertexIncidence*>(ptr) != nullptr)
+    return ONE_VERTEX_INCIDENCE;
+  if (dynamic_cast<AdjacencyListIncidence*>(ptr) != nullptr)
+    return ADJACENCY_LIST_INCIDENCE;
+  if (dynamic_cast<AdjacencyMatrixIncidence*>(ptr) != nullptr)
+    return ADJACENCY_MATRIX_INCIDENCE;
+  return BASE_INCIDENCE;
+}
+
+typedef tuple<TypeOfIncidence, size_t, vector<size_t>> ImplementParam;
+typedef ::testing::TestWithParam<ImplementParam> choiseOfImplementation;
+
+TEST_P(choiseOfImplementation, CheckChoiseAndCorrectness) {
+  //extract data from param
+  auto param = GetParam();
+  TypeOfIncidence expected_type = get<0>(param);
+  size_t size = get<1>(param);
+  vector<size_t> edges = get<2>(param);
+  //construct graph using factory
+  IncidenceFactory factory(size);
+  for (auto it = edges.begin(); it != edges.end(); ++it)
+    factory.addEdge(*it);
+  unique_ptr<BaseIncidence> uptr_li = factory.genIncidence();
+  //check iterator
+  {
+    int i = 0;
+    for (auto it = uptr_li->begin(); it->isValid(); it->moveForvard()) {
+      EXPECT_EQ(edges[i], it->get());
+      ++i;
+    }
+  }
+  //check isConnected
+  {
+    size_t j = 0;
+    for (size_t i = 0; i < size; ++i) {
+      if (edges.empty())
+        EXPECT_FALSE(uptr_li->isConnected(i));
+      else {
+        while ((edges[j] < i) && (j < (edges.size() - 1)))
+          ++j;
+        EXPECT_EQ(i == edges[j], uptr_li->isConnected(i));
+      }
+    }
+  }
+  //check type of choosen implementation
+  EXPECT_EQ(expected_type, getTypeOfIncidence(uptr_li.get()));
+}
+
+INSTANTIATE_TEST_CASE_P(IncidenceFactory, choiseOfImplementation,
+           /*            expected type of incidence | size | edges  */
+    Values(ImplementParam(ADJACENCY_LIST_INCIDENCE,    100, {3, 5, 7}),
+           ImplementParam(ADJACENCY_MATRIX_INCIDENCE,    8, {3, 5, 7}),
+           ImplementParam(ONE_VERTEX_INCIDENCE,        100, {3}),
+           ImplementParam(ONE_VERTEX_INCIDENCE,          1, {3}),
+           ImplementParam(EMPTY_INCIDENCE,             100, {}),
+           ImplementParam(EMPTY_INCIDENCE,               0, {})));
+
+
+
+

@@ -64,11 +64,12 @@ class Graph {
 
   std::unique_ptr<BaseIterator> begin(int vertex_id) const {
     if ((vertex_id >= int(size())) || (vertex_id < -1)) {
-      std::cerr << "Impossible to return begin(" << vertex_id
-                                                 << ")" << std::endl;
-      std::cerr << "Id out of range" << std::endl;
-      std::cerr << "Possible ids are 0 ... " << size() - 1 << std::endl;
-      std::cerr << "And -1 to get iterator via all vertexes" << std::endl;
+      using std::cerr;
+      using std::endl;
+      cerr << "Impossible to return begin(" << vertex_id << ")" << endl;
+      cerr << "Id out of range" << endl;
+      cerr << "Possible ids are 0 ... " << size() - 1 << endl;
+      cerr << "And -1 to get iterator via all vertexes" << endl;
       abort();
     }
     if (vertex_id == -1) //return Iterator via all vertexes
@@ -79,10 +80,12 @@ class Graph {
   }
   bool isConnected(int u, int v) const {
     if ((u >= int(size())) || (u < 0) || (v >= int(size())) || (v < 0)) {
-      std::cerr << "Impossible to return isConnected(" << u << ", "
-                                                       << v << ")" << std::endl;
-      std::cerr << "Id out of range" << std::endl;
-      std::cerr << "Possible ids are 0 ... " << size() - 1 << std::endl;
+      using std::cerr;
+      using std::endl;
+      cerr << "Impossible to return isConnected(" << u << ", "
+                                                  << v << ")" << endl;
+      cerr << "Id out of range" << endl;
+      cerr << "Possible ids are 0 ... " << size() - 1 << endl;
       abort();
     }
     return incidence_[u]->isConnected(v);
