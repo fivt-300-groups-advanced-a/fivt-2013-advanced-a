@@ -73,7 +73,7 @@ class IncidenceFactory {
     using std::cerr;
     using std::endl;
     if (!is_valid_) {
-      cerr << "Call of method of invalid factory." << endl
+      cerr << "Call of method of invalid IncidenceFactory." << endl
            << "Factory becomes invalid after call of genIncidence()." << endl
            << endl
            << "To save factory state and continue working with it" << endl
@@ -89,7 +89,53 @@ class IncidenceFactory {
   std::vector<bool> bit_;
   std::vector<int> list_;
 };
-//class GraphFactory {
-//};
+class GraphFactory {
+ public:
+  GraphFactory(size_t size): is_valid_(true),
+                             data_(size, IncidenceFactory(size)) {}
+  void addEdge(int parent, int child) {
+    checkValid();
+    data_[parent].addEdge(child);
+  }
+  Graph genGraph() {
+    checkValid();
+    is_valid_ = false;
+    std::vector<std::unique_ptr<BaseIncidence>> initdata;
+    for (auto it = data_.begin(); it != data_.end(); ++it)
+      initdata.push_back(it->genIncidence());
+    return Graph(std::move(initdata));
+  }
+  Graph genGraphSavingFactory() const {
+    checkValid();
+    std::vector<std::unique_ptr<BaseIncidence>> initdata;
+    for (auto it = data_.begin(); it != data_.end(); ++it)
+      initdata.push_back(it->genIncidenceSavingFactory());
+    return Graph(std::move(initdata));
+  }
+  bool isValid() const { return is_valid_; }
+  void reset(size_t size) {
+    is_valid_ = true;
+    data_.clear();
+    data_.resize(size, IncidenceFactory(size));
+  }
+ private:
+  void checkValid() const {
+    using std::cerr;
+    using std::endl;
+    if (!isValid()) {
+      cerr << "Call of method of invalid GraphFactory." << endl
+           << "Factory becomes invalid after call of genGraph()." << endl
+           << endl
+           << "To save factory state and continue working with it" << endl
+           << "call genGraphSavingFactory()." << endl
+           << endl
+           << "To reset factory and build a new graph" << endl
+           << "call reset(supported_size_of_graph)." << endl;
+      abort();
+    }
+  }
+  bool is_valid_;
+  std::vector<IncidenceFactory> data_;
+};
 }//namespace graph
 #endif //FACTORY_H

@@ -55,6 +55,38 @@ TEST(IncidenceFactory, addEdge) {
 }
 //  DeathTests, behavior after genIncidence  //
 //  ---------------------------------------  //
+TEST(IncidenceFactory, genIncidence) {
+  IncidenceFactory factory(10);
+  AccessIncidenceFactory acc_f(&factory);
+  
+  factory.addEdge(3);
+  factory.addEdge(4);
+  unique_ptr<BaseIncidence> li = factory.genIncidenceSavingFactory();
+  EXPECT_EQ(true, li->isConnected(3));
+  EXPECT_EQ(true, li->isConnected(4));
+  EXPECT_EQ(false, li->isConnected(5));
+  EXPECT_TRUE(factory.isValid());
+  
+  factory.addEdge(5);
+  li = factory.genIncidence();
+  EXPECT_EQ(true, li->isConnected(3));
+  EXPECT_EQ(true, li->isConnected(4));
+  EXPECT_EQ(true, li->isConnected(5));
+  
+  EXPECT_EQ(vector<bool>(), acc_f.getBit());
+  EXPECT_EQ(vector<int>(), acc_f.getList());
+  EXPECT_FALSE(factory.isValid());
+
+  EXPECT_DEATH({ factory.genIncidence(); }, "");
+  EXPECT_DEATH({ factory.genIncidenceSavingFactory(); }, "");
+  EXPECT_DEATH({ factory.addEdge(3); }, "");
+  
+  factory.reset(6);
+  EXPECT_TRUE(factory.isValid());
+  EXPECT_EQ(6, acc_f.getGraphSize());
+  EXPECT_EQ(vector<bool>(), acc_f.getBit());
+  EXPECT_EQ(vector<int>(), acc_f.getList());
+}
 
 //  Test correctness and choise of implementation  //
 //  ---------------------------------------------  //
@@ -115,7 +147,6 @@ TEST_P(choiseOfImplementation, CheckChoiseAndCorrectness) {
   //check type of choosen implementation
   EXPECT_EQ(expected_type, getTypeOfIncidence(uptr_li.get()));
 }
-
 INSTANTIATE_TEST_CASE_P(IncidenceFactory, choiseOfImplementation,
            /*            expected type of incidence | size | edges  */
     Values(ImplementParam(ADJACENCY_LIST_INCIDENCE,    100, {3, 5, 7}),
@@ -126,5 +157,44 @@ INSTANTIATE_TEST_CASE_P(IncidenceFactory, choiseOfImplementation,
            ImplementParam(EMPTY_INCIDENCE,               0, {})));
 
 
+//  Testing GraphFactory  //
+//  ====================  //
+TEST(GraphFactory, Manual) {
+  GraphFactory factory(5);
+  EXPECT_TRUE(factory.isValid());
 
+  factory.addEdge(3, 4);
+  factory.addEdge(2, 3);
+  Graph g(factory.genGraphSavingFactory());
+
+  EXPECT_TRUE(g.isConnected(3, 4));
+  EXPECT_FALSE(g.isConnected(4, 3));
+  EXPECT_TRUE(g.isConnected(2, 3));
+  EXPECT_FALSE(g.isConnected(3, 2));
+  EXPECT_FALSE(g.isConnected(0, 1));
+  EXPECT_FALSE(g.isConnected(1, 0));
+  
+  EXPECT_TRUE(factory.isValid());
+
+  factory.addEdge(0, 1);
+  g = factory.genGraph();
+
+  EXPECT_TRUE(g.isConnected(3, 4));
+  EXPECT_FALSE(g.isConnected(4, 3));
+  EXPECT_TRUE(g.isConnected(2, 3));
+  EXPECT_FALSE(g.isConnected(3, 2));
+  EXPECT_TRUE(g.isConnected(0, 1));
+  EXPECT_FALSE(g.isConnected(1, 0));
+  
+  EXPECT_FALSE(factory.isValid());
+  EXPECT_DEATH({ factory.addEdge(3, 2); }, "");
+  EXPECT_DEATH({ factory.genGraph(); }, "");
+  EXPECT_DEATH({ factory.genGraphSavingFactory(); }, "");
+
+  factory.reset(6);
+  g = factory.genGraph();
+  for (int i = 0; i < 6; ++i)
+    for (int j = 0; j < 6; ++j)
+      EXPECT_FALSE(g.isConnected(i, j));
+}
 
