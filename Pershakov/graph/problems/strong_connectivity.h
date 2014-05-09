@@ -35,7 +35,7 @@ class StrongConnectivity {
             return ans;
         }
 
-        Graph buildCondensation(const Graph &gr, const std::vector<int> comp) {
+        Graph buildCondensation(const Graph &gr, const std::vector<int> &comp) {
             int sz = gr.getSize();
             int cnt_comp = 0;
             for (int i = 0; i < sz; i++)
@@ -98,7 +98,7 @@ class StrongConnectivity {
                 bad_sources[i] = sources[bad_sources[i]];
             for (int i = 0; 
                  i < (int)std::min(bad_sources.size(), bad_sinks.size()); i++) 
-                 res.push_back(Edge(deleg[bad_sinks[i]], deleg[bad_sources[i]]));   
+                 res.push_back(Edge(deleg[bad_sinks[i]], deleg[bad_sources[i]])); 
             for (int i = std::min(bad_sources.size(), bad_sinks.size()); 
                     i < (int)bad_sources.size(); i++) 
                 res.push_back(Edge(deleg[sinks[0]], deleg[bad_sources[i]]));
