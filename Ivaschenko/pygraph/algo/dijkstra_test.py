@@ -1,0 +1,163 @@
+from algo.dijkstra import Dijkstra
+
+import itertools
+import unittest
+import random
+
+
+class DijkstraIntegrationTest(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def __make_weighted_list_graph(self, n, edges) -> list:
+        graph = [list() for i in range(n)]
+        for edge in edges:
+            graph[edge[0]].append((edge[1], edge[2]))
+        return graph
+
+    def __make_weighted_dict_graph(self, n, edges) -> dict:
+        graph = dict()
+        for i in range(n):
+            graph[i] = list()
+        for edge in edges:
+            graph[edge[0]].append((edge[1], edge[2]))
+        return graph
+
+    def __make_dict_graph(self, n, edges) -> dict:
+        graph = dict()
+        for i in range(n):
+            graph[i] = list()
+        for edge in edges:
+            graph[edge[0]].append(edge[1])
+        return graph
+
+    def __make_list_graph(self, n, edges) -> list:
+        graph = [list() for i in range(n)]
+        for edge in edges:
+            graph[edge[0]].append(edge[1])
+        return graph
+    
+    def test_with_integer_weights(self) -> None:
+        tests = list()
+        answers = list()
+
+        tests.append(self.__make_weighted_list_graph(3, {(0, 1, 2), (0, 2, 5), (1, 2, 2)}))
+        answers.append({0: 0, 1: 2, 2: 4})
+
+        tests.append(self.__make_weighted_dict_graph(5, {(0, 1, 1), (1, 2, 1), (2, 3, 1), (3, 4, 1), (0, 2, 3),
+                                                         (2, 4, 3), (1, 4, 4)}))
+        answers.append({0: 0, 1: 1, 2: 2, 3: 3, 4: 4})
+
+        tests.append(self.__make_weighted_list_graph(10, {}))
+        answers.append(dict({0: 0}))
+
+        for (index, test) in enumerate(tests):
+            ret = Dijkstra.find_shortest_paths(test, [0],
+                                               append_edge=lambda path, edge: path + edge[1],
+                                               edge_destination=lambda edge: edge[0])
+            self.assertDictEqual(ret, answers[index])
+
+    def test_with_no_weights(self) -> None:
+        tests = list()
+        answers = list()
+
+        tests.append((self.__make_list_graph(3, {(0, 1), (0, 2), (1, 2)}), [0]))
+        answers.append({0: 0, 1: 1, 2: 1})
+
+        tests.append((self.__make_dict_graph(5, {(0, 1), (1, 2), (1, 3), (3, 1), (3, 0), (3, 4), (4, 2)}), [0]))
+        answers.append({0: 0, 1: 1, 2: 2, 3: 2, 4: 3})
+
+        tests.append((self.__make_dict_graph(5, {(0, 1), (1, 2), (1, 3), (3, 1), (3, 0), (3, 4), (4, 2)}), [0, 4]))
+        answers.append({0: 0, 1: 1, 2: 1, 3: 2, 4: 0})
+
+        tests.append((self.__make_list_graph(3, {}), [1, 2]))
+        answers.append(dict({1: 0, 2: 0}))
+
+        for (index, test) in enumerate(tests):
+            ret = Dijkstra.find_shortest_paths(test[0], test[1],
+                                               append_edge=lambda path, edge: path + 1,
+                                               edge_destination=lambda edge: edge)
+            self.assertDictEqual(ret, answers[index])
+
+
+class DijkstraStressTest(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def __make_graph_from_bit_field(self, size, bit_field) -> list:
+        graph = [[] for i in range(size)]
+        for i in range(size):
+            for j in range(size):
+                if bit_field[i * size + j] == 1:
+                    graph[i].append(j)
+        return graph
+
+    def __generate_random_weighted_graph(self, size) -> list:
+        max_weight = 100
+        p = random.random()
+        graph = [list() for i in range(size)]
+        for i in range(size):
+            for j in range(size):
+                if random.random() < p:
+                    graph[i].append((j, random.randrange(max_weight)))
+        return graph
+
+    def __dummy_shortest_paths_unweighted(self, graph, from_vertex) -> dict:
+        n = len(graph)
+        dist = [[n for j in range(n)] for i in range(n)]
+
+        for i in range(n):
+            for j in graph[i]:
+                dist[i][j] = 1
+            dist[i][i] = 0
+
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    if dist[i][j] > dist[i][k] + dist[k][j]:
+                        dist[i][j] = dist[i][k] + dist[k][j]
+
+        answer = dict()
+        for i in range(n):
+            if dist[0][i] < n:
+                answer[i] = dist[0][i]
+        return answer
+
+    def __dummy_shortest_paths_weighted(self, graph, from_vertex) -> dict:
+        n = len(graph)
+        dist = [[None for j in range(n)] for i in range(n)]
+        for i in range(n):
+            for edge in graph[i]:
+                dist[i][edge[0]] = edge[1]
+            dist[i][i] = 0
+
+        for k in range(n):
+            for i in range(n):
+                for j in range(n):
+                    if dist[i][k] is not None and dist[k][j] is not None and \
+                       (dist[i][j] is None or dist[i][j] > dist[i][k] + dist[k][j]):
+                        dist[i][j] = dist[i][k] + dist[k][j]
+
+        answer = dict()
+        for i in range(n):
+            if dist[0][i] is not None:
+                answer[i] = dist[0][i]
+        return answer
+
+    def test_on_all_small_graphs(self) -> None:
+        graph_size = 3
+        for bit_field in itertools.product({0, 1}, repeat=graph_size ** 2):
+            test = self.__make_graph_from_bit_field(graph_size, bit_field)
+            ret = Dijkstra.find_shortest_paths(test, [0], append_edge=lambda path, edge: path + 1,
+                                               edge_destination=lambda edge: edge)
+            self.assertDictEqual(ret, self.__dummy_shortest_paths_unweighted(test, 0))
+
+    def test_on_random_graphs(self) -> None:
+        test_number = 30
+        graph_size = 50
+        for it in range(test_number):
+            size = random.randrange(1, graph_size + 1)
+            test = self.__generate_random_weighted_graph(size)
+            ret = Dijkstra.find_shortest_paths(test, [0], append_edge=lambda path, edge: path + edge[1],
+                                               edge_destination=lambda edge: edge[0])
+            self.assertDictEqual(ret, self.__dummy_shortest_paths_weighted(test, 0))
