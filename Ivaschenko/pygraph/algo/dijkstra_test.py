@@ -10,7 +10,7 @@ class DijkstraIntegrationTest(unittest.TestCase):
         pass
 
     def __make_weighted_list_graph(self, n, edges) -> list:
-        graph = [list() for i in range(n)]
+        graph = [list() for _ in range(n)]
         for edge in edges:
             graph[edge[0]].append((edge[1], edge[2]))
         return graph
@@ -32,7 +32,7 @@ class DijkstraIntegrationTest(unittest.TestCase):
         return graph
 
     def __make_list_graph(self, n, edges) -> list:
-        graph = [list() for i in range(n)]
+        graph = [list() for _ in range(n)]
         for edge in edges:
             graph[edge[0]].append(edge[1])
         return graph
@@ -52,9 +52,7 @@ class DijkstraIntegrationTest(unittest.TestCase):
         answers.append(dict({0: 0}))
 
         for (index, test) in enumerate(tests):
-            ret = Dijkstra.find_shortest_paths(test, [0],
-                                               append_edge=lambda path, edge: path + edge[1],
-                                               edge_destination=lambda edge: edge[0])
+            ret = Dijkstra.find_shortest_paths(test, [0])
             self.assertDictEqual(ret, answers[index])
 
     def test_with_no_weights(self) -> None:
@@ -85,7 +83,7 @@ class DijkstraStressTest(unittest.TestCase):
         pass
 
     def __make_graph_from_bit_field(self, size, bit_field) -> list:
-        graph = [[] for i in range(size)]
+        graph = [[] for _ in range(size)]
         for i in range(size):
             for j in range(size):
                 if bit_field[i * size + j] == 1:
@@ -95,7 +93,7 @@ class DijkstraStressTest(unittest.TestCase):
     def __generate_random_weighted_graph(self, size) -> list:
         max_weight = 100
         p = random.random()
-        graph = [list() for i in range(size)]
+        graph = [list() for _ in range(size)]
         for i in range(size):
             for j in range(size):
                 if random.random() < p:
@@ -104,7 +102,7 @@ class DijkstraStressTest(unittest.TestCase):
 
     def __dummy_shortest_paths_unweighted(self, graph, from_vertex) -> dict:
         n = len(graph)
-        dist = [[n for j in range(n)] for i in range(n)]
+        dist = [[n for _ in range(n)] for _ in range(n)]
 
         for i in range(n):
             for j in graph[i]:
@@ -119,13 +117,13 @@ class DijkstraStressTest(unittest.TestCase):
 
         answer = dict()
         for i in range(n):
-            if dist[0][i] < n:
-                answer[i] = dist[0][i]
+            if dist[from_vertex][i] < n:
+                answer[i] = dist[from_vertex][i]
         return answer
 
     def __dummy_shortest_paths_weighted(self, graph, from_vertex) -> dict:
         n = len(graph)
-        dist = [[None for j in range(n)] for i in range(n)]
+        dist = [[None for _ in range(n)] for _ in range(n)]
         for i in range(n):
             for edge in graph[i]:
                 dist[i][edge[0]] = edge[1]
@@ -140,8 +138,8 @@ class DijkstraStressTest(unittest.TestCase):
 
         answer = dict()
         for i in range(n):
-            if dist[0][i] is not None:
-                answer[i] = dist[0][i]
+            if dist[from_vertex][i] is not None:
+                answer[i] = dist[from_vertex][i]
         return answer
 
     def test_on_all_small_graphs(self) -> None:
@@ -161,3 +159,79 @@ class DijkstraStressTest(unittest.TestCase):
             ret = Dijkstra.find_shortest_paths(test, [0], append_edge=lambda path, edge: path + edge[1],
                                                edge_destination=lambda edge: edge[0])
             self.assertDictEqual(ret, self.__dummy_shortest_paths_weighted(test, 0))
+
+
+# noinspection PyProtectedMember
+class DijkstraRelaxEdgeTest(unittest.TestCase):
+    def setUp(self) -> None:
+        pass
+
+    def test_on_plain_graph(self) -> None:
+        gray = list()
+        dist = {0: 0}
+        compare = lambda a, b: a < b
+        destination = lambda edge: edge
+        append_edge = lambda path, edge: path + 1
+
+        Dijkstra._Dijkstra__relax_edge(0, 1, gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1])
+        self.assertDictEqual(dist, {0: 0, 1: 1})
+
+        Dijkstra._Dijkstra__relax_edge(1, 0, gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1])
+        self.assertDictEqual(dist, {0: 0, 1: 1})
+
+        Dijkstra._Dijkstra__relax_edge(1, 2, gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1, 2])
+        self.assertDictEqual(dist, {0: 0, 1: 1, 2: 2})
+
+        Dijkstra._Dijkstra__relax_edge(0, 2, gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1, 2])
+        self.assertDictEqual(dist, {0: 0, 1: 1, 2: 1})
+
+    def test_on_timetable_graph(self) -> None:
+
+        class Distance:
+            def __init__(self, value):
+                self.dist = value
+
+            def __lt__(self, other):
+                assert isinstance(other, Distance)
+                return (self.dist is not None) and (other.dist is None or self.dist < other.dist)
+
+            def __repr__(self):
+                return str(self.dist) if self.dist is not None else "Infinity"
+
+            def __eq__(self, other):
+                return self.dist == other.dist
+
+        gray = list()
+        dist = {0: Distance(0)}
+        compare = lambda a, b: a < b
+        destination = lambda edge: edge[0]
+
+        def append_edge(path, edge):
+            assert isinstance(path, Distance)
+            if path.dist is None or path.dist > edge[1]:
+                return Distance(None)
+            return Distance(edge[2])
+
+        Dijkstra._Dijkstra__relax_edge(0, (1, 0, 1), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1])
+        self.assertDictEqual(dist, {0: Distance(0), 1: Distance(1)})
+
+        Dijkstra._Dijkstra__relax_edge(0, (2, -1, 1), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1, 2])
+        self.assertDictEqual(dist, {0: Distance(0), 1: Distance(1), 2: Distance(None)})
+
+        Dijkstra._Dijkstra__relax_edge(1, (2, 3, 4), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1, 2])
+        self.assertDictEqual(dist, {0: Distance(0), 1: Distance(1), 2: Distance(4)})
+
+        Dijkstra._Dijkstra__relax_edge(0, (2, 2, 2), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [1, 2])
+        self.assertDictEqual(dist, {0: Distance(0), 1: Distance(1), 2: Distance(2)})
+
+    def test_on_max_edge_graph(self) -> None:
+
+        pass

@@ -3,8 +3,8 @@ class Dijkstra:
     def find_shortest_paths(graph, from_vertices, *,
                             initial_path_weight=0,
                             comparator=lambda w1, w2: w1 < w2,
-                            append_edge=lambda path, edge: path + edge,
-                            edge_destination=lambda edge: edge) -> dict:
+                            append_edge=lambda path, edge: path + edge[1],
+                            edge_destination=lambda edge: edge[0]) -> dict:
         """
 
             :param graph: Iterable, indexable container each element of which is iterable list of edges
@@ -14,7 +14,7 @@ class Dijkstra:
             :param comparator: Function used to compare two paths' weights
             :param append_edge: Function evaluating weight of path with one appended edge
             :param edge_destination: Function used to determine destination of edge. Should return valid index in graph.
-                   By default it is assumed that edge is destination itself
+                   By default it is assumed that edge is a pair of destination and its weight
             :return Dict mapping each vertex to its shortest path if it exists
             :rtype : dict
 
