@@ -13,6 +13,8 @@
 #include "graph.h"
 #include "lists_of_incidents.h"
 
+const int N = 200;
+
 TEST(handmade, vectorInt) { 
     Graph g(map(4, 
                 [=](int x) {
@@ -60,8 +62,6 @@ TEST(handmade, vectorBool) {
     EXPECT_NE(s.end(), s.find(0));
     EXPECT_NE(s.end(), s.find(2));
 }
-
-const int N = 40;
 
 TEST(Random, vectorInt) {
     std::vector<int> G[N];
@@ -126,6 +126,36 @@ TEST(Random, vectorBool) {
     }
 }
 
+
+TEST(Random, OneList) {
+    std::vector<int> G[N];
+    Graph g(map(N,
+                [=,&G](int x) {
+                    int cc = rand() % N;
+                    std::vector<int> v;
+                    int c = rand() % N;
+                    v.push_back(c);
+                    std::sort(v.begin(), v.end());
+                    v.erase(std::unique(v.begin(), v.end()), v.end());
+                    std::random_shuffle(v.begin(), v.end());
+                    std::copy(v.begin(), v.end(), std::back_inserter<std::vector<int> >(G[x]));
+                    return new OneList(c);
+                }
+            ));
+    for (int i = 0; i < N; i++) {
+        std::vector<int> vv;
+        for (auto j = g.getIncedents(i)->begin(); !j->end(); ++(*j)) {
+            vv.push_back(**j);
+        }
+        std::sort(vv.begin(), vv.end());
+        std::sort(G[i].begin(), G[i].end());
+        EXPECT_TRUE(vv == G[i]);
+        for (int j = 0; j < N; j++) {
+            EXPECT_EQ(g.isConnected(i, j), std::find(vv.begin(), vv.end(), j) != vv.end());
+        }
+    }
+}
+
 std::vector<bool> mark;
 
 bool find(int u, int v, const Graph & g) {
@@ -146,7 +176,7 @@ bool isCon(int u, int v, const Graph & g) {
 TEST(Algorithm, StrongComps) {
     std::vector<std::vector<int> > G(N), Gtmp;
     for (int i = 0; i < N; i++) {
-        int Nn = rand() % (N);
+        int Nn = rand() % (N / 2);
         for (int cc = 0; i < Nn; i++)
             G[i].push_back(rand() % N);
     }
@@ -170,7 +200,6 @@ TEST(Algorithm, addEdges) {
         for (int cc = 0; i < Nn; i++) {
             int tt  = rand() % N;
             G[i].push_back(tt);
-            //std::cerr << i << "--" << tt << "\n";
         }
     }
     Gtmp = G;
