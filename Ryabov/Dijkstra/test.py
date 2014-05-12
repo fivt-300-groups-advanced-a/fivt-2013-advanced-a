@@ -8,7 +8,7 @@ import copy
 def generateGraph(n, m, edge):
     a = {}
     for i in n:
-        a[i]=set()
+        a[i] = set()
     for i in range(m):
         a[random.choice(n)].add((random.choice(n), random.choice(edge)))
     return a
@@ -27,23 +27,27 @@ def pather(q, w):
 
 
 class SampleTest(unittest.TestCase):
+
     def test_sample(self):
-        self.assertEqual(dijkstra({0:[(1,1)], 1:[(0,1)]}, 0), {0:0, 1:1})
-        self.assertEqual(dijkstra({'0':[('1', 1)], '1':[('0', 1)]}, '0'), {'0':0, '1':1})
-        self.assertEqual(dijkstra({0:{(1,1)},1:{(0,1)}}, 0), {0:0, 1:1})
-        self.assertEqual(dijkstra({0:[(1,'a'),(2, 'b')], 1:[(0, 'c')], 2:[(1, 'd')]}, 1, init=''), {0:'c', 1:'', 2:'cb'})
+        self.assertEqual(dijkstra({0: [(1, 1)], 1: [(0, 1)]}, 0), {0: 0, 1: 1})
+        self.assertEqual(
+            dijkstra({'0': [('1', 1)], '1': [('0', 1)]}, '0'), {'0': 0, '1': 1})
+        self.assertEqual(dijkstra({0: {(1, 1)}, 1: {(0, 1)}}, 0), {0: 0, 1: 1})
+        self.assertEqual(dijkstra({0: [(1, 'a'), (2, 'b')], 1: [(0, 'c')], 2: [
+                         (1, 'd')]}, 1, init=''), {0: 'c', 1: '', 2: 'cb'})
 
 
 class StressTest(unittest.TestCase):
-    def test_stress1(self):
-        dijkstra(generateGraph(list(range(0, 100)), 1000, list(range(1, 100))), 0)
 
+    def test_stress1(self):
+        dijkstra(
+            generateGraph(list(range(0, 100)), 1000, list(range(1, 100))), 0)
 
     def test_stress2(self):
         g = generateGraph(list(range(0, 100)), 1000, alph)
-        dijkstra(g, 0, makelen=(lambda a, b:a + b[1]), init='', getvertex=lambda a : a[0])
-        
-        
+        dijkstra(
+            g, 0, makelen=(lambda a, b: a + b[1]), init='', getvertex=lambda a: a[0])
+
     def test_stress3ExistanceCheck(self):
         g = generateGraph(list(range(0, 100)), 10000, list(range(1, 100)))
         a = dijkstra(g, 0, makelen=pather, init=[0])
@@ -56,14 +60,15 @@ class StressTest(unittest.TestCase):
 
 
 class HandTest(unittest.TestCase):
+
     def test_hand1(self):
         g = {}
         n = 100
         for i in range(0, n):
             g[i] = [(i + 1, 1)]
         g[n] = []
-        self.assertEqual(dijkstra(g, 0), dict(enumerate(list(range(0, n + 1)))))
-
+        self.assertEqual(
+            dijkstra(g, 0), dict(enumerate(list(range(0, n + 1)))))
 
     def test_hand2(self):
         g = {}
@@ -72,8 +77,8 @@ class HandTest(unittest.TestCase):
             g[i] = [(i + 1, -1), (i - 1, -2)]
         g[n] = []
         g[0] = [(1, -1)]
-        self.assertEqual(dijkstra(g, 0, key=lambda a : -a), dict(enumerate(list(range(0, -n - 1, -1)))))
-
+        self.assertEqual(
+            dijkstra(g, 0, key=lambda a: -a), dict(enumerate(list(range(0, -n - 1, -1)))))
 
     def test_hand3(self):
         g = {}
@@ -81,9 +86,17 @@ class HandTest(unittest.TestCase):
         for i in range(1, n):
             g[i] = [(1, i + 1)]
         g[n] = []
-        g[0] = [(1,1)]
-        self.assertEqual(dijkstra(g, 0, makelen=(lambda a,b:a + b[0]), getvertex=(lambda a : a[1])), dict(enumerate(list(range(0, n + 1)))))
+        g[0] = [(1, 1)]
+        self.assertEqual(dijkstra(g, 0, makelen=(
+            lambda a, b: a + b[0]), getvertex=(lambda a: a[1])), dict(enumerate(list(range(0, n + 1)))))
+
+    def test_hand4(self):
+        g = {}
+        n = 100
+        for i in range(0, n):
+            g[i] = [((i + 1) % n, 1), ((i - 1) % n, 1)]
+        self.assertEqual(
+            dijkstra(g, 0), dict(enumerate([min(i, n - i) for i in range(n)])))
 
 
 unittest.main()
-
