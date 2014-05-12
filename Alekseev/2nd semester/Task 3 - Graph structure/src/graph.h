@@ -15,19 +15,14 @@ public:
     explicit EdgeListIterator(const EdgeListIterator &it) = delete;
     EdgeListIterator& operator = (const EdgeListIterator &it) = delete;
 
-    EdgeListIterator(EdgeListIterator &&it):
-        adjIt(std::move(it.adjIt)),
-        endIt(std::move(it.endIt)),
-        vIt(std::move(it.vIt))
-    {}
-    EdgeListIterator& operator = (EdgeListIterator &&it)
-    {
-        adjIt = std::move(it.adjIt);
-        endIt = std::move(it.endIt);
-        vIt = std::move(it.vIt);
-        return *this;
-    }
+    EdgeListIterator(EdgeListIterator &&it) = default;
+    EdgeListIterator& operator = (EdgeListIterator &&it) = default;
 
+    vertex_t source() const
+    {
+        assert(isValid());
+        return currentSource;
+    }
     vertex_t destination() const
     {
         assert(isValid());
@@ -58,7 +53,8 @@ private:
                      std::vector<std::unique_ptr<Adjacency>>::const_iterator endIt):
         adjIt(adjIt),
         endIt(endIt),
-        vIt(adjIt != endIt ? (*adjIt)->makeIterator() : nullptr)
+        vIt(adjIt != endIt ? (*adjIt)->makeIterator() : nullptr),
+        currentSource(0)
     {
         validate();
     }
@@ -68,6 +64,7 @@ private:
         while (adjIt != endIt && !vIt->isValid())
         {
             ++adjIt;
+            ++currentSource;
             if (adjIt != endIt)
                 vIt = (*adjIt)->makeIterator();
         }
@@ -76,6 +73,7 @@ private:
 
     std::vector<std::unique_ptr<Adjacency>>::const_iterator adjIt, endIt;
     std::unique_ptr<AdjacencyIterator> vIt;
+    vertex_t currentSource;
 };
 
 class Graph
@@ -87,24 +85,17 @@ public:
     Graph() {}
 
     explicit Graph(Graph &&graph) = default;
-//        adj(std::move(graph.adj)),
-//        backAdj(std::move(graph.backAdj))
-//    {}
+    Graph& operator = (Graph &&graph) = default;
+
     explicit Graph(std::vector<std::unique_ptr<Adjacency>> &&adj):
         adj(std::move(adj))
     {}
+
     Graph(std::vector<std::unique_ptr<Adjacency>> &&adj,
           std::vector<std::unique_ptr<Adjacency>> &&backAdj):
         adj(std::move(adj)),
         backAdj(std::move(backAdj))
     {}
-
-    Graph& operator = (Graph &&graph) = default;
-//    {
-//        adj = std::move(graph.adj);
-//        backAdj = std::move(graph.backAdj);
-//        return *this;
-//    }
 
     std::size_t vertexCount() const
     {
