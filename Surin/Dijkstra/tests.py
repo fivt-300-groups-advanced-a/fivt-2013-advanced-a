@@ -27,4 +27,16 @@ class IntegrationTest(TestCase):
                     dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k])
         for i in range(n):
             self.assertEqual(dist[i], Dijkstra(graph, start=i).getDistsList())
-#main()
+
+
+    def floyd_str_stress(self):
+        r = Random(2)
+        n = 100
+        graph = [[(r.choice('qwertyuiopasdfghjklzxcvbnm'), v) for v in range(n)] for u in range(n)]
+        dist = [[10**9] * n] * n
+        for i in range(n):
+            for j in range(n):
+                for k in range(n):
+                    dist[j][k] = min(dist[j][k], dist[j][i] + dist[i][k])
+        for i in range(n):
+            self.assertEqual(dist[i], Dijkstra(graph, start=i).getDistsList())
