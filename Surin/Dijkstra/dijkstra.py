@@ -1,50 +1,65 @@
-from functools import filter
 from heapq import *
 
-def __clever_sum(a, b):
-    if a is None: return b
-    else: return a + b
 
 class Dijkstra:
+
     def __init__(self, graph,
                  start=0,
-                 calc_path = min,
+                 calc_path=min,
                  n=None,
-                 path_recalc = __clever_sum,
-                 weight_func = lambda a: a[0],
-                 vertex_func = lambda a: a[1],
+                 path_rec=lambda a, b: a + b,
+                 weight_func=lambda a: a[0],
+                 vertex_func=lambda a: a[1],
+                 init_id=0
                  ):
         """
-        graph is dict from (1..n) to structures (by default tuples (weight, vertex))
+        graph is dict from (1..n)
+        to structures (by default tuples (weight, vertex))
         weight_func extracts weight, vertex_func extracts vertex
         initial distances are None
         :param weight_func: weight of edge
         :param vertex_func: target vertex of edge
         :param start: start vertex
+        :param init_id: distance for start vertex
         """
-        if n is None: n = len(graph)
+        if n is None:
+            n = len(graph)
+        self.n = n
+        self.start = start
         self.graph = graph
-        self.prev = start
-        self.dists = [None] * n
-        self.prev = [None] * n
-        calc = [False] * n
+        self.dists, self.prev = {start: init_id}, {}
+        calc = set()
         queue = []
-        heappush(queue, (start, None))
+        heappush(queue, (init_id, start))
         while (len(queue) > 0):
             d, v = heappop(queue)
-            if self.dists[v] < d: continue
+            calc.add(v)
+            if self.dists[v] != d:
+                continue
             for i in self.graph[v]:
                 u, w = vertex_func(i), weight_func(i)
-                if self.dists[u] is None or \
-                        self.dists[u] < path_recalc(self.dists[u], w):
-                    self.dists[u] = path_recalc(self.dists[u], w)
+                if u not in calc and \
+                    (u not in self.dists or
+                        self.dists[u] < path_rec(self.dists[u], w)):
+                    self.dists[u] = path_rec(self.dists[v], w)
                     self.prev[u] = v
                     heappush(queue, (self.dists[u], u))
-    def getShortestPath(v):
+
+    def getShortestPath(self, v):
         ans = []
-        while v is not None:
-            ans += v
+        while v in self.prev:
+            ans += [v]
             v = self.prev[v]
-        return ans
-    def getDistance(v):
+        if v == self.start:
+            ans += [v]
+            ans.reverse()
+            return ans
+
+    def getDistance(self, v):
         return self.dists[v]
+
+    def getDistsList(self):
+        """
+        works only with 0..n vertices
+        """
+        return [self.dists[i] for i in range(self.n)]
