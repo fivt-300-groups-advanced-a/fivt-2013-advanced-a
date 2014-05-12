@@ -35,8 +35,7 @@ class Graph {
             return getIncedents(x)->isConnected(y);
         }
         virtual ~Graph() {}
-        Graph(Graph && g): lists(std::move(g.lists)) {
-        }
+        Graph(Graph && g) = default;
 };
 
 std::vector<int> getStrongComponents(const Graph &);
