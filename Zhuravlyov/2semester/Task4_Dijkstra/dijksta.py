@@ -7,7 +7,7 @@ class Dijkstra:
                  destination_by_edge = lambda edge: edge.destination):
         """
         Class constructor get all needed information about graph and calculate all shortest paths
-        from start vertex with complexity O(V * V), where V is number of vertices
+        from start vertex with complexity O(V * V + E), where V is number of vertices, E is total number of edges
         Use get_path_values and get_path_to_vertex methods to get a result in needed form
         :param graph: list of lists of edges. Edge is by default structure (weight, destination)
         :param start_vertex: number of start vertex
