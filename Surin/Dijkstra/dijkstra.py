@@ -2,6 +2,16 @@ from heapq import *
 
 
 class Dijkstra:
+    def getShortestPath(self, v):
+        ans = []
+        while v in self.prev:
+            ans += [v]
+            v = self.prev[v]
+        if v in self.start:
+            ans += [v]
+            ans.reverse()
+            return ans
+
     def __init__(self, graph,
                  start=0,
                  start_arr=None,
@@ -21,6 +31,7 @@ class Dijkstra:
         :param vertex_func: target vertex of edge
         :param start: start vertex
         :param init_id: distance for start vertex
+        :param calc_path: adding edge to path function
         """
         if n is None:
             n = len(graph)
@@ -42,20 +53,10 @@ class Dijkstra:
                 u, w = vertex_func(i), weight_func(i)
                 if u not in calc and \
                     (u not in self.dists or
-                        self.dists[u] < path_rec(self.dists[u], w)):
+                        self.dists[u] > path_rec(self.dists[v], w)):
                     self.dists[u] = path_rec(self.dists[v], w)
                     self.prev[u] = v
                     heappush(queue, (self.dists[u], u))
-
-    def getShortestPath(self, v):
-        ans = []
-        while v in self.prev:
-            ans += [v]
-            v = self.prev[v]
-        if v in self.start:
-            ans += [v]
-            ans.reverse()
-            return ans
 
     def getDistance(self, v):
         return self.dists[v]
