@@ -1,3 +1,5 @@
+__author__ = 'skird'
+
 from algo.dijkstra import Dijkstra
 
 import itertools
@@ -83,11 +85,19 @@ class DijkstraStressTest(unittest.TestCase):
         pass
 
     def __make_graph_from_bit_field(self, size, bit_field) -> list:
-        graph = [[] for _ in range(size)]
+        graph = [list() for _ in range(size)]
         for i in range(size):
             for j in range(size):
                 if bit_field[i * size + j] == 1:
                     graph[i].append(j)
+        return graph
+
+    def __make_random_weighted_graph_from_bit_field(self, size, bit_field) -> list:
+        graph = [list() for _ in range(size)]
+        for i in range(size):
+            for j in range(size):
+                if bit_field[i * size + j] == 1:
+                    graph[i].append((j, random.randrange(100)))
         return graph
 
     def __generate_random_weighted_graph(self, size) -> list:
@@ -150,6 +160,11 @@ class DijkstraStressTest(unittest.TestCase):
                                                edge_destination=lambda edge: edge)
             self.assertDictEqual(ret, self.__dummy_shortest_paths_unweighted(test, 0))
 
+        for bit_field in itertools.product({0, 1}, repeat=graph_size ** 2):
+            test = self.__make_random_weighted_graph_from_bit_field(graph_size, bit_field)
+            ret = Dijkstra.find_shortest_paths(test, [0])
+            self.assertDictEqual(ret, self.__dummy_shortest_paths_weighted(test, 0))
+
     def test_on_random_graphs(self) -> None:
         test_number = 30
         graph_size = 50
@@ -161,12 +176,13 @@ class DijkstraStressTest(unittest.TestCase):
             self.assertDictEqual(ret, self.__dummy_shortest_paths_weighted(test, 0))
 
 
+# access to private methods of Dijkstra:
 # noinspection PyProtectedMember
 class DijkstraRelaxEdgeTest(unittest.TestCase):
     def setUp(self) -> None:
         pass
 
-    def test_on_plain_graph(self) -> None:
+    def test_on_simple_graph(self) -> None:
         gray = list()
         dist = {0: 0}
         compare = lambda a, b: a < b
@@ -233,5 +249,45 @@ class DijkstraRelaxEdgeTest(unittest.TestCase):
         self.assertDictEqual(dist, {0: Distance(0), 1: Distance(1), 2: Distance(2)})
 
     def test_on_max_edge_graph(self) -> None:
+        gray = [0, 1, 2, 3]
+        dist = {0: -5, 1: 100, 2: 100, 3: 1}
 
+        compare = lambda x, y: x < y
+        destination = lambda edge: edge[0]
+        append_edge = lambda path, edge: max(path, edge[1])
+
+        Dijkstra._Dijkstra__relax_edge(0, (1, 5), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [0, 1, 2, 3])
+        self.assertDictEqual(dist, {0: -5, 1: 5, 2: 100, 3: 1})
+
+        Dijkstra._Dijkstra__relax_edge(1, (2, 101), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [0, 1, 2, 3])
+        self.assertDictEqual(dist, {0: -5, 1: 5, 2: 100, 3: 1})
+
+        Dijkstra._Dijkstra__relax_edge(1, (2, 3), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [0, 1, 2, 3])
+        self.assertDictEqual(dist, {0: -5, 1: 5, 2: 5, 3: 1})
+
+        Dijkstra._Dijkstra__relax_edge(0, (2, 3), gray, dist, compare, destination, append_edge)
+        self.assertListEqual(gray, [0, 1, 2, 3])
+        self.assertDictEqual(dist, {0: -5, 1: 5, 2: 3, 3: 1})
+
+
+# access to private methods of Dijkstra:
+# noinspection PyProtectedMember
+class DijkstraFindNearestTest(unittest.TestCase):
+    def setUp(self) -> None:
         pass
+
+    def test_on_simple_graph(self) -> None:
+        gray = [0, 2, 7, 3]
+        dist = {0: 34, 1: 3, 2: 49, 3: -1, 4: 0,  7: 12, 100: 35}
+        self.assertEqual(Dijkstra._Dijkstra__find_nearest(gray, dist, lambda x, y: x < y), 3)
+        self.assertEqual(Dijkstra._Dijkstra__find_nearest(gray, dist, lambda x, y: x > y), 2)
+
+    def test_with_custom_labels(self) -> None:
+        gray = ["Andrey", "Leo", "Vasily", "Vladimir"]
+        dist = {"Andrey": "vampire", "Leo": "elf", "Vasily": "gray unicorn", "Vladimir": "orc", "Masha": "nobody"}
+        self.assertEqual(Dijkstra._Dijkstra__find_nearest(gray, dist, lambda x, y: x < y), "Leo")
+        self.assertEqual(Dijkstra._Dijkstra__find_nearest(gray, dist, lambda x, y: x > y), "Andrey")
+        self.assertEqual(Dijkstra._Dijkstra__find_nearest(gray, dist, lambda x, y: len(x) > len(y)), "Vasily")
