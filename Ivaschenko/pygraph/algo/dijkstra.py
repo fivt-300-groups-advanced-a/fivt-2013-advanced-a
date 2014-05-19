@@ -1,3 +1,6 @@
+__author__ = 'skird'
+
+
 class Dijkstra:
     @staticmethod
     def find_shortest_paths(graph, from_vertices, *,
@@ -6,23 +9,23 @@ class Dijkstra:
                             append_edge=lambda path, edge: path + edge[1],
                             edge_destination=lambda edge: edge[0]) -> dict:
         """
+        :param graph: Iterable, indexable container each element of which is iterable list of edges
+        :param from_vertices: List of vertices to find path from
+        :param initial_path_weight: Initial value of weight for starting vertices.
+               It is considered by neutral element for append_edge function
+        :param comparator: Function used to compare two paths' weights
+        :param append_edge: Function evaluating weight of path with one appended edge. It may return None if appending
+               edge to this path is not allowed (this should be decided in determenistic way, of course)
+        :param edge_destination: Function used to determine destination of edge. Should return valid index in graph.
+               By default it is assumed that edge is a pair of destination and its weight
+        :return Dict mapping each vertex to its shortest path if it exists
+        :rtype : dict
 
-            :param graph: Iterable, indexable container each element of which is iterable list of edges
-            :param from_vertices: List of vertices to find path from
-            :param initial_path_weight: Initial value of weight for starting vertices.
-                   It is considered by neutral element for append_edge function
-            :param comparator: Function used to compare two paths' weights
-            :param append_edge: Function evaluating weight of path with one appended edge
-            :param edge_destination: Function used to determine destination of edge. Should return valid index in graph.
-                   By default it is assumed that edge is a pair of destination and its weight
-            :return Dict mapping each vertex to its shortest path if it exists
-            :rtype : dict
-
-             For weight function there are following restrictions:
-                - There are no negative edges, so weight of append_edge(path, edge) is not less then weight of path
-                - All shortest path are equally good, so if weight of path1 is equal to weight of path2 then
-                  append_edge(path1, edge) is equal append_edge(path2, edge)
-            """
+         For weight function there are following restrictions:
+            - There are no negative edges, so weight of append_edge(path, edge) is not less then weight of path
+            - All shortest path are equally good, so if weight of path1 is equal to weight of path2 then
+              append_edge(path1, edge) is equal append_edge(path2, edge)
+        """
         gray = list(from_vertices)
         dist = dict()
         for v in from_vertices:
@@ -43,9 +46,11 @@ class Dijkstra:
         return ans
 
     @staticmethod
-    def __relax_edge(v, edge, gray, dist, comparator, edge_destination, append_edge):
+    def __relax_edge(v, edge, gray, dist, comparator, edge_destination, append_edge) -> None:
         to = edge_destination(edge)
         w = append_edge(dist[v], edge)
+        if w is None:
+            return
         if to not in dist:
             gray.append(to)
             dist[to] = w

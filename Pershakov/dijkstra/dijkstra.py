@@ -34,45 +34,44 @@ class Dijkstra:
         :param get_destination: get_edge_vertex(edge). Return the sink of the edge
         :return List with shortest paths to every vertex from from_vertex (None for unreachable vertexes)
         """
-        self.init_dijkstra(graph)
+        self._init_dijkstra(graph)
         self.dist[from_vertex] = init_path_value
         self.pr_queue.put(PQEntry(init_path_value, from_vertex, cmp))
 
         while True:
-            cur_vertex = self.get_min_vertex(cmp)
+            cur_vertex = self._get_min_vertex(cmp)
             if cur_vertex == -1:
                 break
             self.used[cur_vertex] = True
             for edge in graph[cur_vertex]:
-                self.relax_edge(cur_vertex, edge, cmp, add_edge, get_destination)
+                self._relax_edge(cur_vertex, edge, cmp, add_edge, get_destination)
 
         return self.dist
 
-    def relax_edge(self, from_vertex, edge,
-                   cmp=lambda weight1, weight2: weight1 < weight2,
-                   add_edge=lambda path_weight, edge: path_weight + edge.weight,
-                   get_destination=lambda edge: edge.to):
+    def _relax_edge(self, from_vertex, edge, cmp, add_edge, get_destination):
         """
 
         :param from_vertex: Vertex where the edge start
         :param edge: Edge which you want to relax
         :param cmp: cmp(weight1, weight2). Return true if weight1 < weight2, false - otherwise
-        :param add_edge: add_edge(path_weight, edge). Return the cost of path if we add Edge to path_weight
+        :param add_edge: add_edge(path_weight, edge). Return the cost of path if we add Edge to path_weight.
+                         (None if it's impossible to use this edge)
         :param get_destination: get_edge_vertex(edge). Return the sink of the edge
         """
         to_vertex = get_destination(edge)
+        if add_edge(self.dist[from_vertex], edge) is None:
+            return
         if (self.dist[to_vertex] is None or
                 cmp(add_edge(self.dist[from_vertex], edge), self.dist[to_vertex])):
             self.dist[to_vertex] = add_edge(self.dist[from_vertex], edge)
             self.pr_queue.put(PQEntry(self.dist[to_vertex], to_vertex, cmp))
 
-    def init_dijkstra(self, graph):
+    def _init_dijkstra(self, graph):
         self.cnt_vertexes = len(graph)
         self.used = [False] * self.cnt_vertexes
         self.dist = [None] * self.cnt_vertexes
 
-    def get_min_vertex(self,
-                       cmp=lambda weight1, weight2: weight1 < weight2):
+    def _get_min_vertex(self, cmp):
         """
 
         :param cmp: cmp(weight1, weight2). Return true if weight1 < weight2, false - otherwise

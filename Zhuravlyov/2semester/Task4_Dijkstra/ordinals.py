@@ -3,19 +3,22 @@ __author__ = 'Алексей'
 import copy
 import random
 
+
 class Ordinal:
-    def __init__(self, list):
+    def __init__(self, lst):
         """
         Ordinal is a class for ordinal numbers, which are less than w^w
         It is a non-empty list of Ordinal Monomials.
         Ordinal Monomials are tuples (degree, index)
         For example list [(6,2), (2,1), (0,10)] represents ordinal w^6 * 2 + w^2 * 1 + 10
-        :param list: list of tuples of two elements for current ordinal number.
+        :param lst: list of tuples of two elements for current ordinal number.
                      Must be ordered by degree decs
         """
-        self.list = list
+        self.list = lst
+
     def __eq__(self, other):
         return self.list == other.list
+
 
 def ordinal_sum(a, b):
     """
@@ -46,6 +49,7 @@ def ordinal_cmp(a, b):
     :param b: ordinal b
     """
     return a.list < b.list
+
 
 def get_random_ordinal(max_value):
     result = []
