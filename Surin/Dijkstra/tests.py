@@ -3,19 +3,24 @@ from dijkstra import Dijkstra
 from unittest import TestCase, main
 from random import Random
 
+
 class IntegrationTest(TestCase):
+
     def test_cycle(self):
         graph = [[(1, 1), (1, 3)], [(1, 2), (1, 0)], [(1, 3), (1, 1)], [(1, 0), (1, 2)]]
         a = Dijkstra(graph, start=0)
         self.assertEqual(a.getShortestPath(3), [0, 3])
         self.assertEqual(a.getDistance(2), 2)
+
     def test_bamboo(self):
         graph = [[(1, 1)], [(4, 2)], [(2, 3)], []]
         ans = Dijkstra(graph)
         self.assertEqual(ans.getDistsList(), [0, 1, 5, 7])
+
     def test_str_edges(self):
         graph = [[("a", 1), ("b", 2)], [("c", 3)], [("c", 3)], []]
         self.assertEqual("ac", Dijkstra(graph, start=0, init_id="").getDistance(3))
+
     def test_floyd(self):
         n = 3
         graph = (((978, 0), (883, 1), (970, 2)), ((869, 0), (57, 1), (93, 2)), ((86, 0), (369, 1), (855, 2)))
@@ -36,6 +41,7 @@ class IntegrationTest(TestCase):
                 for k in range(1, len(dj.getShortestPath(j))):
                     sm += graph[dj.getShortestPath(j)[k-1]][dj.getShortestPath(j)[k]][0]
                 self.assertEqual(dist[i][j], sm)
+
     def test_floyd_stress(self):
         r = Random(2)
         n = 100
@@ -57,6 +63,7 @@ class IntegrationTest(TestCase):
                 for k in range(1, len(dj.getShortestPath(j))):
                     sm += graph[dj.getShortestPath(j)[k-1]][dj.getShortestPath(j)[k]][0]
                 self.assertEqual(dist[i][j], sm)
+
 
 class MaxEdgesTest(TestCase):
 
@@ -113,7 +120,6 @@ class Ordinal:
 
     def __lt__(self, other):
         return self.lst < other.lst
-
 
     def __add__(self, other):
         if len(other.lst) == 0: return self
@@ -212,3 +218,4 @@ class DijkstraOrdinalTest(TestCase):
                 for k in range(1, len(dj.getShortestPath(j))):
                     sm = max(sm, graph[dj.getShortestPath(j)[k-1]][dj.getShortestPath(j)[k]][0])
                 self.assertEqual(dist[i][j], sm)
+
