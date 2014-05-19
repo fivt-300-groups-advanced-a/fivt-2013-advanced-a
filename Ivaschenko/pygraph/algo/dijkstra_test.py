@@ -215,8 +215,8 @@ class DijkstraRelaxEdgeTest(unittest.TestCase):
                 assert isinstance(other, Distance)
                 return (self.dist is not None) and (other.dist is None or self.dist < other.dist)
 
-            def __repr__(self):
-                return str(self.dist) if self.dist is not None else "Infinity"
+            #def __repr__(self):
+            #    return str(self.dist) if self.dist is not None else "Infinity"
 
             def __eq__(self, other):
                 return self.dist == other.dist
