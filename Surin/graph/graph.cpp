@@ -83,6 +83,12 @@ Graph getCondensation(const Graph & g) {
 }
 
 std::vector<std::pair<int, int> > addEdges(const Graph & g_old) {
+   /* std::vector<std::pair<int, int> > x;
+    for (int i = 1; i < g_old.size(); ++i) {
+        x.emplace_back(0, i);
+        x.emplace_back(i, 0);
+    }
+    return x;*/
     Graph g = getCondensation(g_old);
     sink.assign(g.size(), true);
     source.assign(g.size(), true);

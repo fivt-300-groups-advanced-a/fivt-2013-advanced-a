@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-void checkEquivalence(const graph::Adjacency *adj, std::vector<std::size_t> src)
+void checkEquivalence(const graph::Adjacency *adj, std::vector<vertex_t> src)
 {
     ASSERT_EQ(src.size(), adj->size());
 

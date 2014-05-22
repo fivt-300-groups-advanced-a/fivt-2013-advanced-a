@@ -27,7 +27,7 @@ class VectorIntList : public ListOfIncedents {
         };
         VectorIntList(std::vector<int> && _v): v(_v) {
             std::sort(v.begin(), v.end());
-            _v.resize(std::unique(v.begin(), v.end()) - v.begin());
+            v.resize(std::unique(v.begin(), v.end()) - v.begin());
         }
         virtual std::unique_ptr<IntIterator> begin() const {
             return std::unique_ptr<IntIterator>((IntIterator *)(new Iterator(v.begin(), v.end())));
