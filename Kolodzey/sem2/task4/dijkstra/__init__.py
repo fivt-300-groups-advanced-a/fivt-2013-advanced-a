@@ -1,1 +1,2 @@
-__author__ = 'DKolodzey'
+__author__ = "Daria Kolodzey"
+__all__ = ["dijkstra"]
