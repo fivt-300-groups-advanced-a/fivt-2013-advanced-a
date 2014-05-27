@@ -1,20 +1,20 @@
 class DijkstraResult(dict):
     """
-    simple class to hold and print result of dijkstra function
+    class to hold and print result of dijkstra function
     """
-    #TODO write good search print of path
     from collections import namedtuple
-    FullTuple = namedtuple("FullTuple", "result parent edge")
-    OnlyParentTuple = namedtuple("OnlyParentTuple", "result parent")
+    FullHold = namedtuple("FullTuple", "distance parent edge")
+    OnlyParentHold = namedtuple("OnlyParentTuple", "distance parent")
 
+    #TODO add methods to get/print path
     def __init__(self, start, backtrace_mode):
         self.start = start
         self.backtrace_mode = backtrace_mode
 
-    def add_result(self, vertex, result, parent, edge):
+    def add_result(self, vertex, result, edge_info):
         if self.backtrace_mode == "full":
-            self[vertex] = self.FullTuple(result, parent, edge)
+            self[vertex] = self.FullHold(result, edge_info.parent, edge_info.edge)
         elif self.backtrace_mode == "only_parent":
-            self[vertex] = self.OnlyParentTuple(result, parent)
+            self[vertex] = self.OnlyParentHold(result, edge_info.parent)
         else:
             self[vertex] = result
