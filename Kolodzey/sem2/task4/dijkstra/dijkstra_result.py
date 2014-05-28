@@ -5,8 +5,8 @@ class DijkstraResult(dict):
     from collections import namedtuple
     FullHold = namedtuple("FullHold", "distance parent edge")
     OnlyParentHold = namedtuple("OnlyParentHold", "distance parent")
+    FullEdgeInfo = namedtuple("FullEdgeInfo", "parent edge")
 
-    #TODO add methods to get/print path
     def __init__(self, start, backtrace_mode):
         self.start = start
         self.backtrace_mode = backtrace_mode
@@ -24,3 +24,25 @@ class DijkstraResult(dict):
             return self[vertex]
         else:
             return self[vertex].distance
+
+    def get_vertex_path(self, vertex):
+        if self.backtrace_mode == "off":
+            print("Can't get vertex path because backtrace is off")
+            return
+        ans = []
+        while vertex in self:
+            ans.append(self[vertex].parent)
+            vertex = self[vertex].parent
+        ans.reverse()
+        return ans
+
+    def get_full_path(self, vertex):
+        if self.backtrace_mode != "full":
+            print("Can't get full path because backtrace mode isn't full")
+            return
+        ans = []
+        while vertex in self:
+            ans.append(self.FullEdgeInfo(self[vertex].parent, self[vertex].edge))
+            vertex = self[vertex].parent
+        ans.reverse()
+        return ans

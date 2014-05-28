@@ -7,7 +7,7 @@ Nelly.add_edge(2, 5, 4)
 Nelly.add_edge(2, 4, 2)
 Nelly.add_edge(3, 4, 1)
 Nelly.add_edge(4, 6, 4)
-#Oushen
+#Oliver
 Oliver = Graph()
 Oliver.add_vertex_list("ABCDEF")
 Oliver.add_edge('A', 'B', 2)
@@ -57,12 +57,12 @@ class TestInnerDijkstra(unittest.TestCase):
                           'B': 1})
 
     def test_on_nelly(self):
-        nelly_tests = [({1 : 0}, {}),
-                       ({2 : 0}, {1 : 1, 5 : 4, 4 : 2, 6 : 6}),
-                       ({3 : 0}, {4 : 1, 6 : 5}),
-                       ({4 : 0}, {6 : 4}),
-                       ({5 : 0}, {}),
-                       ({6 : 0}, {})]
+        nelly_tests = [({1: 0}, {}),
+                       ({2: 0}, {1: 1, 5: 4, 4: 2, 6: 6}),
+                       ({3: 0}, {4: 1, 6: 5}),
+                       ({4: 0}, {6: 4}),
+                       ({5: 0}, {}),
+                       ({6: 0}, {})]
         for case in nelly_tests:
             self.assertEqual(inner_dijkstra(graph=Nelly,
                                  extract_destination_vertex=default_destination_vertex_extract,
