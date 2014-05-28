@@ -6,8 +6,8 @@ class LinearPriorityQueue(dict):
     adding element O(1)
     """
     from collections import namedtuple
-    FullHold = namedtuple("FullTuple", "distance parent edge")
-    OnlyParentHold = namedtuple("OnlyParentTuple", "distance parent")
+    FullHold = namedtuple("FullHold", "distance parent edge")
+    OnlyParentHold = namedtuple("OnlyParentHold", "distance parent")
     FullEdgeInfo = namedtuple("FullEdgeInfo", "parent edge")
     OnlyParentEdgeInfo = namedtuple("OnlyParentEdgeInfo", "parent")
 
@@ -17,23 +17,24 @@ class LinearPriorityQueue(dict):
 
     def pop_nearest(self):
         #searching for value
-        nearest_vertex = next(iter(self))
-        for vertex in iter(self):
+        nearest_vertex = next(iter(self.keys()))
+        for vertex in self.keys():
             if self.cmp(self.get_distance(vertex), self.get_distance(nearest_vertex)):
                 nearest_vertex = vertex
         #set distance to return
-        distance = self.get_distance(vertex)
+        distance = self.get_distance(nearest_vertex)
         #set edge_info to return
         if self.backtrace_mode == "full":
-            edge_info = self.FullEdgeInfo(self[vertex].parent, self[vertex].edge)
+            edge_info = self.FullEdgeInfo(self[nearest_vertex].parent,
+                                          self[nearest_vertex].edge)
         elif self.backtrace_mode == "only_parent":
-            edge_info = self.OnlyParentEdgeInfo(self[vertex].parent)
+            edge_info = self.OnlyParentEdgeInfo(self[nearest_vertex].parent)
         else:
             edge_info = None
         #deleting value
-        del self[vertex]
+        del self[nearest_vertex]
         #return!
-        return [vertex, distance, edge_info]
+        return [nearest_vertex, distance, edge_info]
 
     def get_distance(self, vertex):
         if self.backtrace_mode == "off":
@@ -53,12 +54,5 @@ class LinearPriorityQueue(dict):
             else:
                 self[vertex] = distance
 
-
-#TODO put code above into tests with all backtrace mode variants!
-queue = LinearPriorityQueue(lambda x, y: (x < y), "full")
-queue.update_distance('A', 5, 'C', 2)
-print(queue.pop_nearest())
-queue.update_distance('B', 4, 'C', 3)
-print(queue.pop_nearest())
-queue.update_distance('A', 3, 'C', 1)
-print(queue.pop_nearest())
+    def empty(self):
+        return len(self) == 0

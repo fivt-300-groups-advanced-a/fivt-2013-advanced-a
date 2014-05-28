@@ -3,8 +3,8 @@ class DijkstraResult(dict):
     class to hold and print result of dijkstra function
     """
     from collections import namedtuple
-    FullHold = namedtuple("FullTuple", "distance parent edge")
-    OnlyParentHold = namedtuple("OnlyParentTuple", "distance parent")
+    FullHold = namedtuple("FullHold", "distance parent edge")
+    OnlyParentHold = namedtuple("OnlyParentHold", "distance parent")
 
     #TODO add methods to get/print path
     def __init__(self, start, backtrace_mode):
@@ -18,3 +18,9 @@ class DijkstraResult(dict):
             self[vertex] = self.OnlyParentHold(result, edge_info.parent)
         else:
             self[vertex] = result
+
+    def get_distance(self, vertex):
+        if self.backtrace_mode == "off":
+            return self[vertex]
+        else:
+            return self[vertex].distance

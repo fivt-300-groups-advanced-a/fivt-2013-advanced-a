@@ -32,7 +32,7 @@ def inner_dijkstra(graph,
                                                distance=add_edge_to_distance(start[v],
                                                                              weight(edge)),
                                                parent=v,
-                                               edge=edge)
+                                               edge=weight(edge))
 
     #running algorithm
     while not priority_queue.empty():
@@ -42,10 +42,10 @@ def inner_dijkstra(graph,
         for edge in graph[v]:
             if not destination(edge) in black:
                 priority_queue.update_distance(vertex=destination(edge),
-                                               distance=add_edge_to_distance(start[v],
+                                               distance=add_edge_to_distance(counted.get_distance(v),
                                                                              weight(edge)),
                                                parent=v,
-                                               edge=edge)
+                                               edge=weight(edge))
     return counted
 
 
