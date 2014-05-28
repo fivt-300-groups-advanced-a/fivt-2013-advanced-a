@@ -77,7 +77,6 @@ def dijkstra_launcher(graph,
         *heap_structure: should be specified to work with custom heap
 
         Base example of using dijkstra
-
         >>> from dijkstra import dijkstra #you can import dijkstra_launcher as dijkstra
         >>> from dijkstra import Graph
         >>> my_graph = Graph()
@@ -93,6 +92,54 @@ def dijkstra_launcher(graph,
         >>> print("Full path: {}".format(res.get_full_path('C')))
         Full path: [FullEdgeInfo(parent='A', edge=1), FullEdgeInfo(parent='B', edge=3)]
 
+        You can change number of starting vertexes
+        For example you'd like to choose where to go on Sunday to sleep more on Monday
+        >>> from dijkstra import dijkstra
+        >>> from dijkstra import Graph
+        >>> moscow = Graph()
+        >>> moscow.add_vertex_list(['home',
+        ...                         'Timiryasevskaya',
+        ...                         'Otradnoe',
+        ...                         'MIPT'])
+        >>> moscow.add_edge('home', 'Otradnoe', 15)
+        >>> moscow.add_edge('Otradnoe', 'home', 15)
+        >>> moscow.add_edge('Otradnoe', 'Timiryasevskaya', 15)
+        >>> moscow.add_edge('Timiryasevskaya', 'Otradnoe', 15)
+        >>> moscow.add_edge('Timiryasevskaya', 'MIPT', 25)
+        >>> moscow.add_edge('MIPT', 'Timiryasevskaya', 25)
+        >>> res = dijkstra(moscow, ['home', 'MIPT'], start_mode='vertex_list')
+        >>> print("Full path: {}".format(res.get_full_path('Timiryasevskaya')))
+        Full path: [FullEdgeInfo(parent='MIPT', edge=25)]
+
+        You can change init distance of start vertex(es)
+        >>> from dijkstra import dijkstra
+        >>> from dijkstra import Graph
+        >>> my_graph = Graph()
+        >>> my_graph.add_vertex_list(['A', 'B', 'C'])
+        >>> my_graph.add_edge('A', 'B', 1)
+        >>> my_graph.add_edge('A', 'C', 5)
+        >>> my_graph.add_edge('B', 'C', 3)
+        >>> res = dijkstra(my_graph, {'A': 5}, start_mode='vertex_dict')
+        >>> print("Total distance: {}".format(res.get_distance('C')))
+        Total distance: 9
+
+        Also you can change functions add_edge_to_distance and compare_distance
+        and make your dijkstra solve similar task
+        For example, minimize maximal edge on the path
+        >>> from dijkstra import dijkstra
+        >>> from dijkstra import Graph
+        >>> my_graph = Graph()
+        >>> my_graph.add_vertex_list(['A', 'B', 'C'])
+        >>> my_graph.add_edge('A', 'B', 2)
+        >>> my_graph.add_edge('A', 'C', 3)
+        >>> my_graph.add_edge('B', 'C', 2)
+        >>> res = dijkstra(my_graph, 'A', algo_mode='manual',
+        ...                add_edge_to_distance=lambda dist, w: max(dist, w),
+        ...                compare_distance=lambda dist1, dist2: dist1 < dist2)
+        >>> print("Total distance: {}".format(res.get_distance('C')))
+        Total distance: 2
+        >>> print("Full path: {}".format(res.get_full_path('C')))
+        Full path: [FullEdgeInfo(parent='A', edge=2), FullEdgeInfo(parent='B', edge=2)]
         """
 
         #checking graph and graph_mode
