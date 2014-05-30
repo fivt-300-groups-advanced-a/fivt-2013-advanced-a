@@ -4,7 +4,20 @@ import random
 
 
 class Graph:
-    class Edge(namedtuple('Edge', ['v', 'u', 'weight'])):
+    @staticmethod
+    def sum_pe(p, e, _):
+        return p + e.weight
+
+    @staticmethod
+    def cmp_path(a, b):
+        return a < b
+
+    class Edge(namedtuple('Edge', ['u', 'weight', 'v'])):
+        def edge_to(self):
+            return self.u
+        def edge_w(self):
+            return self.weight
+
         def __hash__(self):
             return hash((self.v, self.u))
 
@@ -16,12 +29,12 @@ class Graph:
         self._vertices.update({u for v, u, w in edge_list})
         self._vertices = list(self._vertices)
 
-        edge_list = {Graph.Edge(v, u, w) for v, u, w in edge_list}
+        edge_list = {Graph.Edge(v=v, u=u, weight=w) for v, u, w in edge_list}
         self._edge_list = edge_list
 
         self._adj = {v: {} for v in self._vertices}
-        for v, u, w in edge_list:
-            self._adj[v][u] = self.Edge(v, u, w)
+        for u, w, v in edge_list:
+            self._adj[v][u] = self.Edge(v=v, u=u, weight=w)
 
         self._cached_paths = dict()
 
@@ -38,6 +51,11 @@ class Graph:
         return 'vertices:\n{}\nedges:\n'.format(self.vertices) + \
                ('{}\n' * len(self.edge_list)).format(*self.edge_list)
 
+    def get_wrapper(self):
+        def wrapper(vertex):
+            return self._adj[vertex].items()
+        return wrapper
+
     @property
     def vertices(self):
         return self._vertices
@@ -52,7 +70,8 @@ class Graph:
 
     def paths(self,
               start_v,
-              start_p,
+              *,
+              start_p=0,
               **kwargs):
         hashable = True
         k = (start_v, start_p)
@@ -74,9 +93,9 @@ class Graph:
                       *,
                       edge_w=lambda e: e.weight,
                       path_lt=lambda a, b: a < b,
-                      sum_pe=None):
-        if sum_pe is None:
-            sum_pe = lambda p, e: p + edge_w(e)
+                      sum_pev=None):
+        if sum_pev is None:
+            sum_pev = lambda p, e, _: p + edge_w(e)
 
         paths = {start_v: start_p}
         for i in range(len(self.vertices)):
@@ -84,7 +103,7 @@ class Graph:
             for e in self.edge_list:
                 if not e.v in paths:
                         continue
-                new_path = sum_pe(paths[e.v], e)
+                new_path = sum_pev(paths[e.v], e, e.u)
                 if not e.u in tmp or path_lt(new_path, tmp[e.u]):
                     tmp[e.u] = new_path
             paths = tmp
