@@ -7,7 +7,7 @@ def inner_dijkstra(graph,
                    start,
                    compare_distance,
                    add_edge_to_distance,
-                   backtrace_mode,
+                   backtrace_mode, #in python there more others overhead
                    heap_structure):
 
     """
