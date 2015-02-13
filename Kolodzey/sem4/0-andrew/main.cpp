@@ -15,6 +15,9 @@ struct Point {
 	long long operator % (const Point& b) const {
 		return x * b.y - y * b.x;
 	}
+	double len() {
+		return sqrt(x * x + y * y);
+	}
 };
 
 bool compareX(Point a, Point b) {
@@ -47,6 +50,20 @@ vector<Point> chooseLower(const vector<Point>& vertices){
 	return ans;
 }
 
+double countLenghtOfConvexHullHalf(forward_iterator_tag begin, forward_iterator_tag end) {
+	vector<Point> stack;
+	for (auto i = begin; i != end; ++i) {
+		while((stack.size() > 1) &&
+			  (((stack.back() - stack[stack.size() - 2]) % (*i - stack.back())) >= 0))
+			stack.pop_back();
+		stack.push_back(*i);
+	}
+	double ans = 0;
+	for (auto i = 0; i < stack.size() - 1; ++i)
+		ans  += (stack[i + 1] - stack[i]).len();
+	return ans;
+}
+
 int main() {
 	
 	int N; //number of vertices
@@ -65,11 +82,18 @@ int main() {
 	vector<Point> upper = chooseUpper(vertices);
 	vector<Point> lower = chooseLower(vertices);
 
+	/*
+	Testing lower and upper
 	cout << "upper" << endl;
 	for (auto i = upper.begin(); i!=upper.end(); ++i)
 		cout << i->x << " " << i->y << endl;
 	cout << "lower" << endl;
 	for (auto i = lower.begin(); i!=lower.end(); ++i)
 		cout << i->x << " " << i->y << endl;
+	*/
+
+	cout << countLenghtOfConvexHullHalf(upper.begin(), upper.end()) << endl;
+	cout << countLenghtOfConvexHullHalf(lower.rbegin(), lower.rend()) << endl;
+
 	return 0;
 }
