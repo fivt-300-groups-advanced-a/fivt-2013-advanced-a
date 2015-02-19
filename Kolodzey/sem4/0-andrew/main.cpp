@@ -11,18 +11,23 @@ using namespace std;
 
 struct Point {
     Point() : x(0), y(0) { }
+
     Point (long long x, long long y): x(x), y(y) {};
-    long long x;
-    long long y;
+    
     Point operator - (const Point& b) const {
         return Point(x - b.x, y - b.y);
     }
+    
     long long operator % (const Point& b) const {
         return x * b.y - y * b.x;
     }
+    
     double len() {
         return sqrt(x * x + y * y);
     }
+
+    long long x;
+    long long y;
 };
 
 bool compareX(Point a, Point b) {
@@ -55,9 +60,11 @@ vector<Point> chooseLower(const vector<Point>& vertices){
     return ans;
 }
 
+//input --- iterators to begin and to end of vector containing data about half of dots set
+//output --- len of this half of convex hull
 template<typename T>
-
 double countLenghtOfConvexHullHalf(T begin, T end) {
+    
     vector<Point> stack;
     for (auto i = begin; i != end; ++i) {
         while((stack.size() > 1) &&
@@ -65,12 +72,11 @@ double countLenghtOfConvexHullHalf(T begin, T end) {
             stack.pop_back();
         stack.push_back(*i);
     }
+
     double ans = 0;
-    for (auto i = 0; i < stack.size() - 1; ++i) {
-        //cout << stack[i].x << " " << stack[i].y << endl;
+    for (auto i = 0; i < stack.size() - 1; ++i)
         ans  += (stack[i + 1] - stack[i]).len();
-    }
-    //cout << stack.back().x << " " << stack.back().y << endl;
+
     return ans;
 }
 
@@ -92,17 +98,8 @@ int main() {
     vector<Point> upper = chooseUpper(vertices);
     vector<Point> lower = chooseLower(vertices);
 
-    /*
-    Testing lower and upper
-    cout << "upper" << endl;
-    for (auto i = upper.begin(); i!=upper.end(); ++i)
-        cout << i->x << " " << i->y << endl;
-    cout << "lower" << endl;
-    for (auto i = lower.begin(); i!=lower.end(); ++i)
-        cout << i->x << " " << i->y << endl;
-    */
     double len_of_convex_hull = countLenghtOfConvexHullHalf(upper.begin(), upper.end()) +
-          countLenghtOfConvexHullHalf(lower.rbegin(), lower.rend());
+                                countLenghtOfConvexHullHalf(lower.rbegin(), lower.rend());
           
     cout << ((long long)(len_of_convex_hull + (L * 2 * PI + 0.5))) << endl;
 
