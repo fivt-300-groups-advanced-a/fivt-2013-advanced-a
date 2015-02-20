@@ -1,0 +1,10 @@
+*pycache*
+.idea
+*.pyc
+
+*.d
+*.r
+
+*.out
+*.err
+
