@@ -39,10 +39,9 @@ bool strict_cross(const point &a, const point &b, const cone &c)
                 2 * sqr(c.r) * dir.z * (c.c.z - a.z);
     coord_t C = sqr(c.c.z * v.x) + sqr(c.c.z * v.y) - sqr(c.r * (c.c.z - a.z));
     coord_t D = sqr(B) - 4 * A * C;
-    assert(A != 0);
     if (D < 0)
         return A < 0 && (a.z < c.c.z || b.z < c.c.z);
-    coord_t t1 = (-B + sqrtl(D)) / (2 * A);
+    coord_t t1 = (-B - sqrtl(D)) / (2 * A);
     coord_t t2 = (-B + sqrtl(D)) / (2 * A);
     if (t1 < eps) t1 = eps;
     if (t2 > 1 - eps) t2 = 1 - eps;
