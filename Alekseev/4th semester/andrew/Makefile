@@ -27,7 +27,7 @@ TARGET := $(PROBLEM).$(COMPILE_MODE)
 TARGET_D := $(PROBLEM).d
 
 CC := g++
-FLAGS_COMMON := -Wall -Wextra --std=gnu++11 -Dmoskupols -fstack-protector -Wno-char-subscripts
+FLAGS_COMMON := -Wall -Wextra --std=gnu++11 -Dmoskupols -fstack-protector -Wno-char-subscripts -pthread
 FLAGS_D := $(FLAGS_COMMON) -O0 -ggdb
 FLAGS_R := $(FLAGS_COMMON) -O2
 

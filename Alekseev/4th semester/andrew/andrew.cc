@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-using namespace std;
 
 #ifdef moskupols
     #define debug(...) fprintf(stderr, __VA_ARGS__) // thank Skird it's friday!
@@ -49,15 +48,15 @@ private:
 };
 
 template<class InputIt>
-vector<Point> wrapHull(InputIt begin, InputIt end)
+std::vector<Point> wrapHalf(InputIt ptsBegin, InputIt ptsEnd, Point pivotA, Point pivotB)
 {
-    vector<Point> ret;
-    size_t size = 0;
+    std::vector<Point> pts, ret;
+    copy_if(ptsBegin, ptsEnd, back_inserter(pts), OnTheLeftSide(pivotA, pivotB));
+    std::size_t size = 0;
 
-    for (; begin != end; ++begin)
+    for (Point cur : pts)
     {
-        Point cur = *begin;
-        while (size > 1 && Point(ret[size-2], ret[size-1]) % Point(ret[size-1], cur) >= 0)
+        while (size > 1 && Point(ret[size-2], ret.back()) % Point(ret.back(), cur) >= 0)
         {
             --size;
             ret.pop_back();
@@ -69,27 +68,37 @@ vector<Point> wrapHull(InputIt begin, InputIt end)
     return ret;
 }
 
+template<class RAIt, class Compare>
+void sort(RAIt begin, RAIt end, Compare cmp, unsigned int concurrency = 1)
+{
+    // assert(concurrency == 1);
+    std::sort(begin, end, cmp);
+}
+
 }
 
 template<class InputIt>
-vector<Point> buildHull(InputIt ptsBegin, InputIt ptsEnd)
+std::vector<Point> buildHull(InputIt ptsBegin, InputIt ptsEnd, unsigned int concurrency = 1)
 {
-    vector<Point> points(ptsBegin, ptsEnd);
-    sort(points.begin(), points.end(), [](Point a, Point b){ return a.x < b.x; });
+    std::vector<Point> points(ptsBegin, ptsEnd);
+    impl::sort(points.begin(), points.end(),
+            [](Point a, Point b){ return a.x < b.x; },
+            concurrency);
 
     Point leftmost = points[0], rightmost = points.back();
+    std::future<std::vector<Point>> upper_future = std::async(
+            concurrency > 1 ? std::launch::async : std::launch::deferred,
+            &impl::wrapHalf<std::vector<Point>::iterator>,
+            points.begin(), points.end(), leftmost, rightmost);
 
-    vector<Point> upper, lower;
-    copy_if(points.begin(), points.end(), back_inserter(upper), impl::OnTheLeftSide(leftmost, rightmost));
-    copy_if(points.rbegin(), points.rend(), back_inserter(lower), impl::OnTheLeftSide(rightmost, leftmost));
+    std::vector<Point> lower =
+        impl::wrapHalf(points.rbegin(), points.rend(), rightmost, leftmost);
+    std::vector<Point> upper = upper_future.get();
 
-    upper = impl::wrapHull(upper.begin(), upper.end());
-    lower = impl::wrapHull(lower.begin(), lower.end());
+    upper.pop_back();
+    upper.insert(upper.end(), lower.begin(), lower.end() - 1);
 
-    vector<Point> ret(upper.begin(), upper.end() - 1);
-    ret.insert(ret.end(), lower.begin(), lower.end() - 1);
-
-    return ret;
+    return upper;
 }
 
 template<class InputIt>
@@ -114,23 +123,23 @@ long double perimeter(InputIt a, InputIt b)
 
 int main()
 {
-	cin.sync_with_stdio(false);
+    std::cin.sync_with_stdio(false);
 
     int n, l;
-    cin >> n >> l;
+    std::cin >> n >> l;
 
-    vector<Point> points(n);
+    std::vector<Point> points(n);
     for (Point& p : points)
-        cin >> p.x >> p.y;
+        std::cin >> p.x >> p.y;
 
-    auto hull = buildHull(points.begin(), points.end());
+    auto hull = buildHull(points.begin(), points.end(), std::thread::hardware_concurrency());
 
-    long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * 3.1415926 * l;
+    long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
     long long answerFeet = answerFloating + 0.5;
 
-    cout << answerFeet << endl;
+    std::cout << answerFeet << std::endl;
 
-	timestamp(end);
-	return 0;
+    timestamp(end);
+    return 0;
 }
 
