@@ -1,16 +1,5 @@
 #include <bits/stdc++.h>
 
-#ifdef moskupols
-    #define debug(...) fprintf(stderr, __VA_ARGS__) // thank Skird it's friday!
-#else
-    #define debug(...) 42
-#endif
-
-#define timestamp(x) debug("["#x"]: %.3f\n", (double)clock() / CLOCKS_PER_SEC) // thank PavelKunyavskiy i am not pregnant!
-
-typedef long long int64;
-typedef unsigned long long uint64;
-
 struct Point
 {
     typedef long long Coord;
@@ -68,11 +57,70 @@ std::vector<Point> wrapHalf(InputIt ptsBegin, InputIt ptsEnd, Point pivotA, Poin
     return ret;
 }
 
-template<class RAIt, class Compare>
-void sort(RAIt begin, RAIt end, Compare cmp, unsigned int concurrency = 1)
+template<class FwdIt, class OutputIt, class Pred>
+OutputIt merge(FwdIt beginA, FwdIt endA,
+        FwdIt beginB, FwdIt endB,
+        OutputIt out, Pred cmp, unsigned int/*  concurrency */)
 {
-    // assert(concurrency == 1);
-    std::sort(begin, end, cmp);
+    return std::merge(beginA, endA, beginB, endB, out, cmp);
+}
+
+template<class FwdIt, class OutputIt>
+OutputIt copy(FwdIt begin, FwdIt end, OutputIt out, unsigned int/*  concurrency */)
+{
+    return std::copy(begin, end, out);
+}
+
+template<class FwdIt, class Pred>
+void inplace_merge(FwdIt begin, FwdIt mid, FwdIt end,
+        Pred cmp, unsigned int concurrency)
+{
+    std::vector<typename std::iterator_traits<FwdIt>::value_type> tmp;
+    tmp.reserve(distance(begin, end));
+    merge(begin, mid, mid, end, back_inserter(tmp), cmp, concurrency);
+    copy(std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()),
+            begin, concurrency);
+}
+
+template<class RAIt, class Pred>
+void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
+{
+    std::size_t distance = std::distance(begin, end);
+    concurrency = std::min<std::size_t>(concurrency, distance / 2);
+
+    if (concurrency <= 1)
+        return std::sort(begin, end, cmp);
+
+    std::vector<RAIt> bounds; // bounds of sorted chunks
+    for (unsigned int i = 0; i < concurrency; ++i)
+        bounds.push_back(begin + i * distance / concurrency);
+    bounds.push_back(end);
+
+    { // sort chunks
+        std::vector<std::future<void>> sort_futures;
+        sort_futures.reserve(bounds.size()-1);
+        for (std::size_t i = 0; i + 1 < bounds.size(); ++i)
+            sort_futures.push_back(std::async(std::launch::async,
+                        sort<RAIt>, bounds[i], bounds[i + 1], cmp));
+        for (auto& f : sort_futures)
+            f.wait();
+    }
+
+    while (bounds.size() > 2) // merge chunks
+    {
+        std::vector<RAIt> newBounds;
+        std::vector<std::future<void>> merge_futures;
+        newBounds.reserve((bounds.size() + 1) / 2)
+        merge_futures.reserve(bounds.size() / 2);
+        for (std::size_t i = 0; i + 2 < bounds.size(); i += 2)
+        {
+            inplace_merge(bounds[i], bounds[i+1], bounds[i+2], cmp, 1); // FIXME!!
+            newBounds.push_back(std::move(bounds[i]));
+            if (i + 2 == bounds.size())
+                newBounds.push_back(std::move(bounds[i+1]));
+        }
+        bounds.swap(newBounds);
+    }
 }
 
 }
@@ -86,11 +134,11 @@ std::vector<Point> buildHull(InputIt ptsBegin, InputIt ptsEnd, unsigned int conc
             concurrency);
 
     Point leftmost = points[0], rightmost = points.back();
+
     std::future<std::vector<Point>> upper_future = std::async(
             concurrency > 1 ? std::launch::async : std::launch::deferred,
             &impl::wrapHalf<std::vector<Point>::iterator>,
             points.begin(), points.end(), leftmost, rightmost);
-
     std::vector<Point> lower =
         impl::wrapHalf(points.rbegin(), points.rend(), rightmost, leftmost);
     std::vector<Point> upper = upper_future.get();
@@ -133,13 +181,13 @@ int main()
         std::cin >> p.x >> p.y;
 
     auto hull = buildHull(points.begin(), points.end(), std::thread::hardware_concurrency());
+    // auto hull = buildHull(points.begin(), points.end(), 1);
 
     long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
     long long answerFeet = answerFloating + 0.5;
 
     std::cout << answerFeet << std::endl;
 
-    timestamp(end);
     return 0;
 }
 
