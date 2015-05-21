@@ -57,27 +57,56 @@ std::vector<Point> wrapHalf(InputIt ptsBegin, InputIt ptsEnd, Point pivotA, Poin
     return ret;
 }
 
-template<class FwdIt, class OutputIt, class Pred>
-OutputIt merge(FwdIt beginA, FwdIt endA,
-        FwdIt beginB, FwdIt endB,
-        OutputIt out, Pred cmp, unsigned int/*  concurrency */)
+template<class InputItA, class InputItB, class OutputIt, class Pred>
+OutputIt merge(InputItA beginA, InputItA endA,
+        InputItB beginB, InputItB endB,
+        OutputIt out, Pred cmp, unsigned int concurrency)
 {
-    return std::merge(beginA, endA, beginB, endB, out, cmp);
+    if (concurrency <= 1)
+            // || !isRAIt(beginA) || !isRAIt(beginB) || !isRAIt(out))
+        return std::merge(beginA, endA, beginB, endB, out, cmp);
+
+    std::size_t dist = std::distance(beginA, endA);
+
+    if (dist < 10)
+        return std::merge(beginA, endA, beginB, endB, out, cmp);
+
+    InputItA midA = std::next(beginA, dist / 2);
+    InputItB midB = std::lower_bound(beginB, endB, *midA, cmp);
+
+    std::size_t leftSize = std::distance(beginA, midA) + std::distance(beginB, midB);
+
+    auto leftFuture = std::async(std::launch::async,
+            &std::merge<InputItA, InputItB, OutputIt, Pred>,
+            beginA, midA, beginB, midB, out, cmp);
+    OutputIt ret = std::merge(
+            midA, endA, midB, endB, std::next(out, leftSize), cmp);
+    leftFuture.wait();
+    return ret;
 }
 
-template<class FwdIt, class OutputIt>
-OutputIt copy(FwdIt begin, FwdIt end, OutputIt out, unsigned int/*  concurrency */)
+template<class InputIt, class OutputIt>
+OutputIt copy(InputIt begin, InputIt end, OutputIt out, unsigned int concurrency)
 {
-    return std::copy(begin, end, out);
+    if (concurrency <= 1)
+            // || !isRAIt(begin) || !isRAIt(out))
+        return std::copy(begin, end, out);
+    std::size_t leftSize = std::distance(begin, end);
+    InputIt mid = next(begin, leftSize);
+    auto leftFuture = std::async(std::launch::async,
+            &std::copy<InputIt, OutputIt>, begin, mid, out);
+    OutputIt ret = std::copy(mid, end, out);
+    leftFuture.wait();
+    return ret;
 }
 
-template<class FwdIt, class Pred>
-void inplace_merge(FwdIt begin, FwdIt mid, FwdIt end,
+template<class InputIt, class Pred>
+void inplace_merge(InputIt begin, InputIt mid, InputIt end,
         Pred cmp, unsigned int concurrency)
 {
-    std::vector<typename std::iterator_traits<FwdIt>::value_type> tmp;
-    tmp.reserve(distance(begin, end));
-    merge(begin, mid, mid, end, back_inserter(tmp), cmp, concurrency);
+    std::vector<typename std::iterator_traits<InputIt>::value_type> tmp;
+    tmp.resize(distance(begin, end));
+    merge(begin, mid, mid, end, tmp.begin(), cmp, concurrency);
     copy(std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()),
             begin, concurrency);
 }
@@ -116,20 +145,20 @@ void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
         newBounds.reserve((bounds.size() + 1) / 2);
         merge_futures.reserve(pairs);
 
-        int conc_left = concurrency;
-        unsigned int conc_step = std::max<int>(1, concurrency / pairs);
+        unsigned int conc_left = concurrency;
+        unsigned int conc_step = concurrency / pairs;
 
         for (std::size_t i = 0; i + 2 < bounds.size(); i += 2)
         {
-            if (i + 2 >= bounds.size())
-                conc_step = std::max<int>(1, conc_left);
+            if (i + 4 >= bounds.size())
+                conc_step = conc_left;
             merge_futures.push_back(std::async(std::launch::async,
                 &inplace_merge<RAIt, Pred>,
                 bounds[i], bounds[i+1], bounds[i+2], cmp, conc_step));
             conc_left -= conc_step;
             newBounds.push_back(std::move(bounds[i]));
-            if (i + 2 == bounds.size())
-                newBounds.push_back(std::move(bounds[i+1]));
+            if (i + 4 == bounds.size())
+                newBounds.push_back(std::move(bounds[i+3]));
         }
         for (auto& f : merge_futures)
             f.wait();
@@ -183,7 +212,7 @@ long double perimeter(InputIt a, InputIt b)
     return ret;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     std::cin.sync_with_stdio(false);
 
@@ -194,8 +223,11 @@ int main()
     for (Point& p : points)
         std::cin >> p.x >> p.y;
 
-    auto hull = buildHull(points.begin(), points.end(), std::thread::hardware_concurrency());
-    // auto hull = buildHull(points.begin(), points.end(), 1);
+    unsigned int concurrency = std::thread::hardware_concurrency();
+    if (argc >= 2)
+        concurrency = atoi(argv[1]);
+
+    auto hull = buildHull(points.begin(), points.end(), concurrency);
 
     // long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
     // long long answerFeet = answerFloating + 0.5;
