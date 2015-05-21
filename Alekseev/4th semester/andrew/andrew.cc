@@ -173,8 +173,8 @@ int main()
 {
     std::cin.sync_with_stdio(false);
 
-    int n, l;
-    std::cin >> n >> l;
+    int n;//, l;
+    std::cin >> n;// >> l;
 
     std::vector<Point> points(n);
     for (Point& p : points)
@@ -183,10 +183,13 @@ int main()
     auto hull = buildHull(points.begin(), points.end(), std::thread::hardware_concurrency());
     // auto hull = buildHull(points.begin(), points.end(), 1);
 
-    long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
-    long long answerFeet = answerFloating + 0.5;
+    // long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
+    // long long answerFeet = answerFloating + 0.5;
 
-    std::cout << answerFeet << std::endl;
+    // std::cout << answerFeet << std::endl;
+    std::cout << hull.size() << std::endl;
+    for (Point &p : hull)
+        std::cout << p.x << ' ' << p.y << std::endl;
 
     return 0;
 }
