@@ -38,7 +38,6 @@ default: $(TARGET)
 
 tests: $(OUTPUTS)
 	@echo all tests are ready
-	cd tests && vim -p $(notdir $(INPUTS)) -c '$(patsubst %.out,vs %.err | tabn |, $(notdir $(OUTPUTS))) $(patsubst %.out,sp %.out | tabn | , $(notdir $(OUTPUTS)))'
 
 view-tests:
 	cd tests && vim -p $(notdir $(INPUTS)) -c '$(patsubst %.out,vs %.err | tabn |, $(notdir $(OUTPUTS))) $(patsubst %.out,sp %.out | tabn | , $(notdir $(OUTPUTS)))'

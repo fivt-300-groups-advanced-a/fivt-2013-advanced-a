@@ -101,7 +101,7 @@ void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
         sort_futures.reserve(bounds.size()-1);
         for (std::size_t i = 0; i + 1 < bounds.size(); ++i)
             sort_futures.push_back(std::async(std::launch::async,
-                        sort<RAIt>, bounds[i], bounds[i + 1], cmp));
+                        &std::sort<RAIt, Pred>, bounds[i], bounds[i + 1], cmp));
         for (auto& f : sort_futures)
             f.wait();
     }
@@ -110,7 +110,7 @@ void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
     {
         std::vector<RAIt> newBounds;
         std::vector<std::future<void>> merge_futures;
-        newBounds.reserve((bounds.size() + 1) / 2)
+        newBounds.reserve((bounds.size() + 1) / 2);
         merge_futures.reserve(bounds.size() / 2);
         for (std::size_t i = 0; i + 2 < bounds.size(); i += 2)
         {
