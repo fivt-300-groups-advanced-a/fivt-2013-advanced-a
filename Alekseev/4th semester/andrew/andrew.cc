@@ -227,7 +227,13 @@ int main(int argc, char **argv)
     if (argc >= 2)
         concurrency = atoi(argv[1]);
 
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
     auto hull = buildHull(points.begin(), points.end(), concurrency);
+    auto time = clock.now() - start;
+    std::cerr
+        << std::chrono::duration_cast<std::chrono::microseconds>(time).count()
+        << std::endl;
 
     // long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
     // long long answerFeet = answerFloating + 0.5;
