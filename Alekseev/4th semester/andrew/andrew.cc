@@ -110,15 +110,29 @@ void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
     {
         std::vector<RAIt> newBounds;
         std::vector<std::future<void>> merge_futures;
+
+        size_t pairs = bounds.size() / 2;
+
         newBounds.reserve((bounds.size() + 1) / 2);
-        merge_futures.reserve(bounds.size() / 2);
+        merge_futures.reserve(pairs);
+
+        int conc_left = concurrency;
+        unsigned int conc_step = std::max<int>(1, concurrency / pairs);
+
         for (std::size_t i = 0; i + 2 < bounds.size(); i += 2)
         {
-            inplace_merge(bounds[i], bounds[i+1], bounds[i+2], cmp, 1); // FIXME!!
+            if (i + 2 >= bounds.size())
+                conc_step = std::max<int>(1, conc_left);
+            merge_futures.push_back(std::async(std::launch::async,
+                &inplace_merge<RAIt, Pred>,
+                bounds[i], bounds[i+1], bounds[i+2], cmp, conc_step));
+            conc_left -= conc_step;
             newBounds.push_back(std::move(bounds[i]));
             if (i + 2 == bounds.size())
                 newBounds.push_back(std::move(bounds[i+1]));
         }
+        for (auto& f : merge_futures)
+            f.wait();
         bounds.swap(newBounds);
     }
 }
