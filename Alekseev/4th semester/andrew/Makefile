@@ -27,7 +27,7 @@ TARGET := $(PROBLEM).$(COMPILE_MODE)
 TARGET_D := $(PROBLEM).d
 
 CC := g++
-FLAGS_COMMON := -Wall -Wextra --std=gnu++11 -Dmoskupols -fstack-protector -Wno-char-subscripts
+FLAGS_COMMON := -Wall -Wextra --std=gnu++11 -Dmoskupols -fstack-protector -Wno-char-subscripts -pthread
 FLAGS_D := $(FLAGS_COMMON) -O0 -ggdb
 FLAGS_R := $(FLAGS_COMMON) -O2
 
@@ -38,7 +38,6 @@ default: $(TARGET)
 
 tests: $(OUTPUTS)
 	@echo all tests are ready
-	cd tests && vim -p $(notdir $(INPUTS)) -c '$(patsubst %.out,vs %.err | tabn |, $(notdir $(OUTPUTS))) $(patsubst %.out,sp %.out | tabn | , $(notdir $(OUTPUTS)))'
 
 view-tests:
 	cd tests && vim -p $(notdir $(INPUTS)) -c '$(patsubst %.out,vs %.err | tabn |, $(notdir $(OUTPUTS))) $(patsubst %.out,sp %.out | tabn | , $(notdir $(OUTPUTS)))'

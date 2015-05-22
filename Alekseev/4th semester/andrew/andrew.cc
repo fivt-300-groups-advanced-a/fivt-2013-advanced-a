@@ -1,16 +1,4 @@
 #include <bits/stdc++.h>
-using namespace std;
-
-#ifdef moskupols
-    #define debug(...) fprintf(stderr, __VA_ARGS__) // thank Skird it's friday!
-#else
-    #define debug(...) 42
-#endif
-
-#define timestamp(x) debug("["#x"]: %.3f\n", (double)clock() / CLOCKS_PER_SEC) // thank PavelKunyavskiy i am not pregnant!
-
-typedef long long int64;
-typedef unsigned long long uint64;
 
 struct Point
 {
@@ -49,15 +37,15 @@ private:
 };
 
 template<class InputIt>
-vector<Point> wrapHull(InputIt begin, InputIt end)
+std::vector<Point> wrapHalf(InputIt ptsBegin, InputIt ptsEnd, Point pivotA, Point pivotB)
 {
-    vector<Point> ret;
-    size_t size = 0;
+    std::vector<Point> pts, ret;
+    copy_if(ptsBegin, ptsEnd, back_inserter(pts), OnTheLeftSide(pivotA, pivotB));
+    std::size_t size = 0;
 
-    for (; begin != end; ++begin)
+    for (Point cur : pts)
     {
-        Point cur = *begin;
-        while (size > 1 && Point(ret[size-2], ret[size-1]) % Point(ret[size-1], cur) >= 0)
+        while (size > 1 && Point(ret[size-2], ret.back()) % Point(ret.back(), cur) >= 0)
         {
             --size;
             ret.pop_back();
@@ -69,27 +57,139 @@ vector<Point> wrapHull(InputIt begin, InputIt end)
     return ret;
 }
 
+template<class InputItA, class InputItB, class OutputIt, class Pred>
+OutputIt merge(InputItA beginA, InputItA endA,
+        InputItB beginB, InputItB endB,
+        OutputIt out, Pred cmp, unsigned int concurrency)
+{
+    if (concurrency <= 1)
+            // || !isRAIt(beginA) || !isRAIt(beginB) || !isRAIt(out))
+        return std::merge(beginA, endA, beginB, endB, out, cmp);
+
+    std::size_t dist = std::distance(beginA, endA);
+
+    if (dist < 10)
+        return std::merge(beginA, endA, beginB, endB, out, cmp);
+
+    InputItA midA = std::next(beginA, dist / 2);
+    InputItB midB = std::lower_bound(beginB, endB, *midA, cmp);
+
+    std::size_t leftSize = std::distance(beginA, midA) + std::distance(beginB, midB);
+
+    auto leftFuture = std::async(std::launch::async,
+            &std::merge<InputItA, InputItB, OutputIt, Pred>,
+            beginA, midA, beginB, midB, out, cmp);
+    OutputIt ret = std::merge(
+            midA, endA, midB, endB, std::next(out, leftSize), cmp);
+    leftFuture.wait();
+    return ret;
+}
+
+template<class InputIt, class OutputIt>
+OutputIt copy(InputIt begin, InputIt end, OutputIt out, unsigned int concurrency)
+{
+    if (concurrency <= 1)
+            // || !isRAIt(begin) || !isRAIt(out))
+        return std::copy(begin, end, out);
+    std::size_t leftSize = std::distance(begin, end);
+    InputIt mid = next(begin, leftSize);
+    auto leftFuture = std::async(std::launch::async,
+            &std::copy<InputIt, OutputIt>, begin, mid, out);
+    OutputIt ret = std::copy(mid, end, out);
+    leftFuture.wait();
+    return ret;
+}
+
+template<class InputIt, class Pred>
+void inplace_merge(InputIt begin, InputIt mid, InputIt end,
+        Pred cmp, unsigned int concurrency)
+{
+    std::vector<typename std::iterator_traits<InputIt>::value_type> tmp;
+    tmp.resize(distance(begin, end));
+    merge(begin, mid, mid, end, tmp.begin(), cmp, concurrency);
+    copy(std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()),
+            begin, concurrency);
+}
+
+template<class RAIt, class Pred>
+void sort(RAIt begin, RAIt end, Pred cmp, unsigned int concurrency = 1)
+{
+    std::size_t distance = std::distance(begin, end);
+    concurrency = std::min<std::size_t>(concurrency, distance / 2);
+
+    if (concurrency <= 1)
+        return std::sort(begin, end, cmp);
+
+    std::vector<RAIt> bounds; // bounds of sorted chunks
+    for (unsigned int i = 0; i < concurrency; ++i)
+        bounds.push_back(begin + i * distance / concurrency);
+    bounds.push_back(end);
+
+    { // sort chunks
+        std::vector<std::future<void>> sort_futures;
+        sort_futures.reserve(bounds.size()-1);
+        for (std::size_t i = 0; i + 1 < bounds.size(); ++i)
+            sort_futures.push_back(std::async(std::launch::async,
+                        &std::sort<RAIt, Pred>, bounds[i], bounds[i + 1], cmp));
+        for (auto& f : sort_futures)
+            f.wait();
+    }
+
+    while (bounds.size() > 2) // merge chunks
+    {
+        std::vector<RAIt> newBounds;
+        std::vector<std::future<void>> merge_futures;
+
+        size_t pairs = bounds.size() / 2;
+
+        newBounds.reserve((bounds.size() + 1) / 2);
+        merge_futures.reserve(pairs);
+
+        unsigned int conc_left = concurrency;
+        unsigned int conc_step = concurrency / pairs;
+
+        for (std::size_t i = 0; i + 2 < bounds.size(); i += 2)
+        {
+            if (i + 4 >= bounds.size())
+                conc_step = conc_left;
+            merge_futures.push_back(std::async(std::launch::async,
+                &inplace_merge<RAIt, Pred>,
+                bounds[i], bounds[i+1], bounds[i+2], cmp, conc_step));
+            conc_left -= conc_step;
+            newBounds.push_back(std::move(bounds[i]));
+            if (i + 4 == bounds.size())
+                newBounds.push_back(std::move(bounds[i+3]));
+        }
+        for (auto& f : merge_futures)
+            f.wait();
+        bounds.swap(newBounds);
+    }
+}
+
 }
 
 template<class InputIt>
-vector<Point> buildHull(InputIt ptsBegin, InputIt ptsEnd)
+std::vector<Point> buildHull(InputIt ptsBegin, InputIt ptsEnd, unsigned int concurrency = 1)
 {
-    vector<Point> points(ptsBegin, ptsEnd);
-    sort(points.begin(), points.end(), [](Point a, Point b){ return a.x < b.x; });
+    std::vector<Point> points(ptsBegin, ptsEnd);
+    impl::sort(points.begin(), points.end(),
+            [](Point a, Point b){ return a.x < b.x; },
+            concurrency);
 
     Point leftmost = points[0], rightmost = points.back();
 
-    vector<Point> upper, lower;
-    copy_if(points.begin(), points.end(), back_inserter(upper), impl::OnTheLeftSide(leftmost, rightmost));
-    copy_if(points.rbegin(), points.rend(), back_inserter(lower), impl::OnTheLeftSide(rightmost, leftmost));
+    std::future<std::vector<Point>> upper_future = std::async(
+            concurrency > 1 ? std::launch::async : std::launch::deferred,
+            &impl::wrapHalf<std::vector<Point>::iterator>,
+            points.begin(), points.end(), leftmost, rightmost);
+    std::vector<Point> lower =
+        impl::wrapHalf(points.rbegin(), points.rend(), rightmost, leftmost);
+    std::vector<Point> upper = upper_future.get();
 
-    upper = impl::wrapHull(upper.begin(), upper.end());
-    lower = impl::wrapHull(lower.begin(), lower.end());
+    upper.pop_back();
+    upper.insert(upper.end(), lower.begin(), lower.end() - 1);
 
-    vector<Point> ret(upper.begin(), upper.end() - 1);
-    ret.insert(ret.end(), lower.begin(), lower.end() - 1);
-
-    return ret;
+    return upper;
 }
 
 template<class InputIt>
@@ -112,25 +212,37 @@ long double perimeter(InputIt a, InputIt b)
     return ret;
 }
 
-int main()
+int main(int argc, char **argv)
 {
-	cin.sync_with_stdio(false);
+    std::cin.sync_with_stdio(false);
 
-    int n, l;
-    cin >> n >> l;
+    int n;//, l;
+    std::cin >> n;// >> l;
 
-    vector<Point> points(n);
+    std::vector<Point> points(n);
     for (Point& p : points)
-        cin >> p.x >> p.y;
+        std::cin >> p.x >> p.y;
 
-    auto hull = buildHull(points.begin(), points.end());
+    unsigned int concurrency = std::thread::hardware_concurrency();
+    if (argc >= 2)
+        concurrency = atoi(argv[1]);
 
-    long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * 3.1415926 * l;
-    long long answerFeet = answerFloating + 0.5;
+    std::chrono::high_resolution_clock clock;
+    auto start = clock.now();
+    auto hull = buildHull(points.begin(), points.end(), concurrency);
+    auto time = clock.now() - start;
+    std::cerr
+        << std::chrono::duration_cast<std::chrono::microseconds>(time).count()
+        << std::endl;
 
-    cout << answerFeet << endl;
+    // long double answerFloating = perimeter(hull.begin(), hull.end()) + 2. * M_PI * l;
+    // long long answerFeet = answerFloating + 0.5;
 
-	timestamp(end);
-	return 0;
+    // std::cout << answerFeet << std::endl;
+    std::cout << hull.size() << std::endl;
+    for (Point &p : hull)
+        std::cout << p.x << ' ' << p.y << std::endl;
+
+    return 0;
 }
 
